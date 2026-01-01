@@ -4,29 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aashish Karki | Vibe Portal</title>
-    <meta name="description"
-        content="Welcome to my creative portfolio - a collection of vibecoded projects, games, and experiments.">
+    <title>Aashish Karki | Macintosh</title>
+    <meta name="description" content="Welcome to my portfolio - Classic Macintosh style.">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts - Chicago-like bitmap font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary: #00f5d4;
-            --secondary: #7b2cbf;
-            --accent: #f72585;
-            --gold: #ffd60a;
-            --dark: #0a0a0f;
-            --darker: #050508;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text: #ffffff;
-            --text-muted: rgba(255, 255, 255, 0.6);
+            --mac-white: #ffffff;
+            --mac-black: #000000;
+            --mac-gray: #a8a8a8;
+            --mac-dark-gray: #555555;
+            --mac-light-gray: #dddddd;
+            --mac-pattern: url("data:image/svg+xml,%3Csvg width='2' height='2' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23000'/%3E%3C/svg%3E");
         }
 
         * {
@@ -35,1226 +28,995 @@
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
+        /* Mac System Font - VT323 approximates Chicago */
         body {
-            font-family: 'Space Grotesk', 'Outfit', sans-serif;
-            background: var(--darker);
-            color: var(--text);
+            font-family: 'VT323', 'Chicago', 'Monaco', monospace;
+            font-size: 16px;
+            background: var(--mac-pattern);
+            background-size: 2px 2px;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
+            cursor: default;
+            -webkit-font-smoothing: none;
+            image-rendering: pixelated;
         }
 
-        /* ========== ANIMATED BACKGROUND ========== */
-        .bg-container {
+        /* ========== MENU BAR ========== */
+        .menu-bar {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
+            right: 0;
+            height: 24px;
+            background: var(--mac-white);
+            border-bottom: 2px solid var(--mac-black);
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            z-index: 10000;
+            user-select: none;
         }
 
-        .gradient-bg {
+        .apple-logo {
+            font-size: 18px;
+            margin-right: 16px;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+
+        .apple-logo:hover {
+            background: var(--mac-black);
+            color: var(--mac-white);
+        }
+
+        .menu-item {
+            padding: 2px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .menu-item:hover {
+            background: var(--mac-black);
+            color: var(--mac-white);
+        }
+
+        .menu-time {
+            margin-left: auto;
+            font-size: 14px;
+            padding-right: 8px;
+        }
+
+        /* ========== DESKTOP ========== */
+        .desktop {
+            position: fixed;
+            top: 24px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--mac-pattern);
+            background-size: 2px 2px;
+        }
+
+        /* ========== DESKTOP ICONS ========== */
+        .desktop-icon {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(123, 44, 191, 0.3) 0%, transparent 50%),
-                radial-gradient(ellipse 60% 40% at 90% 80%, rgba(0, 245, 212, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse 50% 30% at 10% 60%, rgba(247, 37, 133, 0.15) 0%, transparent 50%),
-                var(--darker);
-        }
-
-        .grid-overlay {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
-            mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
-        }
-
-        /* Floating Orbs */
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            animation: float 20s ease-in-out infinite;
-            opacity: 0.5;
-        }
-
-        .orb-1 {
-            width: 600px;
-            height: 600px;
-            background: var(--secondary);
-            top: -200px;
-            left: -100px;
-            animation-delay: 0s;
-        }
-
-        .orb-2 {
-            width: 400px;
-            height: 400px;
-            background: var(--primary);
-            bottom: -100px;
-            right: -100px;
-            animation-delay: -10s;
-        }
-
-        .orb-3 {
-            width: 300px;
-            height: 300px;
-            background: var(--accent);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -5s;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            25% {
-                transform: translate(30px, -30px) scale(1.05);
-            }
-
-            50% {
-                transform: translate(-20px, 20px) scale(0.95);
-            }
-
-            75% {
-                transform: translate(20px, 10px) scale(1.02);
-            }
-        }
-
-        /* Particle Stars */
-        .stars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-
-            0%,
-            100% {
-                opacity: 0.3;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 1;
-                transform: scale(1.5);
-            }
-        }
-
-        /* ========== MAIN CONTENT ========== */
-        .main-container {
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
+            width: 64px;
             display: flex;
             flex-direction: column;
-        }
-
-        /* Navigation */
-        nav {
-            padding: 1.5rem 3rem;
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+            padding: 4px;
+            user-select: none;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
+        .desktop-icon:hover .icon-label,
+        .desktop-icon.selected .icon-label {
+            background: var(--mac-black);
+            color: var(--mac-white);
         }
 
-        .nav-links {
+        .desktop-icon.selected .icon-image {
+            filter: invert(1);
+            background: var(--mac-black);
+        }
+
+        .icon-image {
+            width: 48px;
+            height: 48px;
+            background: var(--mac-white);
+            border: 2px solid var(--mac-black);
             display: flex;
-            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        .icon-label {
+            font-size: 12px;
+            text-align: center;
+            padding: 2px 4px;
+            max-width: 72px;
+            word-wrap: break-word;
+        }
+
+        /* ========== WINDOWS ========== */
+        .mac-window {
+            position: absolute;
+            background: var(--mac-white);
+            border: 2px solid var(--mac-black);
+            box-shadow: 2px 2px 0 var(--mac-black);
+            min-width: 200px;
+            min-height: 100px;
+            display: none;
+        }
+
+        .mac-window.active {
+            z-index: 1000;
+        }
+
+        .mac-window.visible {
+            display: block;
+        }
+
+        .window-title-bar {
+            height: 22px;
+            background: var(--mac-white);
+            border-bottom: 2px solid var(--mac-black);
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .window-title-bar:active {
+            cursor: grabbing;
+        }
+
+        .window-title-bar.inactive {
+            background: var(--mac-pattern);
+            background-size: 2px 2px;
+        }
+
+        .close-box {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--mac-black);
+            background: var(--mac-white);
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .close-box:hover {
+            background: var(--mac-black);
+        }
+
+        .close-box:active {
+            background: var(--mac-pattern);
+            background-size: 2px 2px;
+        }
+
+        .window-title {
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 22px;
+        }
+
+        .window-title-bar::after {
+            content: '';
+            position: absolute;
+            left: 30px;
+            right: 30px;
+            top: 4px;
+            height: 14px;
+            background: repeating-linear-gradient(to bottom,
+                    var(--mac-black) 0px,
+                    var(--mac-black) 1px,
+                    var(--mac-white) 1px,
+                    var(--mac-white) 3px);
+            z-index: -1;
+        }
+
+        .window-content {
+            padding: 12px;
+            background: var(--mac-white);
+            overflow: auto;
+            max-height: 400px;
+        }
+
+        .window-content h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--mac-black);
+            padding-bottom: 8px;
+        }
+
+        .window-content p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        /* ========== SCROLL BARS ========== */
+        .window-content::-webkit-scrollbar {
+            width: 16px;
+            background: var(--mac-pattern);
+            background-size: 2px 2px;
+        }
+
+        .window-content::-webkit-scrollbar-thumb {
+            background: var(--mac-white);
+            border: 2px solid var(--mac-black);
+        }
+
+        /* ========== BUTTONS ========== */
+        .mac-button {
+            padding: 6px 20px;
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--mac-white);
+            border: 2px solid var(--mac-black);
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 var(--mac-black);
+        }
+
+        .mac-button:hover {
+            background: var(--mac-light-gray);
+        }
+
+        .mac-button:active {
+            box-shadow: none;
+            transform: translate(2px, 2px);
+        }
+
+        .mac-button.primary {
+            border-width: 3px;
+        }
+
+        /* ========== ABOUT THIS MAC WINDOW ========== */
+        #about-window {
+            width: 400px;
+            top: 60px;
+            left: 50px;
+        }
+
+        .about-content {
+            text-align: center;
+        }
+
+        .mac-logo-ascii {
+            font-family: 'VT323', monospace;
+            font-size: 12px;
+            line-height: 1;
+            white-space: pre;
+            margin: 16px 0;
+        }
+
+        /* ========== PROJECTS WINDOW ========== */
+        #projects-window {
+            width: 500px;
+            top: 80px;
+            left: 150px;
+        }
+
+        .project-list {
             list-style: none;
         }
 
-        .nav-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary);
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--text);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* Hero Section */
-        .hero {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 4rem 2rem;
-            min-height: 60vh;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            animation: slideDown 0.8s ease;
-        }
-
-        .hero-badge .dot {
-            width: 8px;
-            height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .hero h1 {
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            animation: slideUp 0.8s ease;
-        }
-
-        .hero h1 .gradient-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            background-size: 200% 200%;
-            animation: gradientShift 5s ease infinite;
-        }
-
-        @keyframes gradientShift {
-
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin-bottom: 2.5rem;
-            line-height: 1.6;
-            animation: slideUp 0.8s ease 0.1s backwards;
-        }
-
-        .hero-cta {
-            display: flex;
-            gap: 1rem;
-            animation: slideUp 0.8s ease 0.2s backwards;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
+        .project-item {
+            padding: 12px;
+            border: 2px solid var(--mac-black);
+            margin-bottom: 8px;
             cursor: pointer;
-            border: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: var(--dark);
-            box-shadow: 0 4px 30px rgba(0, 245, 212, 0.3);
+        .project-item:hover {
+            background: var(--mac-black);
+            color: var(--mac-white);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 40px rgba(0, 245, 212, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--glass);
-            color: var(--text);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-3px);
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ========== PROJECTS SECTION ========== */
-        .projects-section {
-            padding: 4rem 2rem 8rem;
-        }
-
-        .section-header {
+        .project-icon {
+            font-size: 24px;
+            width: 32px;
             text-align: center;
-            margin-bottom: 4rem;
         }
 
-        .section-header h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
+        .project-info h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
         }
 
-        .section-header p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
+        .project-info p {
+            font-size: 12px;
+            margin: 0;
         }
 
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
+        /* ========== CALCULATOR APP ========== */
+        #calculator-window {
+            width: 220px;
+            top: 120px;
+            right: 100px;
+            left: auto;
         }
 
-        /* Project Cards */
-        .project-card {
-            position: relative;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 2rem;
-            text-decoration: none;
-            color: var(--text);
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .calculator {
             display: flex;
             flex-direction: column;
-            min-height: 320px;
+            gap: 4px;
         }
 
-        .project-card::before {
-            content: '';
+        .calc-display {
+            background: var(--mac-white);
+            border: 2px solid var(--mac-black);
+            padding: 8px;
+            text-align: right;
+            font-size: 24px;
+            font-family: 'VT323', monospace;
+            margin-bottom: 8px;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .calc-btn {
+            padding: 12px;
+            font-family: inherit;
+            font-size: 18px;
+            background: var(--mac-white);
+            border: 2px solid var(--mac-black);
+            cursor: pointer;
+        }
+
+        .calc-btn:hover {
+            background: var(--mac-light-gray);
+        }
+
+        .calc-btn:active {
+            background: var(--mac-black);
+            color: var(--mac-white);
+        }
+
+        .calc-btn.operator {
+            background: var(--mac-light-gray);
+        }
+
+        .calc-btn.equals {
+            grid-column: span 2;
+            background: var(--mac-black);
+            color: var(--mac-white);
+        }
+
+        /* ========== NOTEPAD APP ========== */
+        #notepad-window {
+            width: 350px;
+            top: 100px;
+            left: 300px;
+        }
+
+        .notepad-textarea {
+            width: 100%;
+            height: 200px;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            border: 2px solid var(--mac-black);
+            padding: 8px;
+            resize: none;
+            background: var(--mac-white);
+        }
+
+        .notepad-textarea:focus {
+            outline: none;
+        }
+
+        /* ========== CONTROL PANEL WINDOW ========== */
+        #control-window {
+            width: 300px;
+            top: 150px;
+            left: 200px;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--mac-gray);
+        }
+
+        .control-item:last-child {
+            border-bottom: none;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mac-slider {
+            -webkit-appearance: none;
+            width: 100px;
+            height: 8px;
+            background: var(--mac-pattern);
+            background-size: 2px 2px;
+            border: 1px solid var(--mac-black);
+        }
+
+        .mac-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--mac-white);
+            border: 2px solid var(--mac-black);
+            cursor: pointer;
+        }
+
+        /* ========== TRASH ========== */
+        .trash-icon {
             position: absolute;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        /* ========== STARTUP ANIMATION ========== */
+        .startup-screen {
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                    rgba(255, 255, 255, 0.06) 0%,
-                    transparent 50%);
+            background: var(--mac-gray);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20000;
+            transition: opacity 0.5s ease;
+        }
+
+        .startup-screen.hidden {
             opacity: 0;
-            transition: opacity 0.3s ease;
             pointer-events: none;
         }
 
-        .project-card:hover::before {
-            opacity: 1;
-        }
-
-        .project-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow:
-                0 20px 60px rgba(0, 0, 0, 0.4),
-                0 0 40px rgba(0, 245, 212, 0.1);
-        }
-
-        .card-icon {
+        .happy-mac {
             width: 80px;
             height: 80px;
-            border-radius: 20px;
+            background: var(--mac-white);
+            border: 3px solid var(--mac-black);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            overflow: hidden;
+            font-size: 40px;
+            margin-bottom: 20px;
         }
 
-        .card-icon::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, var(--icon-color-1), var(--icon-color-2));
-            opacity: 0.2;
+        .startup-text {
+            font-size: 14px;
+            margin-top: 20px;
         }
 
-        .project-card:nth-child(1) .card-icon {
-            --icon-color-1: var(--primary);
-            --icon-color-2: #00d4aa;
-        }
-
-        .project-card:nth-child(2) .card-icon {
-            --icon-color-1: var(--accent);
-            --icon-color-2: #ff6b9d;
-        }
-
-        .project-card:nth-child(3) .card-icon {
-            --icon-color-1: var(--secondary);
-            --icon-color-2: #9d4edd;
-        }
-
-        .card-badge {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            padding: 0.35rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .badge-new {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: var(--dark);
-        }
-
-        .badge-game {
-            background: linear-gradient(135deg, var(--accent), #ff6b9d);
-            color: white;
-        }
-
-        .badge-archive {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-muted);
-            border: 1px solid var(--glass-border);
-        }
-
-        .project-card h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-        }
-
-        .project-card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            flex: 1;
-        }
-
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--glass-border);
-        }
-
-        .tech-stack {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .tech-tag {
-            padding: 0.25rem 0.6rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .card-arrow {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            display: flex;
+        /* ========== ALERT DIALOG ========== */
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            z-index: 15000;
         }
 
-        .project-card:hover .card-arrow {
-            background: var(--primary);
-            color: var(--dark);
-            transform: translateX(5px);
+        .alert-overlay.visible {
+            display: flex;
         }
 
-        /* ========== FOOTER ========== */
-        footer {
+        .alert-box {
+            background: var(--mac-white);
+            border: 3px solid var(--mac-black);
+            box-shadow: 4px 4px 0 var(--mac-black);
+            padding: 20px;
+            max-width: 350px;
             text-align: center;
-            padding: 3rem 2rem;
-            border-top: 1px solid var(--glass-border);
         }
 
-        footer p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
+        .alert-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
         }
 
-        footer .highlight {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 600;
+        .alert-text {
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ========== LINKS ========== */
+        a {
+            color: var(--mac-black);
+            text-decoration: underline;
+        }
+
+        a:hover {
+            background: var(--mac-black);
+            color: var(--mac-white);
         }
 
         /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
-            nav {
-                padding: 1rem 1.5rem;
+            .desktop-icon {
+                width: 56px;
             }
 
-            .nav-links {
-                display: none;
+            .icon-image {
+                width: 40px;
+                height: 40px;
+                font-size: 22px;
             }
 
-            .hero {
-                padding: 2rem 1.5rem;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .hero-cta {
-                flex-direction: column;
-                width: 100%;
-                max-width: 300px;
-            }
-
-            .btn {
-                justify-content: center;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .project-card {
-                min-height: auto;
+            .mac-window {
+                width: calc(100% - 20px) !important;
+                left: 10px !important;
+                right: 10px !important;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Animated Background -->
-    <div class="bg-container">
-        <div class="gradient-bg"></div>
-        <div class="grid-overlay"></div>
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-        <div class="stars" id="stars"></div>
+    <!-- Startup Screen -->
+    <div class="startup-screen" id="startupScreen">
+        <div class="happy-mac">🖥️</div>
+        <div class="startup-text">Welcome to Macintosh.</div>
     </div>
 
-    <div class="main-container">
-        <!-- Navigation -->
-        <nav>
-            <div class="logo">AK</div>
-            <ul class="nav-links">
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="legacy/index.html">Legacy</a></li>
-                <li><a href="https://github.com/akarki15" target="_blank">GitHub</a></li>
-            </ul>
-        </nav>
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <span class="apple-logo" onclick="openWindow('about-window')">🍎</span>
+        <span class="menu-item" onclick="openWindow('about-window')">File</span>
+        <span class="menu-item" onclick="openWindow('control-window')">Edit</span>
+        <span class="menu-item" onclick="openWindow('projects-window')">View</span>
+        <span class="menu-item" onclick="showAlert('Special', 'Nothing special here... yet!')">Special</span>
+        <span class="menu-time" id="menuTime">12:00 PM</span>
+    </div>
 
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-badge">
-                <span class="dot"></span>
-                <span>Vibecoding since 2025</span>
-            </div>
-            <h1>
-                <span class="gradient-text">Creative Code</span><br>
-                & Digital Experiments
-            </h1>
-            <p>
-                Welcome to my corner of the internet. I build games, tools, and experiences
-                that push the boundaries of what's possible on the web.
-            </p>
-            <div class="hero-cta">
-                <a href="#projects" class="btn btn-primary">
-                    <span>Explore Projects</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </a>
-                <a href="legacy/index.html" class="btn btn-secondary">
-                    <span>View Legacy Site</span>
-                </a>
-            </div>
-        </section>
+    <!-- Desktop -->
+    <div class="desktop" id="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icon" style="top: 40px; right: 20px;" ondblclick="openWindow('about-window')">
+            <div class="icon-image">💻</div>
+            <div class="icon-label">About Me</div>
+        </div>
 
-        <!-- Projects Section -->
-        <section class="projects-section" id="projects">
-            <div class="section-header">
-                <h2>Featured Projects</h2>
-                <p>A collection of my recent vibecoded creations</p>
-            </div>
+        <div class="desktop-icon" style="top: 120px; right: 20px;" ondblclick="openWindow('projects-window')">
+            <div class="icon-image">📁</div>
+            <div class="icon-label">Projects</div>
+        </div>
 
-            <div class="projects-grid">
-                <!-- RPG Project -->
-                <a href="rpg-vibe-2025/index.html" class="project-card">
-                    <span class="card-badge badge-new">Latest</span>
-                    <div class="card-icon">⚔️</div>
-                    <h3>Pahadi Tales</h3>
-                    <p>An immersive web-based RPG adventure set in the mystical mountains. Explore, battle, craft, and
-                        uncover ancient secrets in this pixelated world.</p>
-                    <div class="card-footer">
-                        <div class="tech-stack">
-                            <span class="tech-tag">JavaScript</span>
-                            <span class="tech-tag">Canvas</span>
-                            <span class="tech-tag">Pixel Art</span>
+        <div class="desktop-icon" style="top: 200px; right: 20px;" ondblclick="openWindow('calculator-window')">
+            <div class="icon-image">🧮</div>
+            <div class="icon-label">Calculator</div>
+        </div>
+
+        <div class="desktop-icon" style="top: 280px; right: 20px;" ondblclick="openWindow('notepad-window')">
+            <div class="icon-image">📝</div>
+            <div class="icon-label">NotePad</div>
+        </div>
+
+        <div class="desktop-icon" style="top: 360px; right: 20px;" ondblclick="openWindow('control-window')">
+            <div class="icon-image">⚙️</div>
+            <div class="icon-label">Control Panel</div>
+        </div>
+
+        <div class="desktop-icon trash-icon" ondblclick="showAlert('Trash', 'The Trash is empty.')">
+            <div class="icon-image">🗑️</div>
+            <div class="icon-label">Trash</div>
+        </div>
+
+        <!-- About Me Window -->
+        <div class="mac-window" id="about-window">
+            <div class="window-title-bar" onmousedown="startDrag(event, 'about-window')">
+                <div class="close-box" onclick="closeWindow('about-window')"></div>
+                <span class="window-title">About This Mac</span>
+            </div>
+            <div class="window-content about-content">
+                <pre class="mac-logo-ascii">
+    _______________
+   |  ___________  |
+   | |           | |
+   | |   HELLO   | |
+   | |___________| |
+   |_______________|
+   |_______________|
+    \\             /
+     \\_________/
+                </pre>
+                <h2>Aashish Karki</h2>
+                <p><strong>Software Engineer</strong></p>
+                <p>Builder of games, tools, and<br>digital experiments.</p>
+                <p style="margin-top: 16px;">
+                    <a href="https://github.com/akarki15" target="_blank">GitHub</a> •
+                    <a href="legacy/index.html">Legacy Site</a>
+                </p>
+                <p style="font-size: 12px; color: var(--mac-dark-gray); margin-top: 16px;">
+                    System 1.0 • 128K RAM<br>
+                    © 2026 Vibecoded with ♥
+                </p>
+            </div>
+        </div>
+
+        <!-- Projects Window -->
+        <div class="mac-window" id="projects-window">
+            <div class="window-title-bar" onmousedown="startDrag(event, 'projects-window')">
+                <div class="close-box" onclick="closeWindow('projects-window')"></div>
+                <span class="window-title">Projects</span>
+            </div>
+            <div class="window-content">
+                <p style="margin-bottom: 16px;">Double-click to open:</p>
+                <ul class="project-list">
+                    <li class="project-item" ondblclick="window.location.href='rpg-vibe-2025/index.html'">
+                        <span class="project-icon">⚔️</span>
+                        <div class="project-info">
+                            <h3>Pahadi Tales RPG</h3>
+                            <p>Web-based RPG adventure in the mystical mountains</p>
                         </div>
-                        <div class="card-arrow">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
+                    </li>
+                    <li class="project-item"
+                        ondblclick="window.location.href='https://akarki15.github.io/indian-rhythm-game/'">
+                        <span class="project-icon">🥁</span>
+                        <div class="project-info">
+                            <h3>Indian Rhythm Game</h3>
+                            <p>Bollywood-inspired taiko rhythm game</p>
                         </div>
+                    </li>
+                    <li class="project-item" ondblclick="window.location.href='legacy/index.html'">
+                        <span class="project-icon">🏛️</span>
+                        <div class="project-info">
+                            <h3>Legacy Portfolio</h3>
+                            <p>Original portfolio from Amherst College days</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Calculator Window -->
+        <div class="mac-window" id="calculator-window">
+            <div class="window-title-bar" onmousedown="startDrag(event, 'calculator-window')">
+                <div class="close-box" onclick="closeWindow('calculator-window')"></div>
+                <span class="window-title">Calculator</span>
+            </div>
+            <div class="window-content">
+                <div class="calculator">
+                    <div class="calc-display" id="calcDisplay">0</div>
+                    <div class="calc-buttons">
+                        <button class="calc-btn" onclick="calcClear()">C</button>
+                        <button class="calc-btn" onclick="calcInput('±')">±</button>
+                        <button class="calc-btn" onclick="calcInput('%')">%</button>
+                        <button class="calc-btn operator" onclick="calcInput('/')">÷</button>
+
+                        <button class="calc-btn" onclick="calcInput('7')">7</button>
+                        <button class="calc-btn" onclick="calcInput('8')">8</button>
+                        <button class="calc-btn" onclick="calcInput('9')">9</button>
+                        <button class="calc-btn operator" onclick="calcInput('*')">×</button>
+
+                        <button class="calc-btn" onclick="calcInput('4')">4</button>
+                        <button class="calc-btn" onclick="calcInput('5')">5</button>
+                        <button class="calc-btn" onclick="calcInput('6')">6</button>
+                        <button class="calc-btn operator" onclick="calcInput('-')">−</button>
+
+                        <button class="calc-btn" onclick="calcInput('1')">1</button>
+                        <button class="calc-btn" onclick="calcInput('2')">2</button>
+                        <button class="calc-btn" onclick="calcInput('3')">3</button>
+                        <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+
+                        <button class="calc-btn" onclick="calcInput('0')" style="grid-column: span 2;">0</button>
+                        <button class="calc-btn" onclick="calcInput('.')">.</button>
+                        <button class="calc-btn equals" onclick="calcEquals()">=</button>
                     </div>
-                </a>
-
-                <!-- Rhythm Game -->
-                <a href="https://akarki15.github.io/indian-rhythm-game/" class="project-card">
-                    <span class="card-badge badge-game">Game</span>
-                    <div class="card-icon">🥁</div>
-                    <h3>Indian Rhythm Game</h3>
-                    <p>A Bollywood-inspired rhythm game featuring iconic songs, traditional taiko-style gameplay, and
-                        vibrant visuals. Test your rhythm skills!</p>
-                    <div class="card-footer">
-                        <div class="tech-stack">
-                            <span class="tech-tag">Web Audio</span>
-                            <span class="tech-tag">Canvas</span>
-                            <span class="tech-tag">Music</span>
-                        </div>
-                        <div class="card-arrow">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Legacy Portfolio -->
-                <a href="legacy/index.html" class="project-card">
-                    <span class="card-badge badge-archive">Archive</span>
-                    <div class="card-icon">🏛️</div>
-                    <h3>Legacy Portfolio</h3>
-                    <p>My original portfolio from the Amherst College days. Unity games, research projects, and the
-                        journey that started it all.</p>
-                    <div class="card-footer">
-                        <div class="tech-stack">
-                            <span class="tech-tag">Unity</span>
-                            <span class="tech-tag">C#</span>
-                            <span class="tech-tag">Research</span>
-                        </div>
-                        <div class="card-arrow">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                        </div>
-                    </div>
-                </a>
+                </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Footer -->
-        <footer>
-            <p>© 2026 Aashish Karki. <span class="highlight">Vibecoded</span> with passion & late night energy.</p>
-        </footer>
+        <!-- NotePad Window -->
+        <div class="mac-window" id="notepad-window">
+            <div class="window-title-bar" onmousedown="startDrag(event, 'notepad-window')">
+                <div class="close-box" onclick="closeWindow('notepad-window')"></div>
+                <span class="window-title">NotePad</span>
+            </div>
+            <div class="window-content">
+                <textarea class="notepad-textarea" placeholder="Start typing your notes here...
+
+Welcome to NotePad!
+
+This is a classic Mac-style notepad. 
+Type whatever you want - your notes 
+will stay here until you close the window.
+
+Have fun! 🍎"></textarea>
+            </div>
+        </div>
+
+        <!-- Control Panel Window -->
+        <div class="mac-window" id="control-window">
+            <div class="window-title-bar" onmousedown="startDrag(event, 'control-window')">
+                <div class="close-box" onclick="closeWindow('control-window')"></div>
+                <span class="window-title">Control Panel</span>
+            </div>
+            <div class="window-content">
+                <div class="control-item">
+                    <span>Desktop Pattern</span>
+                    <select id="patternSelect" onchange="changePattern(this.value)" style="font-family: inherit;">
+                        <option value="dots">Dots</option>
+                        <option value="lines">Lines</option>
+                        <option value="solid">Solid Gray</option>
+                        <option value="checkers">Checkers</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <span>Sound</span>
+                    <div class="slider-container">
+                        <span>🔇</span>
+                        <input type="range" class="mac-slider" min="0" max="100" value="50">
+                        <span>🔊</span>
+                    </div>
+                </div>
+                <div class="control-item">
+                    <span>Mouse Speed</span>
+                    <div class="slider-container">
+                        <span>🐢</span>
+                        <input type="range" class="mac-slider" min="0" max="100" value="75">
+                        <span>🐇</span>
+                    </div>
+                </div>
+                <div class="control-item">
+                    <span>About</span>
+                    <button class="mac-button"
+                        onclick="showAlert('Control Panel', 'Control Panel v1.0\n\nChange your Mac settings here!')">Info</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Dialog -->
+    <div class="alert-overlay" id="alertOverlay">
+        <div class="alert-box">
+            <div class="alert-icon">💬</div>
+            <div class="alert-text" id="alertText">Alert message here</div>
+            <button class="mac-button primary" onclick="closeAlert()">OK</button>
+        </div>
     </div>
 
     <script>
-        // Generate random stars
-        const starsContainer = document.getElementById('stars');
-        for (let i = 0; i < 100; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.animationDelay = Math.random() * 3 + 's';
-            star.style.animationDuration = (Math.random() * 2 + 2) + 's';
-            starsContainer.appendChild(star);
+        // ============================================
+        // CLASSIC MAC OS - Interactive Desktop
+        // ============================================
+
+        // Startup Animation
+        setTimeout(() => {
+            document.getElementById('startupScreen').classList.add('hidden');
+            // Open About window on startup
+            setTimeout(() => openWindow('about-window'), 500);
+        }, 2000);
+
+        // Update Menu Bar Time
+        function updateTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            document.getElementById('menuTime').textContent = `${hours}:${minutes} ${ampm}`;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Window Management
+        let activeWindow = null;
+        let dragWindow = null;
+        let dragOffset = { x: 0, y: 0 };
+        let highestZ = 1000;
+
+        function openWindow(id) {
+            const win = document.getElementById(id);
+            win.classList.add('visible');
+            bringToFront(id);
         }
 
-        // Mouse tracking for cards
-        document.querySelectorAll('.project-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                card.style.setProperty('--mouse-x', x + '%');
-                card.style.setProperty('--mouse-y', y + '%');
+        function closeWindow(id) {
+            const win = document.getElementById(id);
+            win.classList.remove('visible');
+        }
+
+        function bringToFront(id) {
+            // Deactivate all windows
+            document.querySelectorAll('.mac-window').forEach(w => {
+                w.classList.remove('active');
+                w.querySelector('.window-title-bar').classList.add('inactive');
+            });
+
+            // Activate selected window
+            const win = document.getElementById(id);
+            highestZ++;
+            win.style.zIndex = highestZ;
+            win.classList.add('active');
+            win.querySelector('.window-title-bar').classList.remove('inactive');
+            activeWindow = id;
+        }
+
+        // Window Dragging
+        function startDrag(e, id) {
+            if (e.target.classList.contains('close-box')) return;
+
+            bringToFront(id);
+            dragWindow = document.getElementById(id);
+            const rect = dragWindow.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function doDrag(e) {
+            if (!dragWindow) return;
+
+            let newX = e.clientX - dragOffset.x;
+            let newY = e.clientY - dragOffset.y;
+
+            // Keep within bounds
+            newX = Math.max(0, Math.min(newX, window.innerWidth - 100));
+            newY = Math.max(24, Math.min(newY, window.innerHeight - 50));
+
+            dragWindow.style.left = newX + 'px';
+            dragWindow.style.top = newY + 'px';
+            dragWindow.style.right = 'auto';
+        }
+
+        function stopDrag() {
+            dragWindow = null;
+            document.removeEventListener('mousemove', doDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        // Desktop Icon Selection
+        document.querySelectorAll('.desktop-icon').forEach(icon => {
+            icon.addEventListener('click', function (e) {
+                document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
             });
         });
 
-        // Smooth scroll for navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-    </script>
-
-    <!-- Geometric Alien Swarm Effect - Canvas Based -->
-    <style>
-        #swarmCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-        }
-    </style>
-
-    <canvas id="swarmCanvas"></canvas>
-
-    <script>
-        // ============================================
-        // GEOMETRIC ALIEN SWARM - 500 PARTICLES
-        // Locust-like flocking with ethereal movement
-        // ============================================
-
-        (function () {
-            'use strict';
-
-            // Simplex Noise for organic movement
-            class SimplexNoise {
-                constructor() {
-                    this.p = new Uint8Array(256);
-                    for (let i = 0; i < 256; i++) this.p[i] = i;
-                    for (let i = 255; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [this.p[i], this.p[j]] = [this.p[j], this.p[i]];
-                    }
-                    this.perm = new Uint8Array(512);
-                    for (let i = 0; i < 512; i++) this.perm[i] = this.p[i & 255];
-                }
-
-                noise2D(x, y) {
-                    const F2 = 0.5 * (Math.sqrt(3) - 1);
-                    const G2 = (3 - Math.sqrt(3)) / 6;
-                    const s = (x + y) * F2;
-                    const i = Math.floor(x + s);
-                    const j = Math.floor(y + s);
-                    const t = (i + j) * G2;
-                    const X0 = i - t, Y0 = j - t;
-                    const x0 = x - X0, y0 = y - Y0;
-                    const i1 = x0 > y0 ? 1 : 0;
-                    const j1 = x0 > y0 ? 0 : 1;
-                    const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
-                    const x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
-
-                    const ii = i & 255, jj = j & 255;
-                    const grad = (h, x, y) => {
-                        const g = [[1, 1], [-1, 1], [1, -1], [-1, -1], [1, 0], [-1, 0], [0, 1], [0, -1]];
-                        const v = g[h % 8];
-                        return v[0] * x + v[1] * y;
-                    };
-
-                    let n0 = 0, n1 = 0, n2 = 0;
-                    let t0 = 0.5 - x0 * x0 - y0 * y0;
-                    if (t0 >= 0) { t0 *= t0; n0 = t0 * t0 * grad(this.perm[ii + this.perm[jj]], x0, y0); }
-                    let t1 = 0.5 - x1 * x1 - y1 * y1;
-                    if (t1 >= 0) { t1 *= t1; n1 = t1 * t1 * grad(this.perm[ii + i1 + this.perm[jj + j1]], x1, y1); }
-                    let t2 = 0.5 - x2 * x2 - y2 * y2;
-                    if (t2 >= 0) { t2 *= t2; n2 = t2 * t2 * grad(this.perm[ii + 1 + this.perm[jj + 1]], x2, y2); }
-
-                    return 70 * (n0 + n1 + n2);
-                }
+        document.getElementById('desktop').addEventListener('click', function (e) {
+            if (e.target === this) {
+                document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
             }
+        });
 
-            const noise = new SimplexNoise();
+        // Calculator
+        let calcValue = '0';
+        let calcOperator = null;
+        let calcPrevValue = null;
+        let calcNewNumber = true;
 
-            // Configuration
-            const CONFIG = {
-                particleCount: 500,
-                shapes: ['triangle', 'diamond', 'hexagon', 'star', 'crystal'],
-                colors: [
-                    { h: 174, s: 100, l: 48 },  // Cyan
-                    { h: 277, s: 62, l: 46 },   // Purple
-                    { h: 330, s: 93, l: 56 },   // Pink
-                    { h: 168, s: 100, l: 70 },  // Light cyan
-                    { h: 283, s: 39, l: 53 },   // Soft purple
-                    { h: 165, s: 100, l: 39 },  // Teal
-                    { h: 200, s: 80, l: 60 },   // Sky blue
-                ],
-                minSize: 2,
-                maxSize: 8,
-                maxSpeed: 4,
-                attractionForce: 0.0008,
-                separationDistance: 25,
-                separationForce: 0.03,
-                alignmentForce: 0.02,
-                cohesionForce: 0.01,
-                noiseScale: 0.003,
-                noiseStrength: 0.5,
-                trailLength: 0.15,
-                spreadRadius: 400,
-                mouseInfluenceRadius: 350,
+        function calcClear() {
+            calcValue = '0';
+            calcOperator = null;
+            calcPrevValue = null;
+            calcNewNumber = true;
+            updateCalcDisplay();
+        }
+
+        function calcInput(val) {
+            if ('0123456789.'.includes(val)) {
+                if (calcNewNumber) {
+                    calcValue = val === '.' ? '0.' : val;
+                    calcNewNumber = false;
+                } else {
+                    if (val === '.' && calcValue.includes('.')) return;
+                    calcValue += val;
+                }
+            } else if ('+-*/'.includes(val)) {
+                if (calcOperator && !calcNewNumber) {
+                    calcEquals();
+                }
+                calcPrevValue = parseFloat(calcValue);
+                calcOperator = val;
+                calcNewNumber = true;
+            } else if (val === '±') {
+                calcValue = (parseFloat(calcValue) * -1).toString();
+            } else if (val === '%') {
+                calcValue = (parseFloat(calcValue) / 100).toString();
+            }
+            updateCalcDisplay();
+        }
+
+        function calcEquals() {
+            if (calcOperator && calcPrevValue !== null) {
+                const current = parseFloat(calcValue);
+                let result;
+                switch (calcOperator) {
+                    case '+': result = calcPrevValue + current; break;
+                    case '-': result = calcPrevValue - current; break;
+                    case '*': result = calcPrevValue * current; break;
+                    case '/': result = current !== 0 ? calcPrevValue / current : 'Error'; break;
+                }
+                calcValue = result.toString();
+                calcOperator = null;
+                calcPrevValue = null;
+                calcNewNumber = true;
+            }
+            updateCalcDisplay();
+        }
+
+        function updateCalcDisplay() {
+            const display = document.getElementById('calcDisplay');
+            let displayValue = calcValue;
+            if (displayValue.length > 12) {
+                displayValue = parseFloat(displayValue).toExponential(6);
+            }
+            display.textContent = displayValue;
+        }
+
+        // Alert Dialog
+        function showAlert(title, message) {
+            document.getElementById('alertText').innerHTML = `<strong>${title}</strong><br><br>${message.replace(/\n/g, '<br>')}`;
+            document.getElementById('alertOverlay').classList.add('visible');
+        }
+
+        function closeAlert() {
+            document.getElementById('alertOverlay').classList.remove('visible');
+        }
+
+        // Desktop Pattern Changer
+        function changePattern(pattern) {
+            const desktop = document.getElementById('desktop');
+            const patterns = {
+                dots: 'url("data:image/svg+xml,%3Csvg width=\'2\' height=\'2\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Crect width=\'1\' height=\'1\' fill=\'%23000\'/%3E%3Crect x=\'1\' y=\'1\' width=\'1\' height=\'1\' fill=\'%23000\'/%3E%3C/svg%3E")',
+                lines: 'url("data:image/svg+xml,%3Csvg width=\'4\' height=\'4\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cline x1=\'0\' y1=\'0\' x2=\'4\' y2=\'0\' stroke=\'%23000\' stroke-width=\'1\'/%3E%3C/svg%3E")',
+                solid: 'none',
+                checkers: 'url("data:image/svg+xml,%3Csvg width=\'4\' height=\'4\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Crect width=\'2\' height=\'2\' fill=\'%23000\'/%3E%3Crect x=\'2\' y=\'2\' width=\'2\' height=\'2\' fill=\'%23000\'/%3E%3C/svg%3E")'
             };
 
-            // Canvas setup
-            const canvas = document.getElementById('swarmCanvas');
-            const ctx = canvas.getContext('2d');
-            let width, height;
-            let mouseX = 0, mouseY = 0;
-            let targetMouseX = 0, targetMouseY = 0;
-            let isActive = true;
-            let time = 0;
-
-            function resize() {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-                mouseX = targetMouseX = width / 2;
-                mouseY = targetMouseY = height / 2;
+            if (pattern === 'solid') {
+                desktop.style.background = '#a8a8a8';
+            } else {
+                desktop.style.background = patterns[pattern];
+                desktop.style.backgroundSize = pattern === 'checkers' ? '4px 4px' : '2px 2px';
             }
-            resize();
-            window.addEventListener('resize', resize);
+        }
 
-            // Particle class
-            class Particle {
-                constructor(index) {
-                    this.index = index;
-                    this.reset();
-
-                    // Spread particles initially across a wider area
-                    const angle = Math.random() * Math.PI * 2;
-                    const radius = Math.random() * CONFIG.spreadRadius;
-                    this.x = width / 2 + Math.cos(angle) * radius;
-                    this.y = height / 2 + Math.sin(angle) * radius;
-
-                    this.shape = CONFIG.shapes[Math.floor(Math.random() * CONFIG.shapes.length)];
-                    this.colorIndex = Math.floor(Math.random() * CONFIG.colors.length);
-                    this.size = CONFIG.minSize + Math.random() * (CONFIG.maxSize - CONFIG.minSize);
-                    this.rotation = Math.random() * Math.PI * 2;
-                    this.rotationSpeed = (Math.random() - 0.5) * 0.1;
-                    this.pulsePhase = Math.random() * Math.PI * 2;
-                    this.pulseSpeed = 0.02 + Math.random() * 0.03;
-                    this.noiseOffsetX = Math.random() * 1000;
-                    this.noiseOffsetY = Math.random() * 1000;
-                    this.trail = [];
-                    this.maxTrailLength = 5 + Math.floor(Math.random() * 8);
-                    this.glowIntensity = 0.5 + Math.random() * 0.5;
-
-                    // Locust-like erratic behavior
-                    this.erraticTimer = Math.random() * 100;
-                    this.erraticDirection = 0;
-                    this.burstCooldown = 0;
-                }
-
-                reset() {
-                    this.vx = (Math.random() - 0.5) * 2;
-                    this.vy = (Math.random() - 0.5) * 2;
-                }
-
-                update(particles, dt) {
-                    // Store trail position
-                    if (this.trail.length > this.maxTrailLength) {
-                        this.trail.shift();
-                    }
-                    this.trail.push({ x: this.x, y: this.y, size: this.size });
-
-                    // Noise-based organic movement (ethereal/cloudy)
-                    const noiseX = noise.noise2D(
-                        this.x * CONFIG.noiseScale + this.noiseOffsetX,
-                        time * 0.001
-                    );
-                    const noiseY = noise.noise2D(
-                        this.y * CONFIG.noiseScale + this.noiseOffsetY,
-                        time * 0.001 + 100
-                    );
-
-                    this.vx += noiseX * CONFIG.noiseStrength;
-                    this.vy += noiseY * CONFIG.noiseStrength;
-
-                    // Attraction to mouse (main swarm behavior)
-                    const dx = mouseX - this.x;
-                    const dy = mouseY - this.y;
-                    const distToMouse = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distToMouse < CONFIG.mouseInfluenceRadius) {
-                        const force = CONFIG.attractionForce * (1 - distToMouse / CONFIG.mouseInfluenceRadius);
-                        this.vx += dx * force * 3;
-                        this.vy += dy * force * 3;
-                    } else {
-                        // Gentle attraction even when far
-                        this.vx += dx * CONFIG.attractionForce * 0.5;
-                        this.vy += dy * CONFIG.attractionForce * 0.5;
-                    }
-
-                    // Locust-like erratic bursts
-                    this.erraticTimer += dt;
-                    if (this.burstCooldown > 0) {
-                        this.burstCooldown -= dt;
-                    }
-
-                    if (this.erraticTimer > 50 + Math.random() * 150 && this.burstCooldown <= 0) {
-                        this.erraticTimer = 0;
-                        this.burstCooldown = 30 + Math.random() * 50;
-                        this.erraticDirection = Math.random() * Math.PI * 2;
-                        const burstStrength = 1 + Math.random() * 2;
-                        this.vx += Math.cos(this.erraticDirection) * burstStrength;
-                        this.vy += Math.sin(this.erraticDirection) * burstStrength;
-                    }
-
-                    // Boid-like flocking behavior
-                    let separationX = 0, separationY = 0;
-                    let alignmentX = 0, alignmentY = 0;
-                    let cohesionX = 0, cohesionY = 0;
-                    let neighborCount = 0;
-
-                    // Sample nearby particles (not all for performance)
-                    const sampleSize = Math.min(30, particles.length);
-                    const startIndex = Math.floor(Math.random() * (particles.length - sampleSize));
-
-                    for (let i = startIndex; i < startIndex + sampleSize; i++) {
-                        const other = particles[i % particles.length];
-                        if (other === this) continue;
-
-                        const ox = other.x - this.x;
-                        const oy = other.y - this.y;
-                        const dist = Math.sqrt(ox * ox + oy * oy);
-
-                        if (dist < CONFIG.separationDistance && dist > 0) {
-                            // Separation: steer away from close neighbors
-                            separationX -= ox / dist;
-                            separationY -= oy / dist;
-                        }
-
-                        if (dist < 80) {
-                            // Alignment: match velocity of neighbors
-                            alignmentX += other.vx;
-                            alignmentY += other.vy;
-                            // Cohesion: move toward center of neighbors
-                            cohesionX += other.x;
-                            cohesionY += other.y;
-                            neighborCount++;
-                        }
-                    }
-
-                    if (neighborCount > 0) {
-                        alignmentX /= neighborCount;
-                        alignmentY /= neighborCount;
-                        cohesionX = cohesionX / neighborCount - this.x;
-                        cohesionY = cohesionY / neighborCount - this.y;
-                    }
-
-                    this.vx += separationX * CONFIG.separationForce;
-                    this.vy += separationY * CONFIG.separationForce;
-                    this.vx += alignmentX * CONFIG.alignmentForce;
-                    this.vy += alignmentY * CONFIG.alignmentForce;
-                    this.vx += cohesionX * CONFIG.cohesionForce;
-                    this.vy += cohesionY * CONFIG.cohesionForce;
-
-                    // Speed limit
-                    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-                    if (speed > CONFIG.maxSpeed) {
-                        this.vx = (this.vx / speed) * CONFIG.maxSpeed;
-                        this.vy = (this.vy / speed) * CONFIG.maxSpeed;
-                    }
-
-                    // Damping
-                    this.vx *= 0.98;
-                    this.vy *= 0.98;
-
-                    // Update position
-                    this.x += this.vx;
-                    this.y += this.vy;
-
-                    // Wrap around screen with padding
-                    const padding = 50;
-                    if (this.x < -padding) this.x = width + padding;
-                    if (this.x > width + padding) this.x = -padding;
-                    if (this.y < -padding) this.y = height + padding;
-                    if (this.y > height + padding) this.y = -padding;
-
-                    // Update rotation and pulse
-                    this.rotation += this.rotationSpeed;
-                    this.pulsePhase += this.pulseSpeed;
-                }
-
-                draw(ctx) {
-                    const pulse = 1 + Math.sin(this.pulsePhase) * 0.2;
-                    const size = this.size * pulse;
-                    const color = CONFIG.colors[this.colorIndex];
-
-                    // Calculate opacity based on speed (faster = more visible)
-                    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-                    const baseOpacity = 0.4 + (speed / CONFIG.maxSpeed) * 0.4;
-
-                    // Draw trail (ethereal cloudy effect)
-                    for (let i = 0; i < this.trail.length; i++) {
-                        const t = this.trail[i];
-                        const trailOpacity = (i / this.trail.length) * baseOpacity * CONFIG.trailLength;
-                        const trailSize = t.size * (0.3 + (i / this.trail.length) * 0.7) * pulse * 0.8;
-
-                        ctx.save();
-                        ctx.translate(t.x, t.y);
-                        ctx.globalAlpha = trailOpacity;
-                        ctx.fillStyle = `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.3)`;
-                        ctx.beginPath();
-                        ctx.arc(0, 0, trailSize * 1.5, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.restore();
-                    }
-
-                    ctx.save();
-                    ctx.translate(this.x, this.y);
-                    ctx.rotate(this.rotation);
-                    ctx.globalAlpha = baseOpacity;
-
-                    // Glow effect
-                    const glowSize = size * 3 * this.glowIntensity;
-                    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, glowSize);
-                    gradient.addColorStop(0, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.6)`);
-                    gradient.addColorStop(0.4, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.2)`);
-                    gradient.addColorStop(1, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0)`);
-
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, glowSize, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    // Draw geometric shape
-                    ctx.fillStyle = `hsla(${color.h}, ${color.s}%, ${color.l + 20}%, 0.9)`;
-                    ctx.strokeStyle = `hsla(${color.h}, ${color.s}%, ${color.l + 30}%, 1)`;
-                    ctx.lineWidth = 0.5;
-
-                    ctx.beginPath();
-                    this.drawShape(ctx, size);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    // Inner bright core
-                    ctx.fillStyle = `hsla(${color.h}, ${color.s - 20}%, ${Math.min(color.l + 40, 95)}%, 0.9)`;
-                    ctx.beginPath();
-                    this.drawShape(ctx, size * 0.4);
-                    ctx.fill();
-
-                    ctx.restore();
-                }
-
-                drawShape(ctx, size) {
-                    switch (this.shape) {
-                        case 'triangle':
-                            for (let i = 0; i < 3; i++) {
-                                const angle = (i / 3) * Math.PI * 2 - Math.PI / 2;
-                                const x = Math.cos(angle) * size;
-                                const y = Math.sin(angle) * size;
-                                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-                            }
-                            ctx.closePath();
-                            break;
-
-                        case 'diamond':
-                            ctx.moveTo(0, -size);
-                            ctx.lineTo(size * 0.6, 0);
-                            ctx.lineTo(0, size);
-                            ctx.lineTo(-size * 0.6, 0);
-                            ctx.closePath();
-                            break;
-
-                        case 'hexagon':
-                            for (let i = 0; i < 6; i++) {
-                                const angle = (i / 6) * Math.PI * 2;
-                                const x = Math.cos(angle) * size;
-                                const y = Math.sin(angle) * size;
-                                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-                            }
-                            ctx.closePath();
-                            break;
-
-                        case 'star':
-                            for (let i = 0; i < 5; i++) {
-                                const outerAngle = (i / 5) * Math.PI * 2 - Math.PI / 2;
-                                const innerAngle = outerAngle + Math.PI / 5;
-                                const ox = Math.cos(outerAngle) * size;
-                                const oy = Math.sin(outerAngle) * size;
-                                const ix = Math.cos(innerAngle) * size * 0.4;
-                                const iy = Math.sin(innerAngle) * size * 0.4;
-                                if (i === 0) ctx.moveTo(ox, oy);
-                                else ctx.lineTo(ox, oy);
-                                ctx.lineTo(ix, iy);
-                            }
-                            ctx.closePath();
-                            break;
-
-                        case 'crystal':
-                            ctx.moveTo(0, -size);
-                            ctx.lineTo(size * 0.4, -size * 0.3);
-                            ctx.lineTo(size * 0.5, size * 0.5);
-                            ctx.lineTo(0, size);
-                            ctx.lineTo(-size * 0.5, size * 0.5);
-                            ctx.lineTo(-size * 0.4, -size * 0.3);
-                            ctx.closePath();
-                            break;
-                    }
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAlert();
+                if (activeWindow) {
+                    closeWindow(activeWindow);
                 }
             }
+        });
 
-            // Create particles
-            const particles = [];
-            for (let i = 0; i < CONFIG.particleCount; i++) {
-                particles.push(new Particle(i));
-            }
-
-            // Mouse tracking with smooth interpolation
-            document.addEventListener('mousemove', (e) => {
-                targetMouseX = e.clientX;
-                targetMouseY = e.clientY;
+        // Click on window to bring to front
+        document.querySelectorAll('.mac-window').forEach(win => {
+            win.addEventListener('mousedown', () => {
+                bringToFront(win.id);
             });
-
-            document.addEventListener('mouseleave', () => {
-                targetMouseX = width / 2;
-                targetMouseY = height / 2;
-            });
-
-            document.addEventListener('visibilitychange', () => {
-                isActive = !document.hidden;
-            });
-
-            // Animation loop
-            let lastTime = performance.now();
-
-            function animate() {
-                const now = performance.now();
-                const dt = Math.min(now - lastTime, 50); // Cap delta time
-                lastTime = now;
-                time = now;
-
-                if (isActive) {
-                    // Smooth mouse interpolation for ethereal movement
-                    mouseX += (targetMouseX - mouseX) * 0.08;
-                    mouseY += (targetMouseY - mouseY) * 0.08;
-
-                    // Clear with fade for motion blur effect
-                    ctx.fillStyle = 'rgba(5, 5, 8, 0.15)';
-                    ctx.fillRect(0, 0, width, height);
-
-                    // Update and draw particles
-                    for (const particle of particles) {
-                        particle.update(particles, dt);
-                    }
-
-                    // Sort by size for depth effect (smaller = further away)
-                    particles.sort((a, b) => a.size - b.size);
-
-                    for (const particle of particles) {
-                        particle.draw(ctx);
-                    }
-                }
-
-                requestAnimationFrame(animate);
-            }
-
-            animate();
-        })();
+        });
     </script>
 </body>
 
