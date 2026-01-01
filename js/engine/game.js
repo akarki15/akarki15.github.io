@@ -4,11 +4,11 @@
  */
 
 // Import all systems (they self-register on window)
-import { QuestManager, QuestData, QuestState } from './systems/quest.js';
-import { Inventory, ItemData, ItemCategory } from './systems/inventory.js';
-import { CraftingSystem, CraftingRecipes } from './systems/crafting.js';
-import { PetManager, PetData } from './systems/pets.js';
-import { WorldManager, AreaData, NPCData } from './systems/world.js';
+import { QuestManager, QuestData, QuestState } from '../systems/quest.js';
+import { Inventory, ItemData, ItemCategory } from '../systems/inventory.js';
+import { CraftingSystem, CraftingRecipes } from '../systems/crafting.js';
+import { PetManager, PetData } from '../systems/pets.js';
+import { WorldManager, AreaData, NPCData } from '../systems/world.js';
 
 // ============================================================
 // GAME CONFIGURATION
@@ -102,8 +102,9 @@ window.Player = {
             if (shouldTransition) {
                 const result = WorldManager.changeArea(conn.area, conn.x * CONFIG.TILE_SIZE, conn.y * CONFIG.TILE_SIZE);
                 if (result.success) {
-                    this.x = result.x;
-                    this.y = result.y;
+                    // Clamp player position to screen bounds
+                    this.x = Math.max(30, Math.min(result.x, CONFIG.CANVAS_WIDTH - 50));
+                    this.y = Math.max(30, Math.min(result.y, CONFIG.CANVAS_HEIGHT - 50));
                     NotificationSystem.show(`📍 ${AreaData[conn.area].name[GameState.language]}`);
                 } else if (result.reason === 'missing_item') {
                     NotificationSystem.show(`🔒 Need ${ItemData[result.item]?.name[GameState.language] || result.item}`, 'warning');
@@ -261,14 +262,14 @@ const DialogueSystem = {
     },
 
     close() {
-        this.active = false;
-        this.currentNPC = null;
-        document.getElementById('dialogue-box').classList.add('hidden');
-
-        // Update quest objectives
+        // Update quest objectives before clearing NPC reference
         if (this.currentNPC) {
             QuestManager.updateObjective('dialogue', this.currentNPC.id, 1);
         }
+
+        this.active = false;
+        this.currentNPC = null;
+        document.getElementById('dialogue-box').classList.add('hidden');
     }
 };
 
@@ -469,6 +470,159 @@ const UIManager = {
         if (weatherEl) {
             const icons = { sunny: '☀️', cloudy: '⛅', rainy: '🌧️', snowy: '❄️' };
             weatherEl.textContent = icons[GameState.weather] || '☀️';
+        }
+    },
+
+    // Shopping System
+    shopInventory: {
+        'spice_stall': [
+            { item: 'cardamom', price: 15, stock: 10 },
+            { item: 'cinnamon', price: 12, stock: 8 },
+            { item: 'turmeric', price: 8, stock: 15 },
+            { item: 'ginger', price: 6, stock: 12 },
+            { item: 'saffron', price: 60, stock: 3 }
+        ],
+        'wool_stall': [
+            { item: 'fine_wool', price: 18, stock: 8 },
+            { item: 'goat_hair', price: 10, stock: 12 },
+            { item: 'warm_shawl', price: 90, stock: 2 }
+        ],
+        'tool_stall': [
+            { item: 'fishing_rod', price: 50, stock: 3 },
+            { item: 'foraging_basket', price: 35, stock: 5 },
+            { item: 'climbing_gear', price: 120, stock: 2 }
+        ],
+        'general': [
+            { item: 'tea_leaves', price: 5, stock: 20 },
+            { item: 'milk', price: 8, stock: 15 },
+            { item: 'flour', price: 5, stock: 20 },
+            { item: 'rice', price: 6, stock: 15 },
+            { item: 'lentils', price: 6, stock: 15 },
+            { item: 'honey', price: 20, stock: 8 }
+        ]
+    },
+
+    renderShop(container, shopType = 'general') {
+        const lang = GameState.language;
+        const shop = this.shopInventory[shopType] || this.shopInventory.general;
+        const shopNames = {
+            'spice_stall': { en: 'Spice Shop', hi: 'मसाला दुकान' },
+            'wool_stall': { en: 'Wool Shop', hi: 'ऊन दुकान' },
+            'tool_stall': { en: 'Tool Shop', hi: 'औज़ार दुकान' },
+            'general': { en: 'General Store', hi: 'किराना दुकान' }
+        };
+
+        container.innerHTML = `
+            <div class="menu-panel shop-panel">
+                <div class="menu-header">
+                    <h2>🏪 ${shopNames[shopType][lang]}</h2>
+                    <div class="coins">🪙 ${Inventory.coins}</div>
+                    <button class="close-btn" onclick="UIManager.closeMenu()">✕</button>
+                </div>
+                <div class="shop-items">
+                    ${shop.map(s => {
+            const item = ItemData[s.item];
+            const canAfford = Inventory.coins >= s.price;
+            return `
+                            <div class="shop-item ${canAfford ? '' : 'too-expensive'}" onclick="${canAfford ? `UIManager.buyItem('${shopType}', '${s.item}')` : ''}">
+                                <span class="item-info">${item?.emoji || '?'} ${item?.name[lang] || s.item}</span>
+                                <span class="price">🪙 ${s.price}</span>
+                                <span class="stock">(${s.stock})</span>
+                            </div>
+                        `;
+        }).join('')}
+                </div>
+                <div class="shop-hint">${lang === 'hi' ? 'खरीदने के लिए क्लिक करें' : 'Click to buy'}</div>
+            </div>
+        `;
+    },
+
+    buyItem(shopType, itemId) {
+        const shop = this.shopInventory[shopType];
+        const shopItem = shop?.find(s => s.item === itemId);
+        if (!shopItem || shopItem.stock <= 0) return;
+
+        if (Inventory.removeCoins(shopItem.price)) {
+            Inventory.addItem(itemId, 1);
+            shopItem.stock--;
+            const item = ItemData[itemId];
+            NotificationSystem.show(`Bought ${item?.emoji || ''} ${item?.name[GameState.language]}!`, 'success');
+            this.renderShop(document.getElementById('menu-overlay'), shopType);
+        }
+    },
+
+    openShop(shopType) {
+        this.closeMenu();
+        this.currentMenu = 'shop';
+        const overlay = document.getElementById('menu-overlay') || this.createMenuOverlay();
+        overlay.innerHTML = '';
+        overlay.classList.remove('hidden');
+        this.renderShop(overlay, shopType);
+    },
+
+    // Fishing Mini-Game
+    startFishing() {
+        if (!Inventory.hasItem('fishing_rod')) {
+            NotificationSystem.show(GameState.language === 'hi' ? '🎣 मछली पकड़ने की छड़ चाहिए!' : '🎣 Need a fishing rod!', 'warning');
+            return;
+        }
+
+        const lang = GameState.language;
+        this.closeMenu();
+        this.currentMenu = 'fishing';
+        const overlay = document.getElementById('menu-overlay') || this.createMenuOverlay();
+
+        overlay.innerHTML = `
+            <div class="menu-panel fishing-panel">
+                <div class="menu-header">
+                    <h2>🎣 ${lang === 'hi' ? 'मछली पकड़ना' : 'Fishing'}</h2>
+                    <button class="close-btn" onclick="UIManager.closeMenu()">✕</button>
+                </div>
+                <div class="fishing-game">
+                    <p>${lang === 'hi' ? 'स्पेस दबाएं जब मछली दिखे!' : 'Press SPACE when you see a fish!'}</p>
+                    <div class="fishing-area" id="fishing-area">
+                        <div class="water-line">〰️〰️〰️〰️〰️〰️</div>
+                        <div class="fish-indicator" id="fish-indicator">🐟</div>
+                    </div>
+                    <button class="menu-btn primary" onclick="UIManager.castLine()">
+                        ${lang === 'hi' ? 'डाल दो!' : 'Cast Line!'}
+                    </button>
+                </div>
+            </div>
+        `;
+        overlay.classList.remove('hidden');
+    },
+
+    castLine() {
+        const indicator = document.getElementById('fish-indicator');
+        if (!indicator) return;
+
+        indicator.style.opacity = '0';
+
+        // Random time for fish to appear (1-4 seconds)
+        const fishTime = 1000 + Math.random() * 3000;
+
+        setTimeout(() => {
+            if (this.currentMenu !== 'fishing') return;
+            indicator.style.opacity = '1';
+
+            // Fish window (1.5 seconds to catch)
+            this.fishCatchable = true;
+            setTimeout(() => {
+                this.fishCatchable = false;
+                indicator.style.opacity = '0';
+            }, 1500);
+        }, fishTime);
+    },
+
+    catchFish() {
+        if (this.fishCatchable) {
+            this.fishCatchable = false;
+            Inventory.addItem('fish', 1);
+            NotificationSystem.show(GameState.language === 'hi' ? '🐟 मछली पकड़ी!' : '🐟 Caught a fish!', 'success');
+            Player.addXP(10);
+        } else {
+            NotificationSystem.show(GameState.language === 'hi' ? 'छूट गई!' : 'Missed!', 'warning');
         }
     }
 };
@@ -807,8 +961,11 @@ const Game = {
         await this.playIntro();
         this.showScreen('game-screen');
         this.startGameLoop();
-        // Show controls help on first play
-        this.showControlsHelp();
+        // Show controls help only on truly first play
+        if (!sessionStorage.getItem('pahadi_controls_shown')) {
+            this.showControlsHelp();
+            sessionStorage.setItem('pahadi_controls_shown', 'true');
+        }
     },
 
     async playIntro() {
@@ -964,19 +1121,25 @@ const Game = {
     },
 
     saveGame() {
-        const data = {
-            player: { x: Player.x, y: Player.y, energy: Player.energy, health: Player.health, xp: Player.xp, level: Player.level },
-            gameState: { gameTime: GameState.gameTime, day: GameState.day, language: GameState.language },
-            inventory: Inventory.getSaveData(),
-            quests: QuestManager.getSaveData(),
-            crafting: CraftingSystem.getSaveData(),
-            pets: PetManager.getSaveData(),
-            world: WorldManager.getSaveData(),
-            timestamp: Date.now()
-        };
-        localStorage.setItem('pahadiTales_save', JSON.stringify(data));
-        NotificationSystem.show('💾 Game Saved!', 'success');
-        document.getElementById('btn-continue').disabled = false;
+        try {
+            const data = {
+                player: { x: Player.x, y: Player.y, energy: Player.energy, health: Player.health, xp: Player.xp, level: Player.level },
+                gameState: { gameTime: GameState.gameTime, day: GameState.day, language: GameState.language },
+                inventory: Inventory.getSaveData(),
+                quests: QuestManager.getSaveData(),
+                crafting: CraftingSystem.getSaveData(),
+                pets: PetManager.getSaveData(),
+                world: WorldManager.getSaveData(),
+                timestamp: Date.now()
+            };
+            localStorage.setItem('pahadiTales_save', JSON.stringify(data));
+            NotificationSystem.show('💾 Game Saved!', 'success');
+            const continueBtn = document.getElementById('btn-continue');
+            if (continueBtn) continueBtn.disabled = false;
+        } catch (e) {
+            console.error('Save failed:', e);
+            NotificationSystem.show('❌ Save failed!', 'warning');
+        }
     },
 
     loadGame() {

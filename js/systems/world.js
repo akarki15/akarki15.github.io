@@ -336,6 +336,17 @@ export const NPCData = {
         },
         gifts: { loved: ['apple', 'kheer'], liked: ['berries', 'pakora'] }
     },
+    'fisherman': {
+        id: 'fisherman', name: { en: 'Machhiwala Kaka', hi: 'मछीवाला काका' },
+        role: { en: 'Fisherman', hi: 'मछुआरा' },
+        emoji: '🎣', schedule: { '5-18': 'riverside' },
+        dialogues: {
+            greeting: { en: 'The river is generous today!', hi: 'नदी आज मेहरबान है!' },
+            wisdom: { en: 'Patience catches the biggest fish.', hi: 'सब्र से बड़ी मछली मिलती है।' },
+            teach: { en: 'Want to learn fishing? Get a rod first!', hi: 'मछली पकड़ना सीखना है? पहले छड़ लाओ!' }
+        },
+        gifts: { loved: ['masala_chai', 'pakora'], liked: ['berries', 'honey'] }
+    },
     'traveler': {
         id: 'traveler', name: { en: 'Traveler', hi: 'यात्री' },
         role: { en: 'Passing Traveler', hi: 'गुज़रता यात्री' },

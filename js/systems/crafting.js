@@ -54,6 +54,33 @@ export const CraftingRecipes = {
         id: 'expedition_kit', result: 'expedition_kit', quantity: 1,
         ingredients: [{ item: 'firewood', qty: 5 }, { item: 'stone', qty: 3 }],
         name: { en: 'Expedition Kit', hi: 'अभियान किट' }, time: 5, xp: 30
+    },
+
+    // More Food Recipes
+    'fish_curry': {
+        id: 'fish_curry', result: 'fish_curry', quantity: 1,
+        ingredients: [{ item: 'fish', qty: 2 }, { item: 'turmeric', qty: 1 }, { item: 'ginger', qty: 1 }],
+        name: { en: 'Fish Curry', hi: 'मछली करी' }, time: 6, xp: 25
+    },
+    'samosa': {
+        id: 'samosa', result: 'samosa', quantity: 4,
+        ingredients: [{ item: 'flour', qty: 1 }, { item: 'potato', qty: 2 }],
+        name: { en: 'Samosa', hi: 'समोसा' }, time: 4, xp: 15
+    },
+    'ladoo': {
+        id: 'ladoo', result: 'ladoo', quantity: 6,
+        ingredients: [{ item: 'flour', qty: 2 }, { item: 'honey', qty: 1 }, { item: 'walnut', qty: 2 }],
+        name: { en: 'Ladoo', hi: 'लड्डू' }, time: 5, xp: 20
+    },
+    'apple_pie': {
+        id: 'apple_pie', result: 'apple_pie', quantity: 1,
+        ingredients: [{ item: 'apple', qty: 3 }, { item: 'flour', qty: 1 }, { item: 'honey', qty: 1 }],
+        name: { en: 'Apple Pie', hi: 'सेब पाई' }, time: 6, xp: 22
+    },
+    'mushroom_soup': {
+        id: 'mushroom_soup', result: 'mushroom_soup', quantity: 2,
+        ingredients: [{ item: 'mushroom', qty: 3 }, { item: 'milk', qty: 1 }],
+        name: { en: 'Mushroom Soup', hi: 'मशरूम सूप' }, time: 4, xp: 18
     }
 };
 

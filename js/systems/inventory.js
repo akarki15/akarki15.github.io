@@ -31,6 +31,12 @@ export const ItemData = {
     'berries': { id: 'berries', name: { en: 'Wild Berries', hi: 'जंगली बेरी' }, category: ItemCategory.INGREDIENT, stackSize: 25, value: 4, emoji: '🫐' },
     'tulsi': { id: 'tulsi', name: { en: 'Holy Basil', hi: 'तुलसी' }, category: ItemCategory.INGREDIENT, stackSize: 25, value: 8, emoji: '🌿' },
     'brahma_kamal': { id: 'brahma_kamal', name: { en: 'Brahma Kamal', hi: 'ब्रह्म कमल' }, category: ItemCategory.INGREDIENT, stackSize: 5, value: 100, emoji: '🪷' },
+    'lentils': { id: 'lentils', name: { en: 'Lentils', hi: 'दाल' }, category: ItemCategory.INGREDIENT, stackSize: 30, value: 4, emoji: '🫘' },
+    'flour': { id: 'flour', name: { en: 'Wheat Flour', hi: 'आटा' }, category: ItemCategory.INGREDIENT, stackSize: 30, value: 3, emoji: '🌾' },
+    'fish': { id: 'fish', name: { en: 'Fresh Fish', hi: 'ताज़ी मछली' }, category: ItemCategory.INGREDIENT, stackSize: 15, value: 12, emoji: '🐟' },
+    'nettle': { id: 'nettle', name: { en: 'Nettle Leaf', hi: 'बिच्छू बूटी' }, category: ItemCategory.INGREDIENT, stackSize: 20, value: 6, emoji: '🌿' },
+    'flower': { id: 'flower', name: { en: 'Mountain Flower', hi: 'पहाड़ी फूल' }, category: ItemCategory.INGREDIENT, stackSize: 20, value: 5, emoji: '🌸' },
+    'goat_milk': { id: 'goat_milk', name: { en: 'Goat Milk', hi: 'बकरी का दूध' }, category: ItemCategory.INGREDIENT, stackSize: 10, value: 8, emoji: '🥛' },
 
     // Food
     'masala_chai': { id: 'masala_chai', name: { en: 'Masala Chai', hi: 'मसाला चाय' }, category: ItemCategory.FOOD, stackSize: 10, value: 15, energy: 20, emoji: '☕' },
@@ -40,6 +46,12 @@ export const ItemData = {
     'kheer': { id: 'kheer', name: { en: 'Kheer', hi: 'खीर' }, category: ItemCategory.FOOD, stackSize: 5, value: 25, energy: 30, emoji: '🍮' },
     'pakora': { id: 'pakora', name: { en: 'Pakora', hi: 'पकौड़ा' }, category: ItemCategory.FOOD, stackSize: 10, value: 12, energy: 20, emoji: '🧆' },
     'healing_salve': { id: 'healing_salve', name: { en: 'Healing Salve', hi: 'उपचार मरहम' }, category: ItemCategory.FOOD, stackSize: 10, value: 30, health: 30, emoji: '🩹' },
+    'herbal_tea': { id: 'herbal_tea', name: { en: 'Herbal Tea', hi: 'जड़ी-बूटी चाय' }, category: ItemCategory.FOOD, stackSize: 10, value: 18, energy: 25, health: 10, emoji: '🍵' },
+    'fish_curry': { id: 'fish_curry', name: { en: 'Fish Curry', hi: 'मछली करी' }, category: ItemCategory.FOOD, stackSize: 5, value: 28, energy: 45, emoji: '🍛' },
+    'samosa': { id: 'samosa', name: { en: 'Samosa', hi: 'समोसा' }, category: ItemCategory.FOOD, stackSize: 8, value: 15, energy: 25, emoji: '🥟' },
+    'ladoo': { id: 'ladoo', name: { en: 'Ladoo', hi: 'लड्डू' }, category: ItemCategory.FOOD, stackSize: 10, value: 20, energy: 30, emoji: '🍪' },
+    'apple_pie': { id: 'apple_pie', name: { en: 'Apple Pie', hi: 'सेब पाई' }, category: ItemCategory.FOOD, stackSize: 5, value: 22, energy: 35, emoji: '🥧' },
+    'mushroom_soup': { id: 'mushroom_soup', name: { en: 'Mushroom Soup', hi: 'मशरूम सूप' }, category: ItemCategory.FOOD, stackSize: 8, value: 16, energy: 28, emoji: '🍲' },
 
     // Tools
     'basic_stove': { id: 'basic_stove', name: { en: 'Clay Stove', hi: 'मिट्टी का चूल्हा' }, category: ItemCategory.TOOL, stackSize: 1, value: 50, emoji: '🔥' },
@@ -47,6 +59,7 @@ export const ItemData = {
     'foraging_basket': { id: 'foraging_basket', name: { en: 'Foraging Basket', hi: 'टोकरी' }, category: ItemCategory.TOOL, stackSize: 1, value: 25, emoji: '🧺' },
     'flute': { id: 'flute', name: { en: 'Bamboo Flute', hi: 'बांसुरी' }, category: ItemCategory.TOOL, stackSize: 1, value: 35, emoji: '🎶' },
     'climbing_gear': { id: 'climbing_gear', name: { en: 'Climbing Gear', hi: 'चढ़ाई सामान' }, category: ItemCategory.TOOL, stackSize: 1, value: 100, emoji: '🧗' },
+    'expedition_kit': { id: 'expedition_kit', name: { en: 'Expedition Kit', hi: 'अभियान किट' }, category: ItemCategory.TOOL, stackSize: 1, value: 80, emoji: '🎒' },
 
     // Equipment
     'warm_shawl': { id: 'warm_shawl', name: { en: 'Warm Shawl', hi: 'गर्म शॉल' }, category: ItemCategory.EQUIPMENT, stackSize: 1, value: 75, emoji: '🧣' },
@@ -56,6 +69,14 @@ export const ItemData = {
     // Quest
     'ancient_map': { id: 'ancient_map', name: { en: 'Ancient Map', hi: 'प्राचीन नक्शा' }, category: ItemCategory.QUEST, stackSize: 1, value: 0, emoji: '🗺️' },
     'moon_gem': { id: 'moon_gem', name: { en: 'Chandra Mani', hi: 'चंद्र मणि' }, category: ItemCategory.QUEST, stackSize: 1, value: 0, emoji: '🌙' },
+    'ancient_artifact': { id: 'ancient_artifact', name: { en: 'Ancient Artifact', hi: 'प्राचीन वस्तु' }, category: ItemCategory.QUEST, stackSize: 1, value: 200, emoji: '🏺' },
+    'old_coin': { id: 'old_coin', name: { en: 'Old Coin', hi: 'पुराना सिक्का' }, category: ItemCategory.QUEST, stackSize: 10, value: 25, emoji: '🪙' },
+
+    // Recipes
+    'recipe_ginger_tea': { id: 'recipe_ginger_tea', name: { en: 'Recipe: Ginger Tea', hi: 'विधि: अदरक चाय' }, category: ItemCategory.RECIPE, stackSize: 1, value: 30, emoji: '📜' },
+    'recipe_kheer': { id: 'recipe_kheer', name: { en: 'Recipe: Kheer', hi: 'विधि: खीर' }, category: ItemCategory.RECIPE, stackSize: 1, value: 40, emoji: '📜' },
+    'recipe_herbal_tea': { id: 'recipe_herbal_tea', name: { en: 'Recipe: Herbal Tea', hi: 'विधि: जड़ी-बूटी चाय' }, category: ItemCategory.RECIPE, stackSize: 1, value: 35, emoji: '📜' },
+    'recipe_fish_curry': { id: 'recipe_fish_curry', name: { en: 'Recipe: Fish Curry', hi: 'विधि: मछली करी' }, category: ItemCategory.RECIPE, stackSize: 1, value: 45, emoji: '📜' },
 };
 
 // Inventory Manager
