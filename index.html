@@ -89,6 +89,10 @@
 
     <!-- Game Screen -->
     <div id="game-screen" class="screen">
+        <!-- Transition Overlay -->
+        <div id="transition-overlay"
+            style="position: absolute; top:0; left:0; width:100%; height:100%; background:black; opacity:0; pointer-events:none; z-index:9999; transition: opacity 0.5s ease;">
+        </div>
         <canvas id="game-canvas"></canvas>
 
         <!-- HUD Overlay -->

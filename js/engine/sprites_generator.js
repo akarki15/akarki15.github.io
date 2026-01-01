@@ -4,8 +4,8 @@ export const SpriteGenerator = {
         const ctx = canvas.getContext('2d');
         const config = {
             tileSize: 32,
-            rows: 12,
-            cols: 4
+            rows: 15, // Increased rows for more assets
+            cols: 8   // Increased cols
         };
 
         canvas.width = config.cols * config.tileSize;
@@ -14,264 +14,231 @@ export const SpriteGenerator = {
         // Clear
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Helper to draw a rect
-        const r = (x, y, w, h, color) => {
+        // Helper to draw a rect (1px)
+        const p = (x, y, color) => {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 1, 1);
+        };
+
+        const rect = (x, y, w, h, color) => {
             ctx.fillStyle = color;
             ctx.fillRect(x, y, w, h);
         };
 
-        // Helper to draw a pixel pattern (8x8 grid scaled to 32x32 = 4px per "pixel")
-        const drawSprite8x8 = (ctx, startX, startY, palette, pattern) => {
-            const pixelSize = 4;
-            pattern.forEach((row, y) => {
-                row.split('').forEach((char, x) => {
-                    if (char !== ' ' && palette[char]) {
-                        r(startX + x * pixelSize, startY + y * pixelSize, pixelSize, pixelSize, palette[char]);
-                    }
-                });
-            });
+        // Helper: Draw 32x32 grid from string array (or 16x16 scaled 2x)
+        // We will do procedural drawing for better results
+
+        // ==========================================
+        // TERRAIN (Row 0-1)
+        // ==========================================
+
+        // 1. Grass (Detailed noise)
+        // 0,0
+        const drawGrass = (ox, oy) => {
+            rect(ox, oy, 32, 32, '#4CAF50'); // Base
+            for (let i = 0; i < 40; i++) {
+                const x = Math.random() * 32;
+                const y = Math.random() * 32;
+                p(ox + x, oy + y, Math.random() > 0.5 ? '#66BB6A' : '#388E3C');
+            }
+            // Grass blades
+            ctx.fillStyle = '#2E7D32';
+            for (let i = 0; i < 10; i++) {
+                const x = Math.floor(Math.random() * 30);
+                const y = Math.floor(Math.random() * 28);
+                ctx.fillRect(ox + x, oy + y, 1, 3);
+                ctx.fillRect(ox + x + 1, oy + y + 1, 1, 3);
+            }
         };
+        drawGrass(0, 0);
 
-        // --- Row 0: Terrain ---
-        // Grass
-        const grassPalette = { g: '#4CAF50', d: '#388E3C', l: '#81C784' };
-        drawSprite8x8(ctx, 0, 0, grassPalette, [
-            'gggggggg',
-            'ggdggggg',
-            'gggglggg',
-            'gdggggdg',
-            'gggggggg',
-            'gglggggg',
-            'gggggdgg',
-            'gggggggg'
-        ]);
+        // 2. Path (Dirt with stones)
+        // 32,0
+        const drawPath = (ox, oy) => {
+            rect(ox, oy, 32, 32, '#795548');
+            for (let i = 0; i < 50; i++) {
+                p(ox + Math.random() * 32, oy + Math.random() * 32, '#5D4037');
+            }
+            // Stones
+            for (let i = 0; i < 5; i++) {
+                const x = Math.random() * 28;
+                const y = Math.random() * 28;
+                rect(ox + x, oy + y, 3, 2, '#8D6E63');
+            }
+        };
+        drawPath(32, 0);
 
-        // Path (Dirt)
-        const pathPalette = { b: '#795548', d: '#5D4037', l: '#A1887F' };
-        drawSprite8x8(ctx, 32, 0, pathPalette, [
-            'bbbbbbbb',
-            'bdbbbdbt',
-            'blbbbbbb',
-            'bbbbdbbb',
-            'bbbblbbb',
-            'dbbbbbdb',
-            'bbbbbbbb',
-            'bdbbbbbb'
-        ]);
+        // 3. Water (Animated waves look)
+        // 64,0
+        const drawWater = (ox, oy) => {
+            rect(ox, oy, 32, 32, '#29B6F6'); // Light Blue
+            ctx.fillStyle = '#0288D1';
+            for (let y = 2; y < 32; y += 4) {
+                for (let x = 0; x < 32; x += 8) {
+                    if ((y / 4) % 2 === 0) rect(ox + x, oy + y, 4, 1, '#0288D1');
+                    else rect(ox + x + 4, oy + y, 4, 1, '#0288D1');
+                }
+            }
+            // Sparkles
+            rect(ox + 5, oy + 5, 2, 2, '#E1F5FE');
+            rect(ox + 20, oy + 15, 2, 2, '#E1F5FE');
+        };
+        drawWater(64, 0);
 
-        // Water
-        const waterPalette = { b: '#2196F3', d: '#1976D2', l: '#64B5F6' };
-        drawSprite8x8(ctx, 64, 0, waterPalette, [
-            'bbbbbbbb',
-            'bbdlbbbb',
-            'bbbbbbdb',
-            'lbbbbbbb',
-            'bbbbdlbb',
-            'dbbbbbbb',
-            'bbblbbbb',
-            'bbbbbbbb'
-        ]);
+        // 4. Snow
+        // 96,0
+        drawGrass(96, 0); // Base texture
+        rect(96, 0, 32, 32, '#ECEFF1'); // Cover with white
+        for (let i = 0; i < 20; i++) p(96 + Math.random() * 32, Math.random() * 32, '#CFD8DC');
 
-        // Snow
-        drawSprite8x8(ctx, 96, 0, { w: '#FFFFFF', b: '#E0F7FA' }, [
-            'wwwwwwww',
-            'wbwwwwww',
-            'wwwwbwww',
-            'wwwwwbww',
-            'bwwwwwww',
-            'wwwwwwbw',
-            'wwbwwwww',
-            'wwwwwwww'
-        ]);
+        // ==========================================
+        // PROPS (Row 1) (Sideways / 3/4 View)
+        // ==========================================
 
-        // --- Row 1: Props ---
-        // Tree
-        const treePalette = { g: '#1B5E20', b: '#3E2723', l: '#2E7D32' };
-        drawSprite8x8(ctx, 0, 32, treePalette, [
-            '   g    ',
-            '  glg   ',
-            ' glglg  ',
-            'glglglg ',
-            'ggggggg ',
-            '  bbb   ',
-            '  bbb   ',
-            '  bbb   '
-        ]);
+        // Tree (0, 32)
+        // Large detailed pine tree
+        const drawTree = (ox, oy) => {
+            // Trunk
+            rect(ox + 12, oy + 24, 8, 8, '#5D4037');
+            // Leaves (Triangles)
+            const layers = 3;
+            ctx.fillStyle = '#2E7D32';
+            for (let l = 0; l < layers; l++) {
+                const w = 24 - l * 4;
+                const h = 10;
+                const y = oy + 20 - l * 8;
+                const x = ox + 16 - w / 2;
 
-        // Rock
-        const rockPalette = { g: '#9E9E9E', d: '#616161', l: '#CFD8DC' };
-        drawSprite8x8(ctx, 32, 32, rockPalette, [
-            '  gggg  ',
-            ' glggdg ',
-            'glggggdg',
-            'gggggggg',
-            'dggggggd',
-            ' gggggg ',
-            '  dddd  ',
-            '        '
-        ]);
+                ctx.beginPath();
+                ctx.moveTo(x, y + h);
+                ctx.lineTo(x + w / 2, y);
+                ctx.lineTo(x + w, y + h);
+                ctx.fill();
 
-        // Bush (Berries)
-        const bushPalette = { g: '#4CAF50', r: '#F44336' };
-        drawSprite8x8(ctx, 64, 32, bushPalette, [
-            '  ggg   ',
-            ' ggggg  ',
-            'gggrggg ',
-            'ggggggr ',
-            'grggggg ',
-            ' ggggg  ',
-            '  ggg   ',
-            '        '
-        ]);
+                // Shading
+                ctx.fillStyle = '#1B5E20';
+                ctx.fillRect(x + w / 2, y + 2, 2, h - 2);
+                ctx.fillStyle = '#2E7D32';
+            }
+        };
+        drawTree(0, 32);
 
-        // Wall/Stone
-        drawSprite8x8(ctx, 96, 32, rockPalette, [
-            'gggggggg',
-            'dggggggd',
-            'gggggggg',
-            'gdggggdg',
-            'gggggggg',
-            'dggggggd',
-            'gggggggg',
-            'gdggggdg'
-        ]);
+        // Rock (32, 32)
+        const drawRock = (ox, oy) => {
+            ctx.beginPath();
+            ctx.fillStyle = '#757575';
+            ctx.arc(ox + 16, oy + 20, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Highlight
+            ctx.beginPath();
+            ctx.fillStyle = '#BDBDBD';
+            ctx.arc(ox + 14, oy + 18, 6, 0, Math.PI * 2);
+            ctx.fill();
+        };
+        drawRock(32, 32);
 
+        // Bush (64, 32)
+        const drawBush = (ox, oy) => {
+            ctx.fillStyle = '#43A047';
+            ctx.beginPath();
+            ctx.arc(ox + 10, oy + 20, 8, 0, Math.PI * 2);
+            ctx.arc(ox + 22, oy + 20, 8, 0, Math.PI * 2);
+            ctx.arc(ox + 16, oy + 14, 8, 0, Math.PI * 2);
+            ctx.fill();
+            // Berries
+            ctx.fillStyle = '#E53935';
+            rect(ox + 10, oy + 15, 2, 2, '#E53935');
+            rect(ox + 20, oy + 18, 2, 2, '#E53935');
+            rect(ox + 15, oy + 22, 2, 2, '#E53935');
+        };
+        drawBush(64, 32);
 
-        // --- CHARACTERS ---
-        // Generic Character Animation Generator
-        const drawFigure = (ctx, x, y, skin, clothes, pants, hair, frame) => {
-            const ps = 2; // Pixel scale for character (16x16 grid -> 32x32)
-            const offX = x;
-            const offY = y;
+        // Wall (96, 32)
+        const drawWall = (ox, oy) => {
+            rect(ox, oy, 32, 32, '#A1887F');
+            // Bricks
+            ctx.fillStyle = '#8D6E63';
+            for (let y = 0; y < 32; y += 8) {
+                rect(ox, oy + y, 32, 1, '#5D4037');
+                for (let x = 0; x < 32; x += 16) {
+                    rect(ox + x + (y % 16 == 0 ? 0 : 8), oy + y, 1, 8, '#5D4037');
+                }
+            }
+        };
+        drawWall(96, 32);
 
-            const r = (dx, dy, w, h, c) => {
-                ctx.fillStyle = c;
-                ctx.fillRect(offX + dx * ps, offY + dy * ps, w * ps, h * ps);
-            };
+        // ==========================================
+        // CHARACTERS (Detailed 32x32)
+        // ==========================================
 
-            // Head (Centered)
-            r(6, 2, 4, 4, skin);
-
-            // Hair
-            r(6, 1, 4, 1, hair);
-            r(5, 2, 1, 2, hair);
-            r(10, 2, 1, 2, hair);
+        // Helper to draw a detailed character
+        // Status: 32px tall. Head 12px, Body 12px, Legs 8px.
+        const drawChar = (ox, oy, skin, hair, shirt, pants, type = 'man') => {
+            // Legs
+            rect(ox + 10, oy + 22, 4, 10, pants);
+            rect(ox + 18, oy + 22, 4, 10, pants);
 
             // Body
-            r(5, 6, 6, 5, clothes);
-
+            rect(ox + 8, oy + 12, 16, 12, shirt);
             // Arms
-            if (frame === 0) { // Idle
-                r(4, 6, 1, 4, skin);
-                r(11, 6, 1, 4, skin);
-            } else if (frame === 1) { // Walk 1
-                r(4, 5, 1, 4, skin);
-                r(11, 7, 1, 4, skin);
-            } else if (frame === 2) { // Idle
-                r(4, 6, 1, 4, skin);
-                r(11, 6, 1, 4, skin);
-            } else { // Walk 2
-                r(4, 7, 1, 4, skin);
-                r(11, 5, 1, 4, skin);
+            rect(ox + 4, oy + 12, 4, 10, skin); // Left arm
+            rect(ox + 24, oy + 12, 4, 10, skin); // Right arm
+            // Sleeves
+            rect(ox + 4, oy + 12, 4, 4, shirt);
+            rect(ox + 24, oy + 12, 4, 4, shirt);
+
+            // Head
+            rect(ox + 8, oy + 0, 16, 14, skin);
+
+            // Hair
+            ctx.fillStyle = hair;
+            rect(ox + 8, oy, 16, 4); // Top
+            rect(ox + 6, oy + 2, 2, 10); // Side L
+            rect(ox + 24, oy + 2, 2, 10); // Side R
+            if (type === 'woman') {
+                rect(ox + 6, oy + 4, 20, 12); // Long hair
             }
 
-            // Legs
-            if (frame === 0 || frame === 2) {
-                r(6, 11, 1, 4, pants);
-                r(9, 11, 1, 4, pants);
-            } else if (frame === 1) {
-                r(6, 10, 1, 3, pants);
-                r(9, 12, 1, 3, pants);
-            } else {
-                r(6, 12, 1, 3, pants);
-                r(9, 10, 1, 3, pants);
-            }
+            // Face
+            rect(ox + 12, oy + 6, 2, 2, '#000'); // Eye L
+            rect(ox + 18, oy + 6, 2, 2, '#000'); // Eye R
+            rect(ox + 14, oy + 10, 4, 1, '#D99'); // Blush?
         };
 
-        const drawCharRow = (row, skin, clothes, pants, hair) => {
-            for (let f = 0; f < 4; f++) {
-                drawFigure(ctx, f * 32, row * 32, skin, clothes, pants, hair, f);
-            }
-        };
-
-        // Row 2-5: Player (Using same anim for all directions for simplicity, but colored differently if needed)
-        // Down
-        drawCharRow(2, '#FFCC80', '#F44336', '#3F51B5', '#3E2723');
-        // Up
-        drawCharRow(3, '#FFCC80', '#D32F2F', '#3F51B5', '#3E2723');
-        // Left
-        drawCharRow(4, '#FFCC80', '#F44336', '#3F51B5', '#3E2723');
-        // Right
-        drawCharRow(5, '#FFCC80', '#F44336', '#3F51B5', '#3E2723');
-
-        // Row 6: Villager (Woman)
-        drawCharRow(6, '#D7CCC8', '#E91E63', '#C2185B', '#212121');
-        // Row 7: Old Man / Dadi
-        drawCharRow(7, '#BCAAA4', '#F5F5F5', '#E0E0E0', '#BDBDBD');
-        // Row 8: Man
-        drawCharRow(8, '#8D6E63', '#2196F3', '#1565C0', '#000000');
-
-
-        // --- PETS ---
-        // Dog
-        const drawDog = (row) => {
-            const c = { f: '#D7CCC8', s: '#795548', b: '#3E2723' };
+        const drawCharAnim = (row, skin, hair, shirt, pants, type) => {
             for (let f = 0; f < 4; f++) {
                 const ox = f * 32;
                 const oy = row * 32;
-                const ps = 2;
-                const r = (dx, dy, w, h, col) => { ctx.fillStyle = col; ctx.fillRect(ox + dx * ps, oy + dy * ps, w * ps, h * ps); };
-
-                // Body
-                r(4, 8, 8, 4, c.f);
-                // Head
-                r(10, 5, 4, 4, c.f);
-                // Ears
-                r(10, 5, 1, 2, c.b);
-                r(13, 5, 1, 2, c.b);
-
-                // Legs anim
-                if (f % 2 === 0) {
-                    r(4, 12, 1, 3, c.s); r(10, 12, 1, 3, c.s);
-                } else {
-                    r(5, 11, 1, 3, c.s); r(9, 11, 1, 3, c.s);
-                }
-                // Tail
-                if (f === 0 || f === 2) r(3, 8, 1, 2, c.b);
-                else r(3, 7, 1, 2, c.b);
+                // Bobbing anim
+                const bob = (f === 1 || f === 3) ? -1 : 0;
+                drawChar(ox, oy + bob, skin, hair, shirt, pants, type);
             }
         };
-        drawDog(9);
 
-        // Cat
-        const drawCat = (row) => {
-            const c = { f: '#FFCCBC', s: '#FF5722' };
-            for (let f = 0; f < 4; f++) {
-                const ox = f * 32;
-                const oy = row * 32;
-                const ps = 2;
-                const r = (dx, dy, w, h, col) => { ctx.fillStyle = col; ctx.fillRect(ox + dx * ps, oy + dy * ps, w * ps, h * ps); };
+        // Row 2-5: Player
+        drawCharAnim(2, '#FFCC80', '#3E2723', '#F44336', '#1A237E', 'man'); // Down
+        drawCharAnim(3, '#FFCC80', '#3E2723', '#B71C1C', '#1A237E', 'man'); // Up (Fake back)
+        drawCharAnim(4, '#FFCC80', '#3E2723', '#F44336', '#1A237E', 'man'); // Left
+        drawCharAnim(5, '#FFCC80', '#3E2723', '#F44336', '#1A237E', 'man'); // Right
 
-                // Body
-                r(5, 9, 6, 3, c.f);
-                // Head
-                r(9, 6, 3, 3, c.f);
-                // Ears
-                r(9, 5, 1, 1, c.s);
-                r(11, 5, 1, 1, c.s);
+        // NPCs
+        // Row 6: Villager Woman (Pink)
+        drawCharAnim(6, '#F8BBD0', '#263238', '#E91E63', '#880E4F', 'woman');
+        // Row 7: Old Woman (Grey)
+        drawCharAnim(7, '#D7CCC8', '#BDBDBD', '#795548', '#3E2723', 'woman');
+        // Row 8: Man (Blue)
+        drawCharAnim(8, '#FFCC80', '#212121', '#2196F3', '#0D47A1', 'man');
 
-                // Legs
-                if (f % 2 === 0) {
-                    r(5, 12, 1, 2, c.f); r(9, 12, 1, 2, c.f);
-                } else {
-                    r(6, 11, 1, 2, c.s); r(8, 11, 1, 2, c.s);
-                }
-                // Tail
-                if (f === 0 || f === 2) r(4, 8, 1, 3, c.s);
-                else r(4, 7, 1, 3, c.s);
-            }
+        // Pets
+        // Row 9: Dog
+        const drawDog = (ox, oy) => {
+            rect(ox + 8, oy + 16, 16, 8, '#D7CCC8'); // Body
+            rect(ox + 20, oy + 10, 8, 8, '#D7CCC8'); // Head
+            rect(ox + 26, oy + 12, 4, 4, '#3E2723'); // Ears
+            rect(ox + 8, oy + 24, 4, 6, '#A1887F'); // Leg L
+            rect(ox + 18, oy + 24, 4, 6, '#A1887F'); // Leg R
         };
-        drawCat(10);
+        for (let f = 0; f < 4; f++) drawDog(f * 32, 9 * 32);
 
         return canvas.toDataURL();
     }

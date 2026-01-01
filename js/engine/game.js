@@ -9,6 +9,7 @@ import { Inventory, ItemData, ItemCategory } from '../systems/inventory.js';
 import { CraftingSystem, CraftingRecipes } from '../systems/crafting.js';
 import { PetManager, PetData } from '../systems/pets.js';
 import { WorldManager, AreaData, NPCData } from '../systems/world.js';
+import { SocialSystem } from '../systems/social.js';
 import { SpriteGenerator } from './sprites_generator.js';
 
 // ============================================================
@@ -138,11 +139,17 @@ window.Player = {
             if (dir === 'west' && this.x < 5) shouldTransition = true;
 
             if (shouldTransition) {
+                console.log(`[DEBUG] Transitioning ${dir} to ${conn?.area}`, conn);
+                if (!conn) { console.error('Connection undefined!'); return; }
+
                 const result = WorldManager.changeArea(conn.area, conn.x * CONFIG.TILE_SIZE, conn.y * CONFIG.TILE_SIZE);
+                console.log('[DEBUG] Transition Result:', result);
+
                 if (result.success) {
-                    // Clamp player position to screen bounds
-                    this.x = Math.max(30, Math.min(result.x, CONFIG.CANVAS_WIDTH - 50));
-                    this.y = Math.max(30, Math.min(result.y, CONFIG.CANVAS_HEIGHT - 50));
+                    // Clamp player position to screen bounds safely - prevent immediate re-trigger
+                    this.x = Math.max(50, Math.min(result.x, CONFIG.CANVAS_WIDTH - 64));
+                    this.y = Math.max(50, Math.min(result.y, CONFIG.CANVAS_HEIGHT - 64));
+                    console.log(`📍 Transferred to ${conn.area} at ${this.x}, ${this.y}`);
                     NotificationSystem.show(`📍 ${AreaData[conn.area].name[GameState.language]}`);
                 } else if (result.reason === 'missing_item') {
                     NotificationSystem.show(`🔒 Need ${ItemData[result.item]?.name[GameState.language] || result.item}`, 'warning');
@@ -176,6 +183,15 @@ window.Player = {
         if (GameState.spritesLoaded && Game.sprites) {
             const frames = SPRITES.PLAYER[this.direction] || SPRITES.PLAYER.down;
             const sprite = frames[this.animFrame % frames.length];
+            // Draw debug/fallback box first
+            if (isNaN(this.x) || isNaN(this.y)) {
+                console.error('[CRITICAL] Player Coordinates NaN!', this.x, this.y);
+                this.x = 400; this.y = 300; // Emergency Reset
+            }
+            if (this.x < 0 || this.x > 800) console.warn('[WARN] Player off screen X', this.x);
+
+
+
             // Draw player
             ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, this.x, this.y, 32, 32);
         } else {
@@ -247,36 +263,159 @@ const NotificationSystem = {
 // ============================================================
 // DIALOGUE SYSTEM
 // ============================================================
+// ============================================================
+// DIALOGUE SYSTEM (OVERHAULED)
+// ============================================================
 const DialogueSystem = {
     active: false,
     currentNPC: null,
     currentText: '',
     displayedText: '',
     textIndex: 0,
-    dialogueQueue: [],
+    choices: [],
+    waitingForChoice: false,
 
     start(npc) {
         this.active = true;
         this.currentNPC = npc;
-        const dialogues = npc.dialogues || {};
+        this.choices = [];
+        this.waitingForChoice = false;
 
-        // Check for quest dialogue first
-        const activeQuests = QuestManager.getActiveQuests();
+        const rel = SocialSystem.getRelationship(npc.id);
+        const lang = GameState.language;
+
+        // Intro with relationship status
+        const statusEmoji = rel.status === 'Partner' ? '❤️' : rel.status === 'Friend' ? '😊' : '👤';
+        document.querySelector('.dialogue-speaker').textContent = `${npc.name[lang]} (${statusEmoji} ${rel.status})`;
+        document.getElementById('dialogue-box').classList.remove('hidden');
+
+        // Initial Text
         let dialogueKey = 'greeting';
+        // Quest override logic here...
 
-        for (const quest of activeQuests) {
-            if (quest.definition?.giver === npc.id) {
-                dialogueKey = 'quest';
-                break;
+        // Use greeting
+        this.setText(npc.dialogues[dialogueKey]?.[lang] || "Hello!");
+
+        // Set choices immediately
+        this.setChoices([
+            { text: lang === 'hi' ? 'बातचीत करें' : 'Chat', action: 'chat' },
+            { text: lang === 'hi' ? 'उपहार दें' : 'Gift', action: 'gift' },
+            { text: lang === 'hi' ? 'अलविदा' : 'Bye', action: 'close' }
+        ]);
+
+        // Add specific options based on status
+        if (SocialSystem.canDate(npc.id)) {
+            this.choices.splice(2, 0, { text: '❤️ Confess Love', action: 'date' });
+        }
+    },
+
+    setText(text) {
+        this.currentText = text;
+        this.displayedText = '';
+        this.textIndex = 0;
+        this.waitingForChoice = false;
+        // Hide choices until text done? Or show immediately? 
+        // Let's show text first.
+        document.querySelector('.dialogue-text').textContent = '';
+        document.getElementById('dialogue-choices')?.remove(); // Clear old choices
+    },
+
+    setChoices(choices) {
+        this.choices = choices;
+    },
+
+    renderChoices() {
+        const box = document.getElementById('dialogue-box');
+        let choicesEl = document.getElementById('dialogue-choices');
+        if (!choicesEl) {
+            choicesEl = document.createElement('div');
+            choicesEl.id = 'dialogue-choices';
+            choicesEl.style.cssText = 'display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;';
+            box.appendChild(choicesEl);
+        }
+        choicesEl.innerHTML = '';
+
+        this.choices.forEach((choice, index) => {
+            const btn = document.createElement('button');
+            btn.textContent = choice.text;
+            btn.className = 'menu-btn';
+            btn.onclick = () => this.handleChoice(choice.action);
+            choicesEl.appendChild(btn);
+        });
+        this.waitingForChoice = true;
+    },
+
+    handleChoice(action) {
+        const npc = this.currentNPC;
+        const lang = GameState.language;
+
+        if (action === 'close') {
+            this.close();
+            return;
+        }
+
+        if (action === 'chat') {
+            // Check if NPC has specific topics
+            if (npc.topics) {
+                const topicChoices = Object.entries(npc.topics).map(([key, data]) => ({
+                    text: data.q[lang],
+                    action: `ask_${key}`
+                }));
+                topicChoices.push({ text: lang === 'hi' ? 'वापस' : 'Back', action: 'back' });
+                this.setText(lang === 'hi' ? 'आप क्या जानना चाहते हैं?' : 'What would you like to ask?');
+                this.setChoices(topicChoices);
+                return;
+            }
+
+            // Fallback generic chat
+            const msgs = [
+                lang === 'hi' ? 'आज मौसम अच्छा है।' : 'Steps are light today.',
+                lang === 'hi' ? 'क्या आपने वो बादल देखा?' : 'Did you see that cloud?',
+                npc.dialogues.wisdom?.[lang]
+            ];
+            const msg = msgs[Math.floor(Math.random() * msgs.length)] || '...';
+            this.setText(msg);
+            SocialSystem.addXP(npc.id, 2);
+            this.setChoices([{ text: '...', action: 'back' }]);
+        }
+
+        if (action.startsWith('ask_')) {
+            const topicKey = action.replace('ask_', '');
+            const topic = npc.topics[topicKey];
+            if (topic) {
+                this.setText(topic.a[lang]);
+                SocialSystem.addXP(npc.id, 5); // More XP for deep questions
+                this.setChoices([{ text: 'Wow!', action: 'chat' }, { text: 'Bye', action: 'close' }]);
             }
         }
 
-        this.currentText = dialogues[dialogueKey]?.[GameState.language] || dialogues.greeting?.[GameState.language] || 'Hello!';
-        this.displayedText = '';
-        this.textIndex = 0;
+        if (action === 'gift') {
+            // Open inventory to pick gift?
+            // Simple fallback for now
+            if (Inventory.items.length > 0) {
+                // Logic to give first item? Or open menu?
+                // Let's just say "Use Inventory to Give"
+                this.setText(lang === 'hi' ? 'कृपया अपनी इन्वेंटरी से एक आइटम चुनें।' : 'Please open Inventory (I) and click an item to give.');
+                this.setChoices([{ text: 'OK', action: 'back' }]);
+            } else {
+                this.setText(lang === 'hi' ? 'आपके पास कुछ नहीं है!' : 'You have nothing to give!');
+                this.setChoices([{ text: 'OK', action: 'back' }]);
+            }
+        }
 
-        document.getElementById('dialogue-box').classList.remove('hidden');
-        document.querySelector('.dialogue-speaker').textContent = npc.name[GameState.language];
+        if (action === 'date') {
+            if (SocialSystem.startDating(npc.id)) {
+                this.setText("Oh! I... I feel the same way! ❤️");
+                NotificationSystem.show(`You are now dating ${npc.name[lang]}!`, 'success');
+            } else {
+                this.setText("I think we should just be friends...");
+            }
+            this.setChoices([{ text: '❤️', action: 'back' }]);
+        }
+
+        if (action === 'back') {
+            this.start(npc); // Restart menu
+        }
     },
 
     update(deltaTime) {
@@ -286,29 +425,26 @@ const DialogueSystem = {
             this.displayedText += this.currentText[this.textIndex];
             this.textIndex++;
             document.querySelector('.dialogue-text').textContent = this.displayedText;
+        } else if (!this.waitingForChoice && this.choices.length > 0) {
+            this.renderChoices();
         }
 
-        if (Input.isJustPressed('Space') || Input.isJustPressed('Enter') || Input.isJustPressed('KeyE')) {
+        // Input handling for skipping text
+        if (Input.isJustPressed('Space') || Input.isJustPressed('Enter')) {
             if (this.textIndex < this.currentText.length) {
                 this.displayedText = this.currentText;
                 this.textIndex = this.currentText.length;
                 document.querySelector('.dialogue-text').textContent = this.displayedText;
-            } else {
-                this.close();
             }
         }
         if (Input.isJustPressed('Escape')) this.close();
     },
 
     close() {
-        // Update quest objectives before clearing NPC reference
-        if (this.currentNPC) {
-            QuestManager.updateObjective('dialogue', this.currentNPC.id, 1);
-        }
-
         this.active = false;
         this.currentNPC = null;
         document.getElementById('dialogue-box').classList.add('hidden');
+        document.getElementById('dialogue-choices')?.remove();
     }
 };
 
@@ -692,10 +828,11 @@ const WorldRenderer = {
                 // Default to grass
                 let tile = 0;
 
-                // Path in center
-                if (x >= 10 && x <= 14) tile = 1;
-
                 // Area-specific features
+                if (area.id === 'village_square') {
+                    if (x >= 10 && x <= 14) tile = 1; // Path in center
+                }
+
                 if (area.id === 'riverside' && y > 12) tile = 2;
                 if (area.id === 'pine_forest' && Math.random() > 0.7) tile = 3;
                 if (area.id === 'temple_hill' && y < 5 && x > 8 && x < 16) tile = 5;
@@ -1152,11 +1289,29 @@ const Game = {
         GameState.currentScreen = id;
     },
 
+    // Visual Polish: Fade Transition
+    async fadeTransition(callback) {
+        const overlay = document.getElementById('transition-overlay');
+        if (!overlay) return callback();
+
+        overlay.style.opacity = '1';
+        await new Promise(r => setTimeout(r, 500));
+
+        callback();
+
+        await new Promise(r => setTimeout(r, 100));
+        overlay.style.opacity = '0';
+    },
+
     async startNewGame() {
         this.showScreen('intro-screen');
         await this.playIntro();
-        this.showScreen('game-screen');
-        this.startGameLoop();
+
+        this.fadeTransition(() => {
+            this.showScreen('game-screen');
+            this.startGameLoop();
+        });
+
         // Show controls help only on truly first play
         if (!sessionStorage.getItem('pahadi_controls_shown')) {
             this.showControlsHelp();
@@ -1356,6 +1511,7 @@ const Game = {
                 crafting: CraftingSystem.getSaveData(),
                 pets: PetManager.getSaveData(),
                 world: WorldManager.getSaveData(),
+                social: SocialSystem.getSaveData(), // New
                 timestamp: Date.now()
             };
 
@@ -1408,6 +1564,7 @@ const Game = {
                 if (data.crafting && CraftingSystem.loadSaveData) CraftingSystem.loadSaveData(data.crafting);
                 if (data.pets) PetManager.loadSaveData(data.pets);
                 if (data.world) WorldManager.loadSaveData(data.world);
+                if (data.social && SocialSystem.loadSaveData) SocialSystem.loadSaveData(data.social);
 
                 this.setLanguage(GameState.language);
                 this.showScreen('game-screen');
@@ -1423,5 +1580,69 @@ const Game = {
     }
 };
 
+// Mobile Controls Logic
+const MobileControls = {
+    init() {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.matchMedia("(max-width: 768px)").matches) || ('ontouchstart' in window);
+        if (isMobile) this.createControls();
+    },
+
+    createControls() {
+        console.log('📱 Creating mobile controls');
+        const style = document.createElement('style');
+        style.textContent = `
+            .d-pad { position: fixed; bottom: 30px; left: 30px; display: grid; grid-template-columns: 60px 60px 60px; grid-template-rows: 60px 60px 60px; gap: 5px; z-index: 1000; touch-action: none; user-select: none; }
+            .d-btn { background: rgba(255, 255, 255, 0.15); border: 2px solid rgba(255, 255, 255, 0.4); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; -webkit-tap-highlight-color: transparent; }
+            .d-btn:active { background: rgba(255, 255, 255, 0.4); transform: scale(0.95); }
+            .d-up { grid-column: 2; grid-row: 1; }
+            .d-left { grid-column: 1; grid-row: 2; }
+            .d-right { grid-column: 3; grid-row: 2; }
+            .d-down { grid-column: 2; grid-row: 3; }
+            
+            .action-btns { position: fixed; bottom: 40px; right: 30px; display: flex; gap: 20px; z-index: 1000; touch-action: none; user-select: none; }
+            .ac-btn { width: 70px; height: 70px; border-radius: 50%; border: 3px solid white; color: white; font-size: 24px; display: flex; justify-content: center; align-items: center; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); -webkit-tap-highlight-color: transparent; }
+            .btn-a { background: #4CAF50; }
+            .btn-b { background: #FF9800; }
+            .ac-btn:active { transform: scale(0.95); filter: brightness(1.2); }
+        `;
+        document.head.appendChild(style);
+
+        const dpad = document.createElement('div');
+        dpad.className = 'd-pad';
+        dpad.innerHTML = `
+            <div class="d-btn d-up" data-key="ArrowUp">⬆️</div>
+            <div class="d-btn d-left" data-key="ArrowLeft">⬅️</div>
+            <div class="d-btn d-right" data-key="ArrowRight">➡️</div>
+            <div class="d-btn d-down" data-key="ArrowDown">⬇️</div>
+        `;
+        document.body.appendChild(dpad);
+
+        const actions = document.createElement('div');
+        actions.className = 'action-btns';
+        actions.innerHTML = `
+            <div class="ac-btn btn-b" data-key="KeyI">🎒</div>
+            <div class="ac-btn btn-a" data-key="Space">✋</div>
+        `;
+        document.body.appendChild(actions);
+
+        // Bind Events
+        const handleTouch = (e, key, state) => {
+            e.preventDefault();
+            if (window.Input) window.Input.keys[key] = state;
+        };
+
+        document.querySelectorAll('.d-btn, .ac-btn').forEach(btn => {
+            const key = btn.dataset.key;
+            btn.addEventListener('touchstart', (e) => handleTouch(e, key, true), { passive: false });
+            btn.addEventListener('touchend', (e) => handleTouch(e, key, false), { passive: false });
+            btn.addEventListener('mousedown', (e) => handleTouch(e, key, true));
+            btn.addEventListener('mouseup', (e) => handleTouch(e, key, false));
+        });
+    }
+};
+
 // Initialize on load
-document.addEventListener('DOMContentLoaded', () => Game.init());
+document.addEventListener('DOMContentLoaded', () => {
+    Game.init();
+    MobileControls.init();
+});
