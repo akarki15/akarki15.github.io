@@ -21,7 +21,7 @@ export const AreaData = {
             east: { area: 'tea_house', x: 2, y: 10 },
             west: { area: 'pine_forest', x: 23, y: 10 }
         },
-        npcs: ['dadi_kamala', 'raju', 'village_child', 'farmer_ram', 'anita_kid'],
+        npcs: ['dadi_kamala', 'raju', 'village_child', 'farmer_ram', 'anita_kid', 'wandering_artist'],
         forageSpots: [
             { x: 5, y: 5, items: ['berries', 'mushroom'], respawnHours: 12 },
             { x: 22, y: 8, items: ['tulsi', 'ginger'], respawnHours: 24 },
@@ -125,7 +125,9 @@ export const AreaData = {
         ],
         interactables: [
             { id: 'hollow_tree', x: 20, y: 8, type: 'secret', emoji: '🌲' },
-            { id: 'old_stump', x: 12, y: 18, type: 'rest', emoji: '🪵' }
+            { id: 'old_stump', x: 12, y: 18, type: 'rest', emoji: '🪵' },
+            { id: 'ancient_pine', x: 30, y: 5, type: 'quest_interact', emoji: '🌲', desc: { en: "A massive, ancient pine tree that seems to hum.", hi: "एक विशाल, प्राचीन देवदार का पेड़ जो गुनगुनाता है।" } },
+            { id: 'wind_chime', x: 31, y: 4, type: 'pickup', item: 'wind_chime', emoji: '🎐', desc: { en: "A delicate wind chime caught in the branches.", hi: "शाखाओं में फंसी एक नाजुक विंड चाइम।" } }
         ]
     },
     'deep_forest': {
@@ -564,6 +566,24 @@ export const NPCData = {
             deep: { en: 'I forgot what I was guarding centuries ago. Now I just guard the memory of guarding. It is a lonely job.', hi: 'मैं सदियों पहले भूल गया कि मैं किस चीज़ की रक्षा कर रहा था। अब मैं बस रक्षा करने की याद की रक्षा करता हूँ। यह अकेला काम है।' }
         },
         gifts: { loved: ['incense'], liked: ['flower'] }
+    },
+    'wandering_artist': {
+        id: 'wandering_artist', name: { en: 'Wandering Artist', hi: 'घुमक्कड़ कलाकार' },
+        role: { en: 'Artist', hi: 'कलाकार' },
+        emoji: '🎨', schedule: { '8-18': 'village_square' },
+        dialogues: {
+            greeting: { en: 'The light on the mountains... it changes every second.', hi: 'पहाड़ों पर रोशनी... हर पल बदलती है।' },
+            wisdom: { en: 'To paint a mountain, you must become the mountain.', hi: 'पहाड़ को चित्रित करने के लिए, तुम्हें पहाड़ बनना होगा।' },
+            quest: { en: 'I need a new color. Perhaps crushed berries?', hi: 'मुझे एक नया रंग चाहिए। शायद कुचले हुए जामुन?' },
+            deep: { en: 'I have traveled the world, but nowhere has colors like this valley. It is as if the gods dropped their paint palette here.', hi: 'मैंने दुनिया भर की यात्रा की है, लेकिन इस घाटी जैसे रंग कहीं नहीं हैं। ऐसा लगता है जैसे देवताओं ने अपनी रंग की थाली यहाँ गिरा दी हो।' }
+        },
+        topics: {
+            'life': {
+                q: { en: 'Why did you come here?', hi: 'आप यहाँ क्यों आए?' },
+                a: { en: 'To capture the soul of the Himalayas. But I think they captured my soul instead.', hi: 'हिमालय की आत्मा को कैद करने के लिए। पर मुझे लगता है कि उन्होंने मेरी आत्मा को कैद कर लिया।' }
+            }
+        },
+        gifts: { loved: ['berries', 'flower'], liked: ['water'] }
     }
 };
 

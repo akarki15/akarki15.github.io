@@ -75,6 +75,8 @@ export const ItemData = {
     'moon_gem': { id: 'moon_gem', name: { en: 'Chandra Mani', hi: 'चंद्र मणि' }, category: ItemCategory.QUEST, stackSize: 1, value: 0, emoji: '🌙' },
     'ancient_artifact': { id: 'ancient_artifact', name: { en: 'Ancient Artifact', hi: 'प्राचीन वस्तु' }, category: ItemCategory.QUEST, stackSize: 1, value: 200, emoji: '🏺' },
     'old_coin': { id: 'old_coin', name: { en: 'Old Coin', hi: 'पुराना सिक्का' }, category: ItemCategory.QUEST, stackSize: 10, value: 25, emoji: '🪙' },
+    'wind_chime': { id: 'wind_chime', name: { en: 'Wind Chime', hi: 'विंड चाइम' }, category: ItemCategory.QUEST, stackSize: 1, value: 0, emoji: '🎐' },
+    'wind_chime_charm': { id: 'wind_chime_charm', name: { en: 'Chime Charm', hi: 'घंटी ताबीज' }, category: ItemCategory.EQUIPMENT, stackSize: 1, value: 50, emoji: '🧿' },
 
     // Recipes
     'recipe_ginger_tea': { id: 'recipe_ginger_tea', name: { en: 'Recipe: Ginger Tea', hi: 'विधि: अदरक चाय' }, category: ItemCategory.RECIPE, stackSize: 1, value: 30, emoji: '📜' },

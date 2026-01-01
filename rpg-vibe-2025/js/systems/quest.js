@@ -233,6 +233,30 @@ export const QuestData = {
         rewards: { xp: 100, pet: 'sheepdog', friendship: { dadi_kamala: 10 } }
     },
 
+    'sq_whispering_pine': {
+        id: 'sq_whispering_pine',
+        type: QuestType.SIDE,
+        title: { en: 'The Whispering Pine', hi: 'फुसफुसाता देवदार' },
+        description: {
+            en: 'You hear a strange voice coming from an ancient pine tree near the cliffs.',
+            hi: 'चट्टानों के पास एक पुराने देवदार के पेड़ से आपको एक अजीब आवाज सुनाई देती है।'
+        },
+        giver: 'nature', // Triggered by location/interaction
+        objectives: [
+            { id: 'investigate_sound', desc: { en: 'Investigate the whispering tree', hi: 'फुसफुसाते पेड़ की जाँच करें' }, type: 'interact', target: 'ancient_pine', count: 1, current: 0 },
+            { id: 'find_source', desc: { en: 'Find the source of the voice', hi: 'आवाज का स्रोत खोजें' }, type: 'collect', target: 'wind_chime', count: 1, current: 0 } // It was just a wind chime!
+        ],
+        choices: {
+            'keep_chime': {
+                rewards: { items: ['wind_chime_charm'], xp: 50 }
+            },
+            'leave_chime': {
+                rewards: { xp: 100, friendship: { nature_spirits: 10 } } // unseen faction
+            }
+        },
+        rewards: { coins: 20, xp: 50 }
+    },
+
     // ===== DAILY QUESTS =====
     'dq_morning_chai': {
         id: 'dq_morning_chai',
@@ -447,5 +471,32 @@ export const QuestManager = {
         if (data.activeQuests) this.activeQuests = data.activeQuests;
         if (data.completedQuests) this.completedQuests = data.completedQuests;
         if (data.questLog) this.questLog = data.questLog;
+    },
+
+    // Branching Choices
+    handleChoice(questId, choiceId) {
+        const quest = this.activeQuests.find(q => q.id === questId);
+        if (!quest) return false;
+
+        const questDef = QuestData[questId];
+        if (!questDef.choices || !questDef.choices[choiceId]) return false;
+
+        const choiceEffect = questDef.choices[choiceId];
+
+        // Log the choice
+        this.logEvent(questId, `choice_${choiceId}`);
+
+        // Apply effects
+        if (choiceEffect.nextStage) {
+            // Logic to advance quest stage could go here
+            // For now, we'll just log it, but this enables multi-stage quests
+            console.log(`Quest ${questId} advancing to stage: ${choiceEffect.nextStage}`);
+        }
+
+        if (choiceEffect.rewards) {
+            this.grantRewards(choiceEffect.rewards);
+        }
+
+        return true;
     }
 };

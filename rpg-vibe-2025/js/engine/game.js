@@ -2,6 +2,8 @@
  * Pahadi Tales - Complete Game Engine
  * Integrates all systems for a 2-3 hour gameplay experience
  */
+console.log('🚀 Loading Game Engine Module...');
+
 
 // Import all systems (they self-register on window)
 import { QuestManager, QuestData, QuestState } from '../systems/quest.js';
@@ -12,8 +14,7 @@ import { SocialSystem } from '../systems/social.js';
 import { SpriteGenerator } from './sprites_generator.js';
 import { DialogueGenerator } from '../systems/dialogue_gen.js';
 import { LightingSystem } from '../systems/lighting.js';
-import { DialogueSystem } from '../systems/dialogue.js';
-import { PetManager, PetRenderer } from '../systems/pet.js';
+import { PetManager, PetRenderer } from '../systems/pets.js';
 import { MiniMap } from '../systems/minimap.js';
 import { WeatherSystem } from '../systems/weather.js';
 import { SoundSystem } from '../systems/sound.js';
@@ -1444,23 +1445,34 @@ const Game = {
         };
 
         // Initialize all systems
-        Input.init();
-        WorldManager.init();
-        Inventory.init();
-        QuestManager.init();
-        CraftingSystem.init();
-        PetManager.init();
-        UIManager.init();
-        MiniMap.init();
-        LightingSystem.init();
-        WeatherSystem.init();
-        SoundSystem.init();
+        try {
+            console.log('⚙️ Initializing Systems...');
+            Input.init();
+            WorldManager.init();
+            Inventory.init();
+            QuestManager.init();
+            CraftingSystem.init();
+            PetManager.init();
+            UIManager.init();
+            MiniMap.init();
+            LightingSystem.init();
+            WeatherSystem.init();
+            SoundSystem.init();
+            console.log('✅ All Systems Initialized');
+        } catch (e) {
+            console.error('❌ System Initialization Failed:', e);
+            alert('Game Error: ' + e.message);
+        }
 
         // Music needs user interaction to start context usually
-        window.addEventListener('keydown', () => {
+        const resumeAudio = () => {
             SoundSystem.resume();
             SoundSystem.startMusic();
-        }, { once: true });
+            window.removeEventListener('click', resumeAudio);
+            window.removeEventListener('keydown', resumeAudio);
+        };
+        window.addEventListener('keydown', resumeAudio);
+        window.addEventListener('click', resumeAudio);
 
         // Check for existing save to enable Continue button
         if (localStorage.getItem('pahadiTales_save')) {
@@ -1807,6 +1819,27 @@ const Game = {
                     NotificationSystem.show(inter.desc[GameState.language], 'info', 5000);
                     return true;
                 }
+                if (inter.type === 'quest_interact') {
+                    if (inter.id === 'ancient_pine') {
+                        if (QuestManager.startQuest('sq_whispering_pine')) {
+                            NotificationSystem.show(GameState.language === 'hi' ? 'खोज शुरू: फुसफुसाता देवदार' : 'Started: The Whispering Pine', 'success');
+                            SoundSystem.playSfx('sparkle');
+                            // Show initial dialogue/message
+                            setTimeout(() => {
+                                NotificationSystem.show(inter.desc[GameState.language], 'info', 6000);
+                            }, 1000);
+                        } else {
+                            // Already started/completed
+                            const quest = QuestManager.activeQuests.find(q => q.id === 'sq_whispering_pine');
+                            if (quest) {
+                                NotificationSystem.show(GameState.language === 'hi' ? 'आवाज अभी भी आ रही है...' : 'The voice is still whispering...', 'info');
+                            } else {
+                                NotificationSystem.show(GameState.language === 'hi' ? 'पेड़ अब शांत है।' : 'The tree is silent now.', 'info');
+                            }
+                        }
+                    }
+                    return true;
+                }
             }
         }
         return false;
@@ -2130,10 +2163,18 @@ const MobileControls = {
 };
 
 // Initialize on load
-document.addEventListener('DOMContentLoaded', () => {
+const initGame = () => {
+    if (window.GameInitialized) return;
+    window.GameInitialized = true;
     Game.init();
     MobileControls.init();
 
     // Expose for debugging
     window.WorldRenderer = WorldRenderer;
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGame);
+} else {
+    initGame();
+}
