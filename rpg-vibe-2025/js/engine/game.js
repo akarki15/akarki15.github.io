@@ -1639,40 +1639,46 @@ const Game = {
     },
 
     async startNewGame() {
-        // Clear tile cache for fresh start
-        WorldRenderer.cachedTiles = null;
-        WorldRenderer.lastAreaId = null;
+        try {
+            console.log("Starting new game...");
+            // Clear tile cache for fresh start
+            WorldRenderer.cachedTiles = null;
+            WorldRenderer.lastAreaId = null;
 
-        // Reset player to center of screen (safe spawn)
-        Player.x = 400;
-        Player.y = 300;
-        Player.energy = Player.maxEnergy;
-        Player.health = Player.maxHealth;
+            // Reset player to center of screen (safe spawn)
+            Player.x = 400;
+            Player.y = 300;
+            Player.energy = Player.maxEnergy;
+            Player.health = Player.maxHealth;
 
-        // Reset world state
-        WorldManager.currentArea = 'tea_house';
-        WorldManager.visitedAreas = ['tea_house', 'village_square'];
+            // Reset world state
+            WorldManager.currentArea = 'tea_house';
+            WorldManager.visitedAreas = ['tea_house', 'village_square'];
 
-        // Clear any stale save that might override positions
-        // (Player can manually save later)
+            // Clear any stale save that might override positions
+            // (Player can manually save later)
 
-        this.showScreen('intro-screen');
-        await this.playIntro();
+            this.showScreen('intro-screen');
+            await this.playIntro();
 
-        this.fadeTransition(() => {
-            this.showScreen('game-screen');
-            this.startGameLoop();
-        });
+            this.fadeTransition(() => {
+                this.showScreen('game-screen');
+                this.startGameLoop();
+            });
 
-        // Show controls help only on truly first play
-        if (!sessionStorage.getItem('pahadi_controls_shown')) {
-            this.showControlsHelp();
-            sessionStorage.setItem('pahadi_controls_shown', 'true');
+            // Show controls help only on truly first play
+            if (!sessionStorage.getItem('pahadi_controls_shown')) {
+                this.showControlsHelp();
+                sessionStorage.setItem('pahadi_controls_shown', 'true');
+            }
+
+            setTimeout(() => {
+                NotificationSystem.show('QUEST: Go WEST to Pine Forest for a surprise! 🐕', 'success', 8000);
+            }, 2000);
+        } catch (e) {
+            console.error(e);
+            alert("Error starting game: " + e.message + "\n" + e.stack);
         }
-
-        setTimeout(() => {
-            NotificationSystem.show('QUEST: Go WEST to Pine Forest for a surprise! 🐕', 'success', 8000);
-        }, 2000);
     },
 
     async playIntro() {
