@@ -26,13 +26,46 @@ const CONFIG = {
 // GAME STATE
 // ============================================================
 window.GameState = {
-    currentScreen: 'main-menu',
-    language: 'en',
+    // Game State
+    currentScreen: 'intro-screen',
     isPaused: false,
+    language: 'en',
+    spritesLoaded: false,
+
+    // Time System
     gameTime: { hour: 6, minute: 0 },
     day: 1,
     season: 'spring',
     weather: 'sunny'
+};
+
+// Sprite Definitions (32x32 grid)
+const SPRITES = {
+    TERRAIN: {
+        0: { x: 0, y: 0 },   // grass
+        1: { x: 32, y: 0 },  // path
+        2: { x: 64, y: 0 },  // water
+        3: { x: 0, y: 32 },  // tree
+        4: { x: 32, y: 32 }, // rock
+        5: { x: 128, y: 0 }, // building/stone
+        10: { x: 64, y: 32 }, // bush
+        11: { x: 96, y: 0 }  // snow
+    },
+    PLAYER: {
+        down: { x: 0, y: 64 },
+        up: { x: 32, y: 64 },
+        left: { x: 64, y: 64 },
+        right: { x: 96, y: 64 }
+    },
+    NPC: {
+        default: { x: 0, y: 96 },
+        villager: { x: 0, y: 96 },
+        old_woman: { x: 0, y: 96 }, // fallback
+        man: { x: 32, y: 96 },
+        fisherman: { x: 96, y: 96 },
+        shopkeeper: { x: 64, y: 96 },
+        child: { x: 96, y: 96 }
+    }
 };
 
 // ============================================================
@@ -135,20 +168,20 @@ window.Player = {
     useEnergy(amount) { if (this.energy >= amount) { this.energy -= amount; return true; } return false; },
 
     draw(ctx) {
-        // Draw player sprite (simple colored rectangle for now)
-        const colors = { up: '#E8A87C', down: '#E8A87C', left: '#D49A70', right: '#D49A70' };
-        ctx.fillStyle = colors[this.direction];
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        if (GameState.spritesLoaded && Game.sprites) {
+            const sprite = SPRITES.PLAYER[this.direction] || SPRITES.PLAYER.down;
+            // Draw player
+            ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, this.x, this.y, 32, 32);
+        } else {
+            // Draw player sprite (simple colored rectangle for now)
+            const colors = { up: '#E8A87C', down: '#E8A87C', left: '#D49A70', right: '#D49A70' };
+            ctx.fillStyle = colors[this.direction];
+            ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        // Head
-        ctx.fillStyle = '#FFDAB9';
-        ctx.fillRect(this.x + 8, this.y + 4, 16, 12);
-
-        // Direction indicator
-        ctx.fillStyle = '#2C1810';
-        const eyeOffset = { up: { x: 0, y: -2 }, down: { x: 0, y: 2 }, left: { x: -3, y: 0 }, right: { x: 3, y: 0 } };
-        ctx.fillRect(this.x + 12 + eyeOffset[this.direction].x, this.y + 8 + eyeOffset[this.direction].y, 2, 2);
-        ctx.fillRect(this.x + 18 + eyeOffset[this.direction].x, this.y + 8 + eyeOffset[this.direction].y, 2, 2);
+            // Head
+            ctx.fillStyle = '#FFDAB9';
+            ctx.fillRect(this.x + 8, this.y + 4, 16, 12);
+        }
     }
 };
 
@@ -674,20 +707,44 @@ const WorldRenderer = {
         const area = WorldManager.getCurrentArea();
         if (!area) return;
 
-        // Generate tiles for current area (cache this in real implementation)
+        // Generate tiles for current area
         const tiles = this.generateAreaTiles(area);
 
-        // Draw base tiles
+        // Draw tiles
         for (let y = 0; y < tiles.length; y++) {
             for (let x = 0; x < tiles[y].length; x++) {
                 const tile = tiles[y][x];
-                ctx.fillStyle = this.tileColors[tile] || '#333';
-                ctx.fillRect(x * CONFIG.TILE_SIZE, y * CONFIG.TILE_SIZE, CONFIG.TILE_SIZE, CONFIG.TILE_SIZE);
+                const tx = x * CONFIG.TILE_SIZE;
+                const ty = y * CONFIG.TILE_SIZE;
 
-                // Add some texture
-                if (tile === 0 && Math.random() > 0.9) {
-                    ctx.fillStyle = '#5C9A6A';
-                    ctx.fillRect(x * CONFIG.TILE_SIZE + 8, y * CONFIG.TILE_SIZE + 8, 4, 4);
+                if (GameState.spritesLoaded && Game.sprites) {
+                    // Draw ground first for transparent objects
+                    if ([3, 4, 10].includes(tile)) {
+                        const ground = SPRITES.TERRAIN[0]; // grass
+                        ctx.drawImage(Game.sprites, ground.x, ground.y, 32, 32, tx, ty, 32, 32);
+                    }
+
+                    // specialized drawing
+                    const sprite = SPRITES.TERRAIN[tile] || SPRITES.TERRAIN[0];
+                    if (tile === 3) { // Pine tree (tall)
+                        // Draw at y-32 to use full height if sprite supported it, but sprite is currently packed.
+                        // Based on generated image, tree might be just 32 wide but tall.
+                        // Let's stick to standard 32x32 for safety unless we verify 32x64.
+                        // Generative model prompt said "can take up 32x64", let's assume it fits in 32x64 cell if configured.
+                        // But I will stick to 32x32 src for now to avoid glitches.
+                        ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, tx, ty, 32, 32);
+                    } else {
+                        ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, tx, ty, 32, 32);
+                    }
+                } else {
+                    // Fallback to colors
+                    ctx.fillStyle = this.tileColors[tile] || '#333';
+                    ctx.fillRect(tx, ty, CONFIG.TILE_SIZE, CONFIG.TILE_SIZE);
+                    // Add some texture
+                    if (tile === 0 && Math.random() > 0.9) {
+                        ctx.fillStyle = '#5C9A6A';
+                        ctx.fillRect(tx + 8, ty + 8, 4, 4);
+                    }
                 }
             }
         }
@@ -698,15 +755,20 @@ const WorldRenderer = {
                 const spot = area.forageSpots[i];
                 const canForage = WorldManager.canForage(i);
 
-                ctx.fillStyle = canForage ? '#FFD700' : '#888';
-                ctx.beginPath();
-                ctx.arc(spot.x * CONFIG.TILE_SIZE + 16, spot.y * CONFIG.TILE_SIZE + 16, 10, 0, Math.PI * 2);
-                ctx.fill();
-
-                if (canForage) {
-                    ctx.fillStyle = '#000';
-                    ctx.font = '16px Arial';
-                    ctx.fillText('🌿', spot.x * CONFIG.TILE_SIZE + 8, spot.y * CONFIG.TILE_SIZE + 22);
+                if (GameState.spritesLoaded) {
+                    if (canForage) {
+                        const bush = SPRITES.TERRAIN[10];
+                        ctx.shadowBlur = 5;
+                        ctx.shadowColor = 'yellow';
+                        ctx.drawImage(Game.sprites, bush.x, bush.y, 32, 32, spot.x * 32, spot.y * 32, 32, 32);
+                        ctx.shadowBlur = 0;
+                    }
+                    // If harvested, maybe don't draw or draw empty bush?
+                } else {
+                    ctx.fillStyle = canForage ? '#FFD700' : '#888';
+                    ctx.beginPath();
+                    ctx.arc(spot.x * CONFIG.TILE_SIZE + 16, spot.y * CONFIG.TILE_SIZE + 16, 10, 0, Math.PI * 2);
+                    ctx.fill();
                 }
             }
         }
@@ -714,6 +776,7 @@ const WorldRenderer = {
         // Draw interactables
         if (area.interactables) {
             for (const inter of area.interactables) {
+                // Keep emojis for interactables for now as they are specific
                 ctx.font = '24px Arial';
                 ctx.fillText(inter.emoji, inter.x * CONFIG.TILE_SIZE, inter.y * CONFIG.TILE_SIZE + 24);
             }
@@ -739,15 +802,25 @@ const NPCRenderer = {
             npc._x = x;
             npc._y = y;
 
-            // Draw NPC body
-            ctx.fillStyle = '#C38D9E';
-            ctx.fillRect(x, y, 32, 32);
+            // Draw NPC
+            if (GameState.spritesLoaded && Game.sprites) {
+                // Basic mapping based on potential ID keywords
+                let sprite = SPRITES.NPC.villager;
+                if (npc.id.includes('shop')) sprite = SPRITES.NPC.shopkeeper;
+                if (npc.id.includes('priest')) sprite = SPRITES.NPC.man;
+                if (npc.id.includes('dadi')) sprite = SPRITES.NPC.old_woman;
+                if (npc.id.includes('fisherman')) sprite = SPRITES.NPC.fisherman;
 
-            // Head
-            ctx.fillStyle = '#DEB887';
-            ctx.fillRect(x + 8, y + 4, 16, 12);
+                ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, x, y, 32, 32);
+            } else {
+                // Draw NPC body
+                ctx.fillStyle = '#C38D9E';
+                ctx.fillRect(x, y, 32, 32);
 
-            // Emoji indicator
+                // Head
+                ctx.fillStyle = '#DEB887';
+                ctx.fillRect(x + 8, y + 4, 16, 12);
+            }
             ctx.font = '20px Arial';
             ctx.fillText(npc.emoji || '👤', x + 6, y - 5);
 
@@ -825,6 +898,17 @@ const Game = {
         this.canvas.width = CONFIG.CANVAS_WIDTH;
         this.canvas.height = CONFIG.CANVAS_HEIGHT;
         this.ctx.imageSmoothingEnabled = false;
+
+        // Load Sprites
+        this.sprites = new Image();
+        this.sprites.src = 'assets/sprites.png';
+        this.sprites.onload = () => {
+            GameState.spritesLoaded = true;
+            console.log('✅ Sprites loaded!');
+        };
+        this.sprites.onerror = (e) => {
+            console.error('❌ Failed to load sprites', e);
+        };
 
         // Initialize all systems
         Input.init();
