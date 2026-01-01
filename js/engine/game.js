@@ -820,7 +820,13 @@ const WorldRenderer = {
         11: '#FFFFFF'  // snow
     },
 
+    cachedTiles: null,
+    lastAreaId: null,
+
     generateAreaTiles(area) {
+        // Use a simple seeded random or just Math.random() since we will cache it
+        // Ideally we would use a seed based on x,y to make it deterministic across visits, 
+        // but for now caching per visit is sufficient to stop the "moving background" bug.
         const tiles = [];
         for (let y = 0; y < Math.ceil(CONFIG.CANVAS_HEIGHT / CONFIG.TILE_SIZE); y++) {
             tiles[y] = [];
@@ -850,8 +856,12 @@ const WorldRenderer = {
         const area = WorldManager.getCurrentArea();
         if (!area) return;
 
-        // Generate tiles for current area
-        const tiles = this.generateAreaTiles(area);
+        // check cache
+        if (this.lastAreaId !== area.id || !this.cachedTiles) {
+            this.cachedTiles = this.generateAreaTiles(area);
+            this.lastAreaId = area.id;
+        }
+        const tiles = this.cachedTiles;
 
         // Draw tiles
         for (let y = 0; y < tiles.length; y++) {
