@@ -24,7 +24,8 @@ export const AreaData = {
         npcs: ['dadi_kamala', 'raju', 'village_child', 'farmer_ram', 'anita_kid'],
         forageSpots: [
             { x: 5, y: 5, items: ['berries', 'mushroom'], respawnHours: 12 },
-            { x: 22, y: 8, items: ['tulsi', 'ginger'], respawnHours: 24 }
+            { x: 22, y: 8, items: ['tulsi', 'ginger'], respawnHours: 24 },
+            { x: 3, y: 15, items: ['firewood', 'firewood'], respawnHours: 4 }  // Woodpile near well
         ],
         interactables: [
             { id: 'notice_board', x: 14, y: 4, type: 'info', emoji: '📋' },
@@ -112,9 +113,11 @@ export const AreaData = {
         npcs: ['vaidya_arjun', 'woodcutter', 'stray_dog'],
         forageSpots: [
             { x: 8, y: 8, items: ['mushroom', 'berries'], respawnHours: 6 },
-            { x: 15, y: 15, items: ['pine_resin', 'firewood'], respawnHours: 12 },
-            { x: 25, y: 10, items: ['tulsi', 'nettle'], respawnHours: 8 },
-            { x: 30, y: 20, items: ['honey', 'walnut'], respawnHours: 24 }
+            { x: 15, y: 15, items: ['firewood', 'firewood'], respawnHours: 4 },  // Guaranteed firewood
+            { x: 25, y: 10, items: ['firewood', 'pine_resin'], respawnHours: 4 }, // More firewood
+            { x: 30, y: 20, items: ['honey', 'walnut'], respawnHours: 24 },
+            { x: 5, y: 5, items: ['firewood', 'firewood'], respawnHours: 4 },    // Even more firewood
+            { x: 20, y: 18, items: ['firewood', 'tulsi'], respawnHours: 6 }      // And more!
         ],
         interactables: [
             { id: 'hollow_tree', x: 20, y: 8, type: 'secret', emoji: '🌲' },
@@ -587,6 +590,11 @@ export const WorldManager = {
         // Update quest objectives for location
         if (window.QuestManager) window.QuestManager.updateObjective('location', areaId, 1);
 
+        // Change music theme based on area
+        if (window.SoundSystem?.setTheme) {
+            window.SoundSystem.setTheme(areaId);
+        }
+
         return { success: true, x: entryX, y: entryY };
     },
 
@@ -616,13 +624,16 @@ export const WorldManager = {
         // Random item from spot
         const itemId = spot.items[Math.floor(Math.random() * spot.items.length)];
 
+        // Give 2-3 items (more satisfying!)
+        const quantity = 2 + Math.floor(Math.random() * 2); // 2 or 3
+
         // Mark as foraged
         this.forageState[`${this.currentArea}_${spotIndex}`] = Date.now();
 
         // Add to inventory
-        if (window.Inventory) window.Inventory.addItem(itemId, 1);
+        if (window.Inventory) window.Inventory.addItem(itemId, quantity);
 
-        return itemId;
+        return { itemId, quantity };
     },
 
     getNPCsInCurrentArea() {

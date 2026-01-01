@@ -86,7 +86,7 @@ const SPRITES = {
 // PLAYER SYSTEM
 // ============================================================
 window.Player = {
-    x: 300,
+    x: 400,
     y: 300,
     width: 32,
     height: 32,
@@ -141,6 +141,17 @@ window.Player = {
             else if (!WorldRenderer.checkCollision(this.x, nextY, this.width, this.height)) {
                 this.y = nextY;
             }
+        }
+
+        // Emergency Unstuck: If currently inside a wall (e.g. bad spawn), push towards center FAST
+        if (WorldRenderer.checkCollision(this.x, this.y, this.width, this.height)) {
+            const centerX = CONFIG.CANVAS_WIDTH / 2;
+            const centerY = CONFIG.CANVAS_HEIGHT / 2;
+            const dirX = centerX - this.x;
+            const dirY = centerY - this.y;
+            // Push towards center AGGRESSIVELY (3 pixels per frame = escapes in ~1 second)
+            this.x += Math.sign(dirX) * 3;
+            this.y += Math.sign(dirY) * 3;
         }
 
         // Check area transitions
@@ -951,26 +962,10 @@ const WorldRenderer = {
             }
         }
 
-        // 2. Check Interactables (Trees, Rocks, etc.)
+        // 2. Interactables are now NON-SOLID to allow free movement
+        // Player can walk over/through them - they are for interaction only, not collision
+        // This fixes the "trapped" issue where interactables blocked all paths
         const area = WorldManager.getCurrentArea();
-        if (area && area.interactables) {
-            for (const inter of area.interactables) {
-                // assume interactables are 32x32 solid blocks if they are 'landmark', 'water', 'craft', 'storage', 'rest'
-                // Or check a specific 'solid' property. For now, let's treat most non-ground interactables as solid.
-                // Exceptions: 'clean' (dirt), 'info' (maybe pass through?), 'view'
-                const nonSolidTypes = ['clean', 'view', 'read', 'info'];
-                if (nonSolidTypes.includes(inter.type)) continue;
-
-                // Simple AABB
-                const ix = inter.x * CONFIG.TILE_SIZE;
-                const iy = inter.y * CONFIG.TILE_SIZE;
-
-                if (hitX < ix + 32 && hitX + hitW > ix &&
-                    hitY < iy + 32 && hitY + hitH > iy) {
-                    return true;
-                }
-            }
-        }
 
         // 3. Check Placed Furniture
         if (area) {
@@ -1461,16 +1456,21 @@ const Game = {
 
         console.log('🏔️ Pahadi Tales loaded with all systems!');
 
-        // Expose Game globally for debugging and external access
+        // Expose systems globally for debugging and cross-module access
         window.Game = this;
+        window.SoundSystem = SoundSystem;
 
 
         // Initial Guidance
         setTimeout(() => {
             if (GameState.day === 1 && WorldManager.currentArea === 'tea_house') {
-                NotificationSystem.show("🧹 Welcome home! It's dusty here. Clean up the dirt piles!", 'info', 8000);
+                NotificationSystem.show("🏠 Walk SOUTH (down) to exit through the door!", 'info', 6000);
             }
         }, 1500);
+
+        setTimeout(() => {
+            NotificationSystem.show("🪵 Tip: Find firewood in Pine Forest (go WEST from village)!", 'info', 6000);
+        }, 8000);
     },
 
     addMenuOverlayStyles() {
@@ -1611,6 +1611,19 @@ const Game = {
         WorldRenderer.cachedTiles = null;
         WorldRenderer.lastAreaId = null;
 
+        // Reset player to center of screen (safe spawn)
+        Player.x = 400;
+        Player.y = 300;
+        Player.energy = Player.maxEnergy;
+        Player.health = Player.maxHealth;
+
+        // Reset world state
+        WorldManager.currentArea = 'tea_house';
+        WorldManager.visitedAreas = ['tea_house', 'village_square'];
+
+        // Clear any stale save that might override positions
+        // (Player can manually save later)
+
         this.showScreen('intro-screen');
         await this.playIntro();
 
@@ -1650,6 +1663,13 @@ const Game = {
         // Clear tile cache for fresh start
         WorldRenderer.cachedTiles = null;
         WorldRenderer.lastAreaId = null;
+
+        // Reset player to center of screen (safe spawn)
+        Player.x = 400;
+        Player.y = 300;
+
+        // Reset world state
+        WorldManager.currentArea = 'tea_house';
 
         this.showScreen('game-screen');
         this.startGameLoop();
@@ -1747,13 +1767,14 @@ const Game = {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist < 40 && WorldManager.canForage(i)) {
-                const itemId = WorldManager.forage(i);
-                if (itemId) {
+                const result = WorldManager.forage(i);
+                if (result) {
+                    const { itemId, quantity } = result;
                     const item = ItemData[itemId];
-                    NotificationSystem.show(`Found ${item?.emoji || '?'} ${item?.name[GameState.language] || itemId}!`, 'success');
+                    NotificationSystem.show(`Found ${quantity}x ${item?.emoji || '?'} ${item?.name[GameState.language] || itemId}!`, 'success');
                     // Quest update
-                    QuestManager.updateObjective('collect', itemId, 1);
-                    QuestManager.updateObjective('collect', 'any_forage', 1);
+                    QuestManager.updateObjective('collect', itemId, quantity);
+                    QuestManager.updateObjective('collect', 'any_forage', quantity);
                 }
                 return;
             }

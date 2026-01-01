@@ -30,8 +30,8 @@ export const QuestData = {
         giver: 'dadi_kamala',
         objectives: [
             { id: 'clean_dhaba', desc: { en: 'Clean the tea house', hi: 'चाय घर साफ करें' }, type: 'interact', target: 'dhaba_dirt', count: 5, current: 0 },
-            { id: 'gather_wood', desc: { en: 'Gather firewood', hi: 'लकड़ी इकट्ठा करें' }, type: 'collect', target: 'firewood', count: 10, current: 0 },
-            { id: 'collect_herbs', desc: { en: 'Collect tea herbs', hi: 'चाय की जड़ी-बूटियाँ लाएं' }, type: 'collect', target: 'tea_leaves', count: 5, current: 0 }
+            { id: 'gather_wood', desc: { en: 'Gather firewood', hi: 'लकड़ी इकट्ठा करें' }, type: 'collect', target: 'firewood', count: 5, current: 0 },
+            { id: 'collect_herbs', desc: { en: 'Collect tea herbs', hi: 'चाय की जड़ी-बूटियाँ लाएं' }, type: 'collect', target: 'tea_leaves', count: 3, current: 0 }
         ],
         rewards: { coins: 50, items: ['basic_stove'], xp: 100 },
         unlocks: ['mq_first_customer', 'sq_meera_spices']
