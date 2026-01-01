@@ -926,13 +926,12 @@ const PetRenderer = {
             ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, pet.x, pet.y, 32, 32);
             ctx.restore();
         } else {
-        } else {
             // ctx.font = '24px Arial';
             // ctx.fillText(PetData[pet.id]?.emoji || '🐕', pet.x, pet.y + 24);
             ctx.fillStyle = '#795548';
             ctx.fillRect(pet.x, pet.y + 10, 32, 20);
         }
-}
+    }
 };
 
 
