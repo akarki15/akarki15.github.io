@@ -1,0 +1,214 @@
+/* ================================================
+   PAHADI TALES - Main Stylesheet
+   A cozy Himalayan village RPG
+   ================================================ */
+
+/* CSS Custom Properties - Design Tokens */
+:root {
+    /* Color Palette - Warm Himalayan tones */
+    --color-primary: #E8A87C;        /* Warm sunset orange */
+    --color-primary-dark: #C68B59;
+    --color-secondary: #85CDCA;      /* Mountain morning mist */
+    --color-accent: #E27D60;         /* Terracotta */
+    --color-accent-alt: #C38D9E;     /* Dusk pink */
+    
+    /* Background colors */
+    --bg-dark: #1A1A2E;              /* Night sky */
+    --bg-medium: #2D2D44;            /* Twilight */
+    --bg-light: #3D3D5C;             /* Dawn */
+    --bg-warm: #41393A;              /* Earthy brown */
+    
+    /* Text colors */
+    --text-primary: #F5F0E8;         /* Cream white */
+    --text-secondary: #C4BAA2;       /* Muted beige */
+    --text-accent: #FFD699;          /* Golden highlight */
+    --text-hindi: #FFECD2;           /* Warm white for Hindi */
+    
+    /* UI colors */
+    --ui-border: rgba(232, 168, 124, 0.3);
+    --ui-glow: rgba(232, 168, 124, 0.5);
+    --ui-shadow: rgba(0, 0, 0, 0.4);
+    --ui-glass: rgba(45, 45, 68, 0.85);
+    
+    /* Gradients */
+    --gradient-sunset: linear-gradient(135deg, #E27D60 0%, #E8A87C 50%, #C38D9E 100%);
+    --gradient-mountain: linear-gradient(180deg, #85CDCA 0%, #41393A 100%);
+    --gradient-night: linear-gradient(180deg, #1A1A2E 0%, #2D2D44 100%);
+    
+    /* Typography */
+    --font-primary: 'Outfit', sans-serif;
+    --font-hindi: 'Noto Sans Devanagari', sans-serif;
+    
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+    
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 20px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Game specific */
+    --tile-size: 32px;
+    --canvas-width: 800px;
+    --canvas-height: 600px;
+}
+
+/* Base Reset */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-primary);
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow: hidden;
+    line-height: 1.6;
+}
+
+/* Hindi text styling */
+.hi, [lang="hi"] {
+    font-family: var(--font-hindi);
+    color: var(--text-hindi);
+}
+
+/* Language display control */
+body.lang-en .hi { display: none; }
+body.lang-hi .en { display: none; }
+body:not(.lang-en):not(.lang-hi) .hi { display: none; }
+
+/* Screen container base */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Button base styles */
+button {
+    font-family: var(--font-primary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    outline: none;
+    transition: var(--transition-normal);
+}
+
+button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Canvas styling */
+#game-canvas {
+    display: block;
+    background: #2a2a3e;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 5px var(--ui-glow); }
+    50% { box-shadow: 0 0 20px var(--ui-glow), 0 0 30px var(--ui-glow); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    :root {
+        --canvas-width: 100vw;
+        --canvas-height: 100vh;
+        --tile-size: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    :root {
+        --tile-size: 20px;
+    }
+    
+    html {
+        font-size: 14px;
+    }
+}

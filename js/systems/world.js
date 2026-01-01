@@ -1,0 +1,681 @@
+/**
+ * Pahadi Tales - World Map System
+ * Multiple connected areas with foraging, NPCs, and interactables
+ */
+
+export const TileType = {
+    GRASS: 0, PATH: 1, WATER: 2, TREE: 3, ROCK: 4, BUILDING: 5,
+    FLOWER: 6, BRIDGE: 7, FENCE: 8, DOOR: 9, FORAGE: 10, SNOW: 11
+};
+
+export const AreaData = {
+    'village_square': {
+        id: 'village_square',
+        name: { en: 'Village Square', hi: 'गाँव का चौक' },
+        width: 30, height: 22,
+        music: 'village_theme',
+        ambience: ['birds', 'wind'],
+        connections: {
+            north: { area: 'temple_hill', x: 15, y: 17 },
+            south: { area: 'riverside', x: 15, y: 2 },
+            east: { area: 'tea_house', x: 2, y: 10 },
+            west: { area: 'pine_forest', x: 23, y: 10 }
+        },
+        npcs: ['dadi_kamala', 'raju', 'village_child', 'farmer_ram', 'anita_kid'],
+        forageSpots: [
+            { x: 5, y: 5, items: ['berries', 'mushroom'], respawnHours: 12 },
+            { x: 22, y: 8, items: ['tulsi', 'ginger'], respawnHours: 24 }
+        ],
+        interactables: [
+            { id: 'notice_board', x: 14, y: 4, type: 'info', emoji: '📋' },
+            { id: 'banyan_tree', x: 15, y: 10, type: 'landmark', emoji: '🌳' },
+            { id: 'village_well', x: 20, y: 12, type: 'water', emoji: '🪣' },
+            { id: 'street_lamp', x: 8, y: 8, type: 'light', emoji: '🏮' },
+            { id: 'flower_pot', x: 25, y: 15, type: 'view', emoji: '🪴' }
+        ]
+    },
+    'tea_house': {
+        id: 'tea_house',
+        name: { en: 'Your Old Home', hi: 'आपका पुराना घर' },
+        width: 20, height: 15,
+        music: 'cozy_theme',
+        isIndoor: true,
+        connections: {
+            south: { area: 'village_square', x: 23, y: 10 }
+        },
+        npcs: [], // Empty initially, user is alone
+        interactables: [
+            { id: 'cooking_stove', x: 5, y: 5, type: 'craft', emoji: '🔥' },
+            { id: 'storage_chest', x: 8, y: 3, type: 'storage', emoji: '📦' },
+            { id: 'bed', x: 15, y: 3, type: 'rest', emoji: '🛏️' },
+            { id: 'dhaba_dirt_1', x: 10, y: 8, type: 'clean', emoji: '🕸️', isDirt: true },
+            { id: 'dhaba_dirt_2', x: 12, y: 6, type: 'clean', emoji: '🌫️', isDirt: true },
+            { id: 'dhaba_dirt_3', x: 6, y: 10, type: 'clean', emoji: '🍂', isDirt: true },
+            { id: 'dhaba_dirt_4', x: 14, y: 10, type: 'clean', emoji: '🕸️', isDirt: true },
+            { id: 'dhaba_dirt_5', x: 16, y: 7, type: 'clean', emoji: '🌫️', isDirt: true },
+            { id: 'broken_chair', x: 9, y: 9, type: 'inspect', emoji: '🪑', desc: { en: "Broken beyond repair.", hi: "पूरी तरह टूटा हुआ।" } },
+            { id: 'old_photo', x: 4, y: 4, type: 'read', emoji: '🖼️', desc: { en: "A photo of your grandmother smiling.", hi: "तुम्हारी दादी की मुस्कुराती हुई तस्वीर।" } }
+        ]
+    },
+    'temple_hill': {
+        id: 'temple_hill',
+        name: { en: 'Temple of Shiva', hi: 'शिव मंदिर' },
+        width: 25, height: 20,
+        music: 'temple_theme',
+        ambience: ['bells', 'chanting'],
+        connections: {
+            south: { area: 'village_square', x: 15, y: 2 },
+            north: { area: 'high_meadow', x: 12, y: 18 }
+        },
+        npcs: ['pandit_shankara', 'mysterious_sadhu'],
+        interactables: [
+            { id: 'main_shrine', x: 12, y: 5, type: 'pray', emoji: '🛕' },
+            { id: 'meditation_spot', x: 18, y: 10, type: 'meditate', emoji: '🧘' },
+            { id: 'temple_bell', x: 10, y: 8, type: 'interact', emoji: '🔔' },
+            { id: 'temple_inscription', x: 8, y: 6, type: 'clue', emoji: '📜' }
+        ],
+        forageSpots: [
+            { x: 20, y: 15, items: ['tulsi', 'flower'], respawnHours: 24 }
+        ]
+    },
+    'riverside': {
+        id: 'riverside',
+        name: { en: 'Riverside Ghats', hi: 'नदी घाट' },
+        width: 35, height: 18,
+        music: 'water_theme',
+        ambience: ['water', 'birds'],
+        connections: {
+            north: { area: 'village_square', x: 15, y: 17 },
+            east: { area: 'hot_springs', x: 2, y: 8 }
+        },
+        npcs: ['meera', 'fisherman'],
+        interactables: [
+            { id: 'fishing_spot', x: 10, y: 14, type: 'fish', emoji: '🎣' },
+            { id: 'washing_ghat', x: 20, y: 14, type: 'wash', emoji: '🧺' }
+        ],
+        forageSpots: [
+            { x: 5, y: 6, items: ['berries', 'mushroom'], respawnHours: 8 },
+            { x: 28, y: 5, items: ['nettle', 'ginger'], respawnHours: 12 }
+        ]
+    },
+    'pine_forest': {
+        id: 'pine_forest',
+        name: { en: 'Pine Forest', hi: 'देवदार वन' },
+        width: 35, height: 25,
+        music: 'forest_theme',
+        ambience: ['wind', 'birds', 'leaves'],
+        connections: {
+            east: { area: 'village_square', x: 2, y: 10 },
+            west: { area: 'ancient_ruins', x: 23, y: 12 },
+            north: { area: 'deep_forest', x: 17, y: 17 }
+        },
+        npcs: ['vaidya_arjun', 'woodcutter', 'stray_dog'],
+        forageSpots: [
+            { x: 8, y: 8, items: ['mushroom', 'berries'], respawnHours: 6 },
+            { x: 15, y: 15, items: ['pine_resin', 'firewood'], respawnHours: 12 },
+            { x: 25, y: 10, items: ['tulsi', 'nettle'], respawnHours: 8 },
+            { x: 30, y: 20, items: ['honey', 'walnut'], respawnHours: 24 }
+        ],
+        interactables: [
+            { id: 'hollow_tree', x: 20, y: 8, type: 'secret', emoji: '🌲' },
+            { id: 'old_stump', x: 12, y: 18, type: 'rest', emoji: '🪵' }
+        ]
+    },
+    'deep_forest': {
+        id: 'deep_forest',
+        name: { en: 'Deep Forest', hi: 'घना जंगल' },
+        width: 30, height: 25,
+        music: 'mystery_theme',
+        ambience: ['owls', 'wind'],
+        isDark: true,
+        connections: {
+            south: { area: 'pine_forest', x: 15, y: 2 }
+        },
+        npcs: ['botanist_priya'],
+        forageSpots: [
+            { x: 10, y: 10, items: ['brahma_kamal', 'mushroom'], respawnHours: 48 },
+            { x: 20, y: 15, items: ['honey', 'berries'], respawnHours: 12 }
+        ],
+        interactables: [
+            { id: 'lost_goat', x: 15, y: 12, type: 'quest', emoji: '🐐' },
+            { id: 'hidden_shrine', x: 25, y: 20, type: 'secret', emoji: '🗿' },
+            { id: 'fireflies_swarm', x: 18, y: 18, type: 'view', emoji: '✨' }
+        ]
+    },
+    'hot_springs': {
+        id: 'hot_springs',
+        name: { en: 'Hot Springs', hi: 'गर्म पानी के कुंड' },
+        width: 22, height: 18,
+        music: 'relaxing_theme',
+        ambience: ['steam', 'water'],
+        connections: {
+            west: { area: 'riverside', x: 23, y: 8 }
+        },
+        npcs: ['sunita'],
+        interactables: [
+            { id: 'main_spring', x: 11, y: 10, type: 'bathe', emoji: '♨️' },
+            { id: 'changing_hut', x: 5, y: 5, type: 'change', emoji: '🏚️' }
+        ],
+        forageSpots: [
+            { x: 18, y: 8, items: ['tulsi', 'flower'], respawnHours: 12 }
+        ]
+    },
+    'high_meadow': {
+        id: 'high_meadow',
+        name: { en: 'High Meadow', hi: 'ऊँचा चरागाह' },
+        width: 30, height: 22,
+        music: 'mountain_theme',
+        ambience: ['wind', 'eagles'],
+        requiresItem: 'climbing_gear',
+        connections: {
+            south: { area: 'temple_hill', x: 12, y: 2 },
+            north: { area: 'mountain_peak', x: 15, y: 17 }
+        },
+        npcs: ['bhim', 'shepherd'],
+        forageSpots: [
+            { x: 8, y: 8, items: ['brahma_kamal'], respawnHours: 72 },
+            { x: 20, y: 12, items: ['fine_wool', 'goat_hair'], respawnHours: 24 },
+            { x: 25, y: 18, items: ['saffron'], respawnHours: 48 }
+        ],
+        interactables: [
+            { id: 'goat_pen', x: 15, y: 10, type: 'herd', emoji: '🐐' },
+            { id: 'viewpoint', x: 5, y: 5, type: 'view', emoji: '🏔️' }
+        ]
+    },
+    'mountain_peak': {
+        id: 'mountain_peak',
+        name: { en: 'Mountain Peak', hi: 'पर्वत शिखर' },
+        width: 20, height: 18,
+        music: 'epic_theme',
+        ambience: ['wind'],
+        hasSnoW: true,
+        requiresItem: 'warm_shawl',
+        connections: {
+            south: { area: 'high_meadow', x: 15, y: 2 }
+        },
+        npcs: ['priest_yogi'],
+        interactables: [
+            { id: 'prayer_flags', x: 10, y: 5, type: 'pray', emoji: '🎏' },
+            { id: 'secret_cave_entrance', x: 15, y: 10, type: 'cave', emoji: '🕳️' }
+        ]
+    },
+    'ancient_ruins': {
+        id: 'ancient_ruins',
+        name: { en: 'Ancient Ruins', hi: 'प्राचीन खंडहर' },
+        width: 25, height: 20,
+        music: 'mystery_theme',
+        ambience: ['wind', 'echoes'],
+        connections: {
+            east: { area: 'pine_forest', x: 2, y: 12 }
+        },
+        npcs: ['ghost_guard'],
+        forageSpots: [
+            { x: 10, y: 15, items: ['old_coin', 'stone'], respawnHours: 24 }
+        ],
+        interactables: [
+            { id: 'ruined_temple', x: 12, y: 8, type: 'explore', emoji: '🏛️' },
+            { id: 'artifact_spot', x: 18, y: 12, type: 'dig', emoji: '⛏️' },
+            { id: 'ancient_chest', x: 8, y: 5, type: 'treasure', emoji: '📦' },
+            { id: 'broken_pillar', x: 20, y: 15, type: 'view', emoji: '🏚️' }
+        ]
+    },
+    'wool_market': {
+        id: 'wool_market',
+        name: { en: 'Wool Market', hi: 'ऊन बाज़ार' },
+        width: 25, height: 18,
+        music: 'market_theme',
+        ambience: ['crowd', 'bells'],
+        connections: {
+            south: { area: 'village_square', x: 15, y: 2 }
+        },
+        npcs: ['merchant', 'sunita'],
+        interactables: [
+            { id: 'wool_stall', x: 8, y: 8, type: 'shop', emoji: '🧶' },
+            { id: 'spice_stall', x: 15, y: 8, type: 'shop', emoji: '🫙' },
+            { id: 'tool_stall', x: 22, y: 8, type: 'shop', emoji: '🔧' }
+        ]
+    }
+};
+
+// Expanded NPC data
+export const NPCData = {
+    'dadi_kamala': {
+        id: 'dadi_kamala', name: { en: 'Dadi Kamala', hi: 'दादी कमला' },
+        role: { en: 'Village Elder', hi: 'गाँव की बुज़ुर्ग' },
+        emoji: '👵', schedule: { '6-20': 'village_square', '20-6': 'home' },
+        dialogues: {
+            greeting: { en: 'Good morning, child. The mountains smile today.', hi: 'सुप्रभात, बच्चे। आज पहाड़ मुस्कुरा रहे हैं।' },
+            wisdom: { en: 'Remember, mountains are climbed slowly.', hi: 'याद रखो - पहाड़ धीरे-धीरे चढ़ते हैं।' },
+            quest: { en: 'The tea house needs your care. Make it shine again!', hi: 'चाय घर को तुम्हारी देखभाल चाहिए।' },
+            thanks: { en: 'You have done well, child.', hi: 'तुमने अच्छा किया, बच्चे।' },
+            deep: { en: 'Your grandfather built this tea house with his own hands. He said it was a place for weary souls to find rest. Seeing you here... it feels like he is back.', hi: 'तुम्हारे दादाजी ने यह चाय घर अपने हाथों से बनाया था। वे कहते थे कि यह थकी हुई आत्माओं के लिए आराम की जगह है। तुम्हें यहाँ देखकर... लगता है वे वापस आ गए हैं।' }
+        },
+        topics: {
+            'life': {
+                q: { en: 'Tell me about your life.', hi: 'अपने बारे में बताएं।' },
+                a: { en: 'I have lived here since the British times. I saw the first road being built. These old eyes have seen many winters.', hi: 'मैं यहाँ अंग्रेजों के ज़माने से हूँ। मैंने पहली सड़क बनते देखी है। इन बूढ़ी आँखों ने कई सर्दियाँ देखी हैं।' }
+            },
+            'hobbies': {
+                q: { en: 'What do you do for fun?', hi: 'आप मजे के लिए क्या करती हैं?' },
+                a: { en: 'I knit improved wool patterns. The patterns tell stories of our gods. Also, I catch spies... just joking!', hi: 'मैं ऊनी डिज़ाइन बुनती हूँ। ये डिज़ाइन हमारे देवताओं की कहानियाँ कहते हैं।' }
+            },
+            'village': {
+                q: { en: 'Tell me about the village.', hi: 'गाँव के बारे में बताएं।' },
+                a: { en: 'Chandrapuri is special. The Moon God meditated here once. That is why the moonlight is so bright at night.', hi: 'चंद्रपुरी खास है। चंद्र देवता ने यहाँ तपस्या की थी। इसलिए रात में चाँदनी इतनी तेज़ होती है।' }
+            }
+        },
+        gifts: { loved: ['saffron', 'kheer'], liked: ['masala_chai', 'honey'] }
+    },
+    'raju': {
+        id: 'raju', name: { en: 'Raju', hi: 'राजू' },
+        role: { en: 'Musician', hi: 'संगीतकार' },
+        emoji: '🎵', schedule: { '8-12': 'village_square', '12-18': 'riverside', '18-22': 'village_square' },
+        dialogues: {
+            greeting: { en: 'Ah! Music fills the air today!', hi: 'आह! आज हवाओं में संगीत है!' },
+            wisdom: { en: 'What music expresses, words never can!', hi: 'संगीत में जो बात है, वो शब्दों में कहाँ!' },
+            quest: { en: 'My sarangi strings are broken. Can you help?', hi: 'मेरी सारंगी के तार टूट गए। मदद करोगे?' },
+            happy: { en: 'Let me play you a tune!', hi: 'चलो एक धुन सुनाता हूँ!' },
+            deep: { en: 'Sometimes, I play for the river. It sings back, you know? It tells me stories of where it has been and where it is going. We are all just flowing water.', hi: 'कभी-कभी मैं नदी के लिए बजाता हूँ। वो जवाब देती है, पता है? वो मुझे अपनी यात्रा की कहानियाँ सुनाती है। हम सब बस बहता पानी हैं।' }
+        },
+        topics: {
+            'life': {
+                q: { en: 'Why are you a musician?', hi: 'आप संगीतकार क्यों बने?' },
+                a: { en: 'My father wanted me to be a soldier. But the river sounds called to me louder than any trumpet.', hi: 'पिताजी चाहते थे मैं फौजी बनूँ। पर नदी की आवाज़ ने मुझे पुकारा।' }
+            },
+            'hobbies': {
+                q: { en: 'Do you play other instruments?', hi: 'क्या आप और वाद्य बजाते हैं?' },
+                a: { en: 'I try to mimic birds with my flute. The whistling thrush is the hardest teacher!', hi: 'मैं बांसुरी से पक्षियों की नक़ल करता हूँ। जोको पक्षी सबसे सख्त गुरु है!' }
+            }
+        },
+        gifts: { loved: ['flute', 'honey'], liked: ['berries', 'apple'] }
+    },
+    'meera': {
+        id: 'meera', name: { en: 'Meera', hi: 'मीरा' },
+        role: { en: 'Cook', hi: 'रसोइया' },
+        emoji: '👩‍🍳', schedule: { '5-11': 'riverside', '11-20': 'village_square' },
+        dialogues: {
+            greeting: { en: 'The chai is always fresh here!', hi: 'यहाँ चाय हमेशा ताज़ी है!' },
+            wisdom: { en: 'Food fills not just the stomach, but the heart too.', hi: 'खाना सिर्फ पेट नहीं, दिल भी भरता है।' },
+            quest: { en: 'I need rare spices for the festival! Help me?', hi: 'त्योहार के लिए दुर्लभ मसाले चाहिए!' },
+            cooking: { en: 'Come, let me teach you a recipe!', hi: 'आओ, एक विधि सिखाती हूँ!' },
+            deep: { en: 'My mother taught me that spices are like emotions. Too much anger burns, too much sadness is bitter. But a perfect balance... that is a life well lived.', hi: 'मेरी माँ ने सिखाया था कि मसाले भावनाओं की तरह हैं। बहुत ज्यादा गुस्सा जला देता है, बहुत दुख कड़वा होता है। पर सही संतुलन... वही तो असली ज़िंदगी है।' }
+        },
+        topics: {
+            'life': {
+                q: { en: 'How did you learn to cook?', hi: 'आपने खाना बनाना कैसे सीखा?' },
+                a: { en: 'My grandmother taught me. She said spices have their own language. Turmeric for healing, chili for passion.', hi: 'मेरी नानी ने सिखाया। वो कहती थीं मसालों की अपनी भाषा होती है।' }
+            },
+            'hobbies': {
+                q: { en: 'What is your favorite dish?', hi: 'आपकी पसंदीदा डिश क्या है?' },
+                a: { en: 'Simple Dal Bhat with Ghee. Nothing beats comfort.', hi: 'सादा दाल-भात और घी। सुकून का दूसरा नाम।' }
+            }
+        },
+        gifts: { loved: ['saffron', 'cardamom'], liked: ['ginger', 'turmeric'] }
+    },
+    'pandit_shankara': {
+        id: 'pandit_shankara', name: { en: 'Pandit Shankara', hi: 'पंडित शंकर' },
+        role: { en: 'Temple Priest', hi: 'मंदिर के पुजारी' },
+        emoji: '🙏', schedule: { '5-21': 'temple_hill' },
+        dialogues: {
+            greeting: { en: 'May peace be upon you.', hi: 'शांति बनी रहे।' },
+            wisdom: { en: 'When mind is calm, the world is calm.', hi: 'मन शांत, तो संसार शांत।' },
+            quest: { en: 'Strange things happen at the temple...', hi: 'मंदिर में अजीब चीज़ें हो रही हैं...' },
+            blessing: { en: 'May the mountains protect you.', hi: 'पहाड़ तुम्हारी रक्षा करें।' },
+            deep: { en: 'I used to write code that controlled machines. Now I chant mantras that control the mind. The logic is surprisingly similar—all systems require balance.', hi: 'मैं पहले मशीनों के लिए कोड लिखता था। अब मन के लिए मंत्र पढ़ता हूँ। तर्क आश्चर्यजनक रूप से समान है—सभी प्रणालियों को संतुलन की आवश्यकता होती है।' }
+        },
+        topics: {
+            'life': {
+                q: { en: 'Have you always been a priest?', hi: 'क्या आप हमेशा से पुजारी थे?' },
+                a: { en: 'No. I was a software engineer in Bangalore once. But the code of the universe called me back here.', hi: 'नहीं। मैं बैंगलोर में सॉफ्टवेयर इंजीनियर था। पर ब्रह्मांड के कोड ने मुझे यहाँ वापस बुला लिया।' }
+            },
+            'hobbies': {
+                q: { en: 'Do you meditate often?', hi: 'क्या आप अक्सर ध्यान करते हैं?' },
+                a: { en: 'Every morning at 4 AM. The silence speaks the loudest then.', hi: 'रोज़ सुबह 4 बजे। तब सन्नाटा सबसे ज़ोर से बोलता है।' }
+            }
+        },
+        gifts: { loved: ['tulsi', 'brahma_kamal'], liked: ['honey', 'flower'] }
+    },
+    'vaidya_arjun': {
+        id: 'vaidya_arjun', name: { en: 'Vaidya Arjun', hi: 'वैद्य अर्जुन' },
+        role: { en: 'Healer', hi: 'वैद्य' },
+        emoji: '🌿', schedule: { '7-18': 'pine_forest', '18-22': 'village_square' },
+        dialogues: {
+            greeting: { en: 'Namaste! Seeking remedies?', hi: 'नमस्ते! इलाज चाहिए?' },
+            wisdom: { en: 'Nature hides the cure for every ailment.', hi: 'प्रकृति में हर बीमारी का इलाज छुपा है।' },
+            quest: { en: 'I need the rare Brahma Kamal flower.', hi: 'मुझे दुर्लभ ब्रह्म कमल चाहिए।' },
+            teach: { en: 'Let me teach you about herbs.', hi: 'चलो जड़ी-बूटियों के बारे में बताता हूँ।' },
+            deep: { en: 'People trust pills instantly, but doubt the roots that kept their ancestors alive. I am not just a healer, I am a keeper of forgotten trust.', hi: 'लोग गोलियों पर तुरंत भरोसा करते हैं, लेकिन उन जड़ों पर शक करते हैं जिन्होंने उनके पूर्वजों को जीवित रखा। मैं सिर्फ एक वैद्य नहीं, मैं भूले हुए भरोसे का रक्षक हूँ।' }
+        },
+        topics: {
+            'life': {
+                q: { en: 'Is it hard being a healer?', hi: 'क्या वैद्य होना मुश्किल है?' },
+                a: { en: 'It is a burden and a joy. Saving a life is divine, but losing one is a scar that never fades.', hi: 'यह बोझ भी है और खुशी भी। जीवन बचाना दैवीय है।' }
+            }
+        },
+        gifts: { loved: ['brahma_kamal', 'tulsi'], liked: ['nettle', 'honey'] }
+    },
+    'bhim': {
+        id: 'bhim', name: { en: 'Bhim', hi: 'भीम' },
+        role: { en: 'Mountain Guide', hi: 'पर्वतीय गाइड' },
+        emoji: '🏔️', schedule: { '6-18': 'high_meadow', '18-22': 'village_square' },
+        dialogues: {
+            greeting: { en: 'Ready for adventure?', hi: 'साहसिक यात्रा के लिए तैयार?' },
+            wisdom: { en: 'Every stone in these mountains has a story.', hi: 'इन पहाड़ों में हर पत्थर की एक कहानी है।' },
+            quest: { en: 'There are treasures hidden in the ruins!', hi: 'खंडहरों में खज़ाने छिपे हैं!' },
+            guide: { en: 'Follow me, I know every path.', hi: 'मेरे पीछे आओ, हर रास्ता जानता हूँ।' },
+            deep: { en: 'I once sat on a peak for three days waiting for a storm to pass. In that cold, I felt more warmth than I ever felt in the city. The mountain held me.', hi: 'मैं एक बार तूफ़ान गुजरने के इंतज़ार में तीन दिन तक चोटी पर बैठा रहा। उस ठंड में, मैंने शहर से ज़्यादा गर्माहट महसूस की। पहाड़ ने मुझे थामे रखा।' }
+        },
+        topics: {
+            'life': {
+                q: { en: 'Have you climbed the highest peak?', hi: 'क्या आप सबसे ऊँची चोटी पर गए हैं?' },
+                a: { en: 'Yes, but I did not plant a flag. I just bowed down. You do not conquer mountains, you respect them.', hi: 'हाँ, पर मैंने झंडा नहीं गाड़ा। मैंने बस सिर झुकाया। पहाड़ों को जीता नहीं, पूजा जाता है।' }
+            }
+        },
+        gifts: { loved: ['climbing_gear', 'expedition_kit'], liked: ['firewood', 'dal_rice'] }
+    },
+    'sunita': {
+        id: 'sunita', name: { en: 'Sunita', hi: 'सुनीता' },
+        role: { en: 'Weaver', hi: 'बुनकर' },
+        emoji: '🧶', schedule: { '8-12': 'hot_springs', '12-20': 'wool_market' },
+        dialogues: {
+            greeting: { en: 'Looking for fine woolens?', hi: 'बढ़िया ऊनी कपड़े चाहिए?' },
+            wisdom: { en: 'Love is woven into every thread.', hi: 'हर धागे में प्यार बुना है।' },
+            quest: { en: 'I need fine wool for a special shawl.', hi: 'खास शॉल के लिए अच्छी ऊन चाहिए।' },
+            trade: { en: 'Bring materials, I\'ll make you something warm.', hi: 'सामान लाओ, कुछ गर्म बना दूँगी।' },
+            deep: { en: 'My designs are not just patterns. They are maps of the stars as seen from this valley. Wearing my shawl is like wrapping yourself in the night sky.', hi: 'मेरे डिज़ाइन सिर्फ पैटर्न नहीं हैं। वे इस घाटी से दिखने वाले तारों के नक्शे हैं। मेरी शॉल पहनना ओढ़ने जैसा है।' }
+        },
+        topics: {
+            'life': {
+                q: { en: 'Do you like weaving?', hi: 'क्या आपको बुनाई पसंद है?' },
+                a: { en: 'It is my meditation. The rhythm of the loom is like a heartbeat.', hi: 'यह मेरा ध्यान है। करघे की लय धड़कन जैसी है।' }
+            }
+        },
+        gifts: { loved: ['fine_wool', 'dye_plants'], liked: ['goat_hair', 'berries'] }
+    },
+    'mysterious_sadhu': {
+        id: 'mysterious_sadhu', name: { en: 'Mysterious Sadhu', hi: 'रहस्यमय साधु' },
+        role: { en: '???', hi: '???' },
+        emoji: '🧘', schedule: { '20-6': 'temple_hill' },
+        dialogues: {
+            greeting: { en: 'You seek what is hidden...', hi: 'जो छिपा है, वो ढूंढ रहे हो...' },
+            wisdom: { en: 'When the time comes, you will understand...', hi: 'जब समय आएगा, सब समझ जाओगे...' },
+            quest: { en: 'The Moon Gem calls to those who are worthy.', hi: 'चंद्र मणि योग्य लोगों को बुलाती है।' },
+            cryptic: { en: 'Look where moonlight touches water...', hi: 'जहाँ चाँदनी पानी को छूती है, वहाँ देखो...' },
+            deep: { en: 'I do not have a name anymore. Names are for those who want to be found. I only want to be.', hi: 'मेरा अब कोई नाम नहीं है। नाम उनके लिए है जो मिलना चाहते हैं। मैं बस होना चाहता हूँ।' }
+        },
+        gifts: { loved: ['moon_gem', 'brahma_kamal'], liked: ['tulsi', 'honey'] }
+    },
+    'village_child': {
+        id: 'village_child', name: { en: 'Little Chintu', hi: 'छोटू चिंटू' },
+        role: { en: 'Village Child', hi: 'गाँव का बच्चा' },
+        emoji: '👦', schedule: { '8-18': 'village_square' },
+        dialogues: {
+            greeting: { en: 'Hi! Want to play tag?', hi: 'नमस्ते! पकड़म-पकड़ाई खेलोगे?' },
+            sad: { en: 'My goat Champa is lost! She has a white spot on her nose.', hi: 'मेरी बकरी चम्पा खो गई! उसकी नाक पर सफेद निशान है।' },
+            happy: { en: 'You found Champa! You are my best friend!', hi: 'चम्पा मिल गई! तुम मेरे सबसे अच्छे दोस्त हो!' },
+            deep: { en: 'Grown-ups always talk about money and time. I just want to chase butterflies. Are butterflies rich?', hi: 'बड़े लोग हमेशा पैसे और समय की बात करते हैं। मैं बस ततली पकड़ना चाहता हूँ। क्या तितलियाँ अमीर होती हैं?' }
+        },
+        gifts: { loved: ['apple', 'kheer'], liked: ['berries', 'pakora'] }
+    },
+    'fisherman': {
+        id: 'fisherman', name: { en: 'Machhiwala Kaka', hi: 'मछीवाला काका' },
+        role: { en: 'Fisherman', hi: 'मछुआरा' },
+        emoji: '🎣', schedule: { '5-18': 'riverside' },
+        dialogues: {
+            greeting: { en: 'The river is singing today.', hi: 'नदी आज गा रही है।' },
+            wisdom: { en: 'A fish only gets caught when it opens its mouth. Same for people.', hi: 'मछली तभी फंसती है जब मुंह खोलती है। इंसानों का भी यही हाल है।' },
+            teach: { en: 'Hold the rod like a bird. Not too tight, not too loose.', hi: 'छड़ को पक्षी की तरह पकड़ो। न ज्यादा सख्त, न ढीला।' },
+            deep: { en: 'I have spent more time with fish than with humans. Fish are honest. They don\'t pretend to be sharks if they are trout.', hi: 'मैंने इंसानों से ज्यादा वक्त मछलियों के साथ बिताया है। मछलियाँ ईमानदार होती हैं। ट्राउट होकर शार्क बनने का दिखावा नहीं करतीं।' }
+        },
+        gifts: { loved: ['masala_chai', 'pakora'], liked: ['berries', 'honey'] }
+    },
+    'traveler': {
+        id: 'traveler', name: { en: 'Lost Backpacker', hi: 'भटका हुआ यात्री' },
+        role: { en: 'Traveler', hi: 'यात्री' },
+        emoji: '🚶', schedule: { '10-16': 'tea_house' },
+        dialogues: {
+            greeting: { en: 'Is this place even on the map?', hi: 'क्या यह जगह नक्शे पर भी है?' },
+            satisfied: { en: 'This chai... it tastes like hope.', hi: 'यह चाय... उम्मीद जैसी है।' },
+            deep: { en: 'I started walking to run away from my problems. But in these mountains, my problems seem so small they don\'t matter.', hi: 'मैं अपनी समस्याओं से भागने के लिए चला था। पर इन पहाड़ों में, मेरी समस्याएं इतनी छोटी लगती हैं कि कोई फर्क नहीं पड़ता।' }
+        }
+    },
+    'stray_dog': {
+        id: 'stray_dog', name: { en: 'Sheru', hi: 'शेरू' },
+        role: { en: 'Faithful Friend', hi: 'वफादार दोस्त' },
+        emoji: '🐕', schedule: { '0-24': 'pine_forest' },
+        dialogues: {
+            greeting: { en: '(Wags tail enthusiastically) Woof!', hi: '(दुम हिलाता है) भों!' },
+            hungry: { en: '(Whimpers softly and nudges your hand)', hi: '(धीरे से रोरता है और आपके हाथ को छूता है)' },
+            happy: { en: 'Bark! Bark! (He spins in a circle)', hi: 'भों! भों! (वह गोल घूमता है)' }
+        },
+        gifts: { loved: ['milk', 'bone'], liked: ['meat'] }
+    },
+    'woodcutter': {
+        id: 'woodcutter', name: { en: 'Hari', hi: 'हरी' },
+        role: { en: 'Lumberjack', hi: 'लकड़हारा' },
+        emoji: '🪓', schedule: { '6-18': 'pine_forest' },
+        dialogues: {
+            greeting: { en: 'Trees have spirits. I ask permission before I cut.', hi: 'पेड़ों में जान होती है। मैं काटने से पहले इजाज़त मांगता हूँ।' },
+            deep: { en: 'My axe is heavy, but my heart is light. I only take what the forest gives, never more.', hi: 'मेरी कुल्हाड़ी भारी है, पर दिल हल्का। मैं सिर्फ उतना लेता हूँ जो जंगल देता है, उससे ज्यादा नहीं।' }
+        },
+        gifts: { loved: ['axe', 'lunch_box'], liked: ['water'] }
+    },
+    'shepherd': {
+        id: 'shepherd', name: { en: 'Gopal', hi: 'गोपाल' },
+        role: { en: 'Shepherd', hi: 'चरवाहा' },
+        emoji: '🐑', schedule: { '6-18': 'high_meadow' },
+        dialogues: {
+            greeting: { en: 'The grass is sweet this year.', hi: 'इस साल घास मीठी है।' },
+            deep: { en: 'My sheep obey me not because I have a stick, but because I know their names. Love leads better than fear.', hi: 'मेरी भेड़ें मेरी बात इसलिए नहीं मानतीं कि मेरे पास डंडा है, बल्कि इसलिए कि मैं उनके नाम जानता हूँ। डर से बेहतर प्यार राह दिखाता है।' }
+        },
+        gifts: { loved: ['wool', 'flute'], liked: ['bread'] }
+    },
+    'merchant': {
+        id: 'merchant', name: { en: 'Sethji', hi: 'सेठजी' },
+        role: { en: 'Trader', hi: 'व्यापारी' },
+        emoji: '⚖️', schedule: { '8-20': 'wool_market' },
+        dialogues: {
+            greeting: { en: 'Ah! A customer with good taste!', hi: 'आह! अच्छी पसंद वाला ग्राहक!' },
+            deep: { en: 'I have sold silk in Varanasi and gems in Jaipur. But the smile of a satisfied pahadi... that is the best profit.', hi: 'मैंने बनारस में रेशम और जयपुर में रत्न बेचे हैं। पर एक संतुष्ट पहाड़ी की मुस्कान... वो सबसे बड़ा मुनाफा है।' }
+        },
+        gifts: { loved: ['gold_coin', 'ledger'], liked: ['tea_leaves'] }
+    },
+    'farmer_ram': {
+        id: 'farmer_ram', name: { en: 'Farmer Ram', hi: 'किसान राम' },
+        role: { en: 'Farmer', hi: 'किसान' },
+        emoji: '👨‍🌾', schedule: { '5-19': 'village_square' },
+        dialogues: {
+            greeting: { en: 'The earth smells of rain.', hi: 'मिट्टी से बारिश की खुशबू आ रही है।' },
+            wisdom: { en: 'Treat the soil like your mother, and she will feed you.', hi: 'धरती को माँ समझो, वह तुम्हें पालगी।' },
+            quest: { en: 'My crops are thirsty. Can you check the river?', hi: 'फसलें प्यासी हैं। क्या नदी देख आओगे?' },
+            deep: { en: 'City folks look at their watches. I look at the sun. My boss never runs out of battery.', hi: 'शहर के लोग घड़ी देखते हैं। मैं सूरज देखता हूँ। मेरे बॉस की बैटरी कभी खत्म नहीं होती।' }
+        },
+        topics: {
+            'life': { q: { en: 'How are the crops?', hi: 'फसल कैसी है?' }, a: { en: 'The rain was good this year. The wheat sings in the wind.', hi: 'इस साल बारिश अच्छी थी। गेहूँ हवा में गा रहे हैं।' } }
+        },
+        gifts: { loved: ['water', 'tools'], liked: ['rice'] }
+    },
+    'anita_kid': {
+        id: 'anita_kid', name: { en: 'Anita', hi: 'अनीता' },
+        role: { en: 'Village Girl', hi: 'गाँव की लड़की' },
+        emoji: '👧', schedule: { '8-18': 'village_square' },
+        dialogues: {
+            greeting: { en: 'Look! I found a shiny stone!', hi: 'देखो! मुझे चमकने वाला पत्थर मिला!' },
+            wisdom: { en: 'If you run fast enough, you can fly! Almost.', hi: 'अगर तेज़ दौड़ो तो उड़ सकते हो! लगभग।' },
+            deep: { en: 'When I grow up, I want to be a cloud. They can go anywhere and never pay for bus tickets.', hi: 'बड़े होकर मैं बादल बनना चाहती हूँ। वे कहीं भी जा सकते हैं और बस का टिकट नहीं लगता।' }
+        },
+        gifts: { loved: ['candy', 'toy'], liked: ['flower'] }
+    },
+    'tourist_john': {
+        id: 'tourist_john', name: { en: 'John', hi: 'जॉन' },
+        role: { en: 'Backpacker', hi: 'पर्यटक' },
+        emoji: '🎒', schedule: { '9-17': 'tea_house' },
+        dialogues: {
+            greeting: { en: 'Namaste! This place is magical.', hi: 'नमस्ते! यह जगह जादुई है।' },
+            wisdom: { en: 'The journey matters more than the destination.', hi: 'मंजिल से ज्यादा सफर मायने रखता है।' },
+            deep: { en: 'I have a big house in London. It has central heating. But it feels colder than this little wooden shack.', hi: 'लंदन में मेरा बड़ा घर है। उसमें हीटर है। पर वो इस छोटी लकड़ी की झोपड़ी से ज्यादा ठंडा लगता है।' }
+        },
+        topics: {
+            'life': { q: { en: 'Where are you from?', hi: 'आप कहाँ से हैं?' }, a: { en: 'Far away. But I feel at home here.', hi: 'बहुत दूर से। पर यहाँ घर जैसा लगता है।' } }
+        },
+        gifts: { loved: ['map', 'camera'], liked: ['chai'] }
+    },
+    'botanist_priya': {
+        id: 'botanist_priya', name: { en: 'Dr. Priya', hi: 'डॉ. प्रिया' },
+        role: { en: 'Botanist', hi: 'वनस्पति शास्त्री' },
+        emoji: '👩‍🔬', schedule: { '6-18': 'deep_forest' },
+        dialogues: {
+            greeting: { en: 'Shh! Do not disturb the flora.', hi: 'श्ह! पौधों को परेशान मत करो।' },
+            wisdom: { en: 'Plants speak to those who listen.', hi: 'पौधे सुनने वालों से बात करते हैं।' },
+            quest: { en: 'I am looking for a glowing mushroom.', hi: 'मैं चमकता हुआ मशरूम ढूंढ रही हूँ।' },
+            deep: { en: 'I used to think science had all answers. Then I saw a flower bloom in snow. Some miracles cannot be graphed.', hi: 'मुझे लगता था विज्ञान के पास सब जवाब हैं। फिर मैंने बर्फ में फूल खिलते देखा। कुछ चमत्कार ग्राफ पर नहीं आते।' }
+        },
+        gifts: { loved: ['rare_flower', 'sample'], liked: ['water'] }
+    },
+    'priest_yogi': {
+        id: 'priest_yogi', name: { en: 'Silent Yogi', hi: 'मौन योगी' },
+        role: { en: 'Ascetic', hi: 'तपस्वी' },
+        emoji: '🧘‍♂️', schedule: { '0-24': 'mountain_peak' },
+        dialogues: {
+            greeting: { en: '...', hi: '...' },
+            wisdom: { en: '(He points to the sky)', hi: '(वह आकाश की ओर इशारा करते हैं)' },
+            deep: { en: '...', hi: '...' } // He stays silent as his character trait
+        },
+        gifts: { loved: ['nothing'], liked: ['fruit'] }
+    },
+    'ghost_guard': {
+        id: 'ghost_guard', name: { en: 'Ancient Guardian', hi: 'प्राचीन रक्षक' },
+        role: { en: 'Spirit', hi: 'आत्मा' },
+        emoji: '👻', schedule: { '0-24': 'ancient_ruins' },
+        dialogues: {
+            greeting: { en: 'Who disturbs my slumber?', hi: 'मेरी नींद किसने तोड़ी?' },
+            wisdom: { en: 'Time turns all stone to dust.', hi: 'समय हर पत्थर को धूल बना देता है।' },
+            quest: { en: 'Find my lost sword...', hi: 'मेरी खोई हुई तलवार ढूंढो...' },
+            deep: { en: 'I forgot what I was guarding centuries ago. Now I just guard the memory of guarding. It is a lonely job.', hi: 'मैं सदियों पहले भूल गया कि मैं किस चीज़ की रक्षा कर रहा था। अब मैं बस रक्षा करने की याद की रक्षा करता हूँ। यह अकेला काम है।' }
+        },
+        gifts: { loved: ['incense'], liked: ['flower'] }
+    }
+};
+
+// World Manager
+export const WorldManager = {
+    currentArea: 'tea_house',
+    visitedAreas: ['tea_house', 'village_square'],
+    forageState: {}, // { areaId: { spotIndex: lastForagedTime } }
+    discoveredSecrets: [],
+    placedFurniture: {}, // { areaId: [ { itemId, x, y } ] }
+
+    init() {
+        this.forageState = {};
+        this.placedFurniture = {};
+    },
+
+    changeArea(areaId, entryX, entryY) {
+        const area = AreaData[areaId];
+        if (!area) return false;
+
+        // Check requirements
+        if (area.requiresItem && !window.Inventory?.hasItem(area.requiresItem)) {
+            return { success: false, reason: 'missing_item', item: area.requiresItem };
+        }
+
+        this.currentArea = areaId;
+        if (!this.visitedAreas.includes(areaId)) {
+            this.visitedAreas.push(areaId);
+        }
+
+        // Update quest objectives for location
+        if (window.QuestManager) window.QuestManager.updateObjective('location', areaId, 1);
+
+        return { success: true, x: entryX, y: entryY };
+    },
+
+    getCurrentArea() {
+        return AreaData[this.currentArea];
+    },
+
+    canForage(spotIndex) {
+        const key = `${this.currentArea}_${spotIndex}`;
+        const lastTime = this.forageState[key];
+        if (!lastTime) return true;
+
+        const spot = AreaData[this.currentArea]?.forageSpots?.[spotIndex];
+        if (!spot) return false;
+
+        const hoursPassed = (Date.now() - lastTime) / 1000 / 60 / 60;
+        return hoursPassed >= spot.respawnHours;
+    },
+
+    forage(spotIndex) {
+        if (!this.canForage(spotIndex)) return null;
+
+        const area = AreaData[this.currentArea];
+        const spot = area?.forageSpots?.[spotIndex];
+        if (!spot) return null;
+
+        // Random item from spot
+        const itemId = spot.items[Math.floor(Math.random() * spot.items.length)];
+
+        // Mark as foraged
+        this.forageState[`${this.currentArea}_${spotIndex}`] = Date.now();
+
+        // Add to inventory
+        if (window.Inventory) window.Inventory.addItem(itemId, 1);
+
+        return itemId;
+    },
+
+    getNPCsInCurrentArea() {
+        const area = AreaData[this.currentArea];
+        if (!area?.npcs) return [];
+
+        const hour = window.GameState?.gameTime?.hour || 12;
+        return area.npcs.filter(npcId => {
+            const npc = NPCData[npcId];
+            if (!npc) return false;
+            if (!npc.schedule) return true;
+
+            for (const [timeRange, location] of Object.entries(npc.schedule)) {
+                const [start, end] = timeRange.split('-').map(Number);
+                if (start < end ? (hour >= start && hour < end) : (hour >= start || hour < end)) {
+                    return location === this.currentArea;
+                }
+            }
+            return false;
+        }).filter(id => {
+            // Special filter: Don't show stray dog if already adopted
+            if (id === 'stray_dog' && typeof window !== 'undefined' && window.PetManager?.ownedPets.some(p => p.id === 'sheepdog')) return false;
+            return true;
+        }).map(id => NPCData[id]);
+    },
+
+    getSaveData() {
+        return {
+            currentArea: this.currentArea,
+            visitedAreas: this.visitedAreas,
+            forageState: this.forageState,
+            discoveredSecrets: this.discoveredSecrets
+        };
+    },
+
+    loadSaveData(data) {
+        if (data.currentArea) this.currentArea = data.currentArea;
+        if (data.visitedAreas) this.visitedAreas = data.visitedAreas;
+        if (data.forageState) this.forageState = data.forageState;
+        if (data.discoveredSecrets) this.discoveredSecrets = data.discoveredSecrets;
+        if (data.placedFurniture) this.placedFurniture = data.placedFurniture;
+    },
+
+    placeFurniture(itemId, x, y) {
+        if (!this.placedFurniture[this.currentArea]) {
+            this.placedFurniture[this.currentArea] = [];
+        }
+        this.placedFurniture[this.currentArea].push({ itemId, x, y });
+    }
+};
+
+if (typeof window !== 'undefined') {
+    window.WorldManager = WorldManager;
+    window.AreaData = AreaData;
+    window.NPCData = NPCData;
+}
