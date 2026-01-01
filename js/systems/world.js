@@ -36,21 +36,25 @@ export const AreaData = {
     },
     'tea_house': {
         id: 'tea_house',
-        name: { en: 'Moon Tea House', hi: 'चंद्र चाय घर' },
+        name: { en: 'Your Old Home', hi: 'आपका पुराना घर' },
         width: 20, height: 15,
         music: 'cozy_theme',
         isIndoor: true,
         connections: {
-            west: { area: 'village_square', x: 23, y: 10 }
+            south: { area: 'village_square', x: 23, y: 10 }
         },
-        npcs: ['traveler', 'tourist_john'],
+        npcs: [], // Empty initially, user is alone
         interactables: [
             { id: 'cooking_stove', x: 5, y: 5, type: 'craft', emoji: '🔥' },
             { id: 'storage_chest', x: 8, y: 3, type: 'storage', emoji: '📦' },
             { id: 'bed', x: 15, y: 3, type: 'rest', emoji: '🛏️' },
-            { id: 'counter', x: 10, y: 8, type: 'serve', emoji: '☕' },
-            { id: 'menu_board', x: 4, y: 4, type: 'read', emoji: '📋' },
-            { id: 'cat_sleeping', x: 12, y: 4, type: 'pet', emoji: '🐈' }
+            { id: 'dhaba_dirt_1', x: 10, y: 8, type: 'clean', emoji: '🕸️', isDirt: true },
+            { id: 'dhaba_dirt_2', x: 12, y: 6, type: 'clean', emoji: '🌫️', isDirt: true },
+            { id: 'dhaba_dirt_3', x: 6, y: 10, type: 'clean', emoji: '🍂', isDirt: true },
+            { id: 'dhaba_dirt_4', x: 14, y: 10, type: 'clean', emoji: '🕸️', isDirt: true },
+            { id: 'dhaba_dirt_5', x: 16, y: 7, type: 'clean', emoji: '🌫️', isDirt: true },
+            { id: 'broken_chair', x: 9, y: 9, type: 'inspect', emoji: '🪑', desc: { en: "Broken beyond repair.", hi: "पूरी तरह टूटा हुआ।" } },
+            { id: 'old_photo', x: 4, y: 4, type: 'read', emoji: '🖼️', desc: { en: "A photo of your grandmother smiling.", hi: "तुम्हारी दादी की मुस्कुराती हुई तस्वीर।" } }
         ]
     },
     'temple_hill': {
@@ -243,7 +247,8 @@ export const NPCData = {
             greeting: { en: 'Good morning, child. The mountains smile today.', hi: 'सुप्रभात, बच्चे। आज पहाड़ मुस्कुरा रहे हैं।' },
             wisdom: { en: 'Remember, mountains are climbed slowly.', hi: 'याद रखो - पहाड़ धीरे-धीरे चढ़ते हैं।' },
             quest: { en: 'The tea house needs your care. Make it shine again!', hi: 'चाय घर को तुम्हारी देखभाल चाहिए।' },
-            thanks: { en: 'You have done well, child.', hi: 'तुमने अच्छा किया, बच्चे।' }
+            thanks: { en: 'You have done well, child.', hi: 'तुमने अच्छा किया, बच्चे।' },
+            deep: { en: 'Your grandfather built this tea house with his own hands. He said it was a place for weary souls to find rest. Seeing you here... it feels like he is back.', hi: 'तुम्हारे दादाजी ने यह चाय घर अपने हाथों से बनाया था। वे कहते थे कि यह थकी हुई आत्माओं के लिए आराम की जगह है। तुम्हें यहाँ देखकर... लगता है वे वापस आ गए हैं।' }
         },
         topics: {
             'life': {
@@ -269,7 +274,8 @@ export const NPCData = {
             greeting: { en: 'Ah! Music fills the air today!', hi: 'आह! आज हवाओं में संगीत है!' },
             wisdom: { en: 'What music expresses, words never can!', hi: 'संगीत में जो बात है, वो शब्दों में कहाँ!' },
             quest: { en: 'My sarangi strings are broken. Can you help?', hi: 'मेरी सारंगी के तार टूट गए। मदद करोगे?' },
-            happy: { en: 'Let me play you a tune!', hi: 'चलो एक धुन सुनाता हूँ!' }
+            happy: { en: 'Let me play you a tune!', hi: 'चलो एक धुन सुनाता हूँ!' },
+            deep: { en: 'Sometimes, I play for the river. It sings back, you know? It tells me stories of where it has been and where it is going. We are all just flowing water.', hi: 'कभी-कभी मैं नदी के लिए बजाता हूँ। वो जवाब देती है, पता है? वो मुझे अपनी यात्रा की कहानियाँ सुनाती है। हम सब बस बहता पानी हैं।' }
         },
         topics: {
             'life': {
@@ -291,7 +297,8 @@ export const NPCData = {
             greeting: { en: 'The chai is always fresh here!', hi: 'यहाँ चाय हमेशा ताज़ी है!' },
             wisdom: { en: 'Food fills not just the stomach, but the heart too.', hi: 'खाना सिर्फ पेट नहीं, दिल भी भरता है।' },
             quest: { en: 'I need rare spices for the festival! Help me?', hi: 'त्योहार के लिए दुर्लभ मसाले चाहिए!' },
-            cooking: { en: 'Come, let me teach you a recipe!', hi: 'आओ, एक विधि सिखाती हूँ!' }
+            cooking: { en: 'Come, let me teach you a recipe!', hi: 'आओ, एक विधि सिखाती हूँ!' },
+            deep: { en: 'My mother taught me that spices are like emotions. Too much anger burns, too much sadness is bitter. But a perfect balance... that is a life well lived.', hi: 'मेरी माँ ने सिखाया था कि मसाले भावनाओं की तरह हैं। बहुत ज्यादा गुस्सा जला देता है, बहुत दुख कड़वा होता है। पर सही संतुलन... वही तो असली ज़िंदगी है।' }
         },
         topics: {
             'life': {
@@ -313,7 +320,8 @@ export const NPCData = {
             greeting: { en: 'May peace be upon you.', hi: 'शांति बनी रहे।' },
             wisdom: { en: 'When mind is calm, the world is calm.', hi: 'मन शांत, तो संसार शांत।' },
             quest: { en: 'Strange things happen at the temple...', hi: 'मंदिर में अजीब चीज़ें हो रही हैं...' },
-            blessing: { en: 'May the mountains protect you.', hi: 'पहाड़ तुम्हारी रक्षा करें।' }
+            blessing: { en: 'May the mountains protect you.', hi: 'पहाड़ तुम्हारी रक्षा करें।' },
+            deep: { en: 'I used to write code that controlled machines. Now I chant mantras that control the mind. The logic is surprisingly similar—all systems require balance.', hi: 'मैं पहले मशीनों के लिए कोड लिखता था। अब मन के लिए मंत्र पढ़ता हूँ। तर्क आश्चर्यजनक रूप से समान है—सभी प्रणालियों को संतुलन की आवश्यकता होती है।' }
         },
         topics: {
             'life': {
@@ -335,7 +343,8 @@ export const NPCData = {
             greeting: { en: 'Namaste! Seeking remedies?', hi: 'नमस्ते! इलाज चाहिए?' },
             wisdom: { en: 'Nature hides the cure for every ailment.', hi: 'प्रकृति में हर बीमारी का इलाज छुपा है।' },
             quest: { en: 'I need the rare Brahma Kamal flower.', hi: 'मुझे दुर्लभ ब्रह्म कमल चाहिए।' },
-            teach: { en: 'Let me teach you about herbs.', hi: 'चलो जड़ी-बूटियों के बारे में बताता हूँ।' }
+            teach: { en: 'Let me teach you about herbs.', hi: 'चलो जड़ी-बूटियों के बारे में बताता हूँ।' },
+            deep: { en: 'People trust pills instantly, but doubt the roots that kept their ancestors alive. I am not just a healer, I am a keeper of forgotten trust.', hi: 'लोग गोलियों पर तुरंत भरोसा करते हैं, लेकिन उन जड़ों पर शक करते हैं जिन्होंने उनके पूर्वजों को जीवित रखा। मैं सिर्फ एक वैद्य नहीं, मैं भूले हुए भरोसे का रक्षक हूँ।' }
         },
         topics: {
             'life': {
@@ -353,7 +362,8 @@ export const NPCData = {
             greeting: { en: 'Ready for adventure?', hi: 'साहसिक यात्रा के लिए तैयार?' },
             wisdom: { en: 'Every stone in these mountains has a story.', hi: 'इन पहाड़ों में हर पत्थर की एक कहानी है।' },
             quest: { en: 'There are treasures hidden in the ruins!', hi: 'खंडहरों में खज़ाने छिपे हैं!' },
-            guide: { en: 'Follow me, I know every path.', hi: 'मेरे पीछे आओ, हर रास्ता जानता हूँ।' }
+            guide: { en: 'Follow me, I know every path.', hi: 'मेरे पीछे आओ, हर रास्ता जानता हूँ।' },
+            deep: { en: 'I once sat on a peak for three days waiting for a storm to pass. In that cold, I felt more warmth than I ever felt in the city. The mountain held me.', hi: 'मैं एक बार तूफ़ान गुजरने के इंतज़ार में तीन दिन तक चोटी पर बैठा रहा। उस ठंड में, मैंने शहर से ज़्यादा गर्माहट महसूस की। पहाड़ ने मुझे थामे रखा।' }
         },
         topics: {
             'life': {
@@ -371,7 +381,8 @@ export const NPCData = {
             greeting: { en: 'Looking for fine woolens?', hi: 'बढ़िया ऊनी कपड़े चाहिए?' },
             wisdom: { en: 'Love is woven into every thread.', hi: 'हर धागे में प्यार बुना है।' },
             quest: { en: 'I need fine wool for a special shawl.', hi: 'खास शॉल के लिए अच्छी ऊन चाहिए।' },
-            trade: { en: 'Bring materials, I\'ll make you something warm.', hi: 'सामान लाओ, कुछ गर्म बना दूँगी।' }
+            trade: { en: 'Bring materials, I\'ll make you something warm.', hi: 'सामान लाओ, कुछ गर्म बना दूँगी।' },
+            deep: { en: 'My designs are not just patterns. They are maps of the stars as seen from this valley. Wearing my shawl is like wrapping yourself in the night sky.', hi: 'मेरे डिज़ाइन सिर्फ पैटर्न नहीं हैं। वे इस घाटी से दिखने वाले तारों के नक्शे हैं। मेरी शॉल पहनना ओढ़ने जैसा है।' }
         },
         topics: {
             'life': {
@@ -389,7 +400,8 @@ export const NPCData = {
             greeting: { en: 'You seek what is hidden...', hi: 'जो छिपा है, वो ढूंढ रहे हो...' },
             wisdom: { en: 'When the time comes, you will understand...', hi: 'जब समय आएगा, सब समझ जाओगे...' },
             quest: { en: 'The Moon Gem calls to those who are worthy.', hi: 'चंद्र मणि योग्य लोगों को बुलाती है।' },
-            cryptic: { en: 'Look where moonlight touches water...', hi: 'जहाँ चाँदनी पानी को छूती है, वहाँ देखो...' }
+            cryptic: { en: 'Look where moonlight touches water...', hi: 'जहाँ चाँदनी पानी को छूती है, वहाँ देखो...' },
+            deep: { en: 'I do not have a name anymore. Names are for those who want to be found. I only want to be.', hi: 'मेरा अब कोई नाम नहीं है। नाम उनके लिए है जो मिलना चाहते हैं। मैं बस होना चाहता हूँ।' }
         },
         gifts: { loved: ['moon_gem', 'brahma_kamal'], liked: ['tulsi', 'honey'] }
     },
@@ -398,9 +410,10 @@ export const NPCData = {
         role: { en: 'Village Child', hi: 'गाँव का बच्चा' },
         emoji: '👦', schedule: { '8-18': 'village_square' },
         dialogues: {
-            greeting: { en: 'Hi! Want to play?', hi: 'नमस्ते! खेलोगे?' },
-            sad: { en: 'My goat Champa is lost in the forest!', hi: 'मेरी बकरी चम्पा जंगल में खो गई!' },
-            happy: { en: 'You found Champa! Thank you!', hi: 'चम्पा मिल गई! धन्यवाद!' }
+            greeting: { en: 'Hi! Want to play tag?', hi: 'नमस्ते! पकड़म-पकड़ाई खेलोगे?' },
+            sad: { en: 'My goat Champa is lost! She has a white spot on her nose.', hi: 'मेरी बकरी चम्पा खो गई! उसकी नाक पर सफेद निशान है।' },
+            happy: { en: 'You found Champa! You are my best friend!', hi: 'चम्पा मिल गई! तुम मेरे सबसे अच्छे दोस्त हो!' },
+            deep: { en: 'Grown-ups always talk about money and time. I just want to chase butterflies. Are butterflies rich?', hi: 'बड़े लोग हमेशा पैसे और समय की बात करते हैं। मैं बस ततली पकड़ना चाहता हूँ। क्या तितलियाँ अमीर होती हैं?' }
         },
         gifts: { loved: ['apple', 'kheer'], liked: ['berries', 'pakora'] }
     },
@@ -409,66 +422,73 @@ export const NPCData = {
         role: { en: 'Fisherman', hi: 'मछुआरा' },
         emoji: '🎣', schedule: { '5-18': 'riverside' },
         dialogues: {
-            greeting: { en: 'The river is generous today!', hi: 'नदी आज मेहरबान है!' },
-            wisdom: { en: 'Patience catches the biggest fish.', hi: 'सब्र से बड़ी मछली मिलती है।' },
-            teach: { en: 'Want to learn fishing? Get a rod first!', hi: 'मछली पकड़ना सीखना है? पहले छड़ लाओ!' }
+            greeting: { en: 'The river is singing today.', hi: 'नदी आज गा रही है।' },
+            wisdom: { en: 'A fish only gets caught when it opens its mouth. Same for people.', hi: 'मछली तभी फंसती है जब मुंह खोलती है। इंसानों का भी यही हाल है।' },
+            teach: { en: 'Hold the rod like a bird. Not too tight, not too loose.', hi: 'छड़ को पक्षी की तरह पकड़ो। न ज्यादा सख्त, न ढीला।' },
+            deep: { en: 'I have spent more time with fish than with humans. Fish are honest. They don\'t pretend to be sharks if they are trout.', hi: 'मैंने इंसानों से ज्यादा वक्त मछलियों के साथ बिताया है। मछलियाँ ईमानदार होती हैं। ट्राउट होकर शार्क बनने का दिखावा नहीं करतीं।' }
         },
         gifts: { loved: ['masala_chai', 'pakora'], liked: ['berries', 'honey'] }
     },
     'traveler': {
-        id: 'traveler', name: { en: 'Traveler', hi: 'यात्री' },
-        role: { en: 'Passing Traveler', hi: 'गुज़रता यात्री' },
+        id: 'traveler', name: { en: 'Lost Backpacker', hi: 'भटका हुआ यात्री' },
+        role: { en: 'Traveler', hi: 'यात्री' },
         emoji: '🚶', schedule: { '10-16': 'tea_house' },
         dialogues: {
-            satisfied: { en: 'Delicious! The best chai in the mountains!', hi: 'वाह! पहाड़ों की सबसे अच्छी चाय!' }
+            greeting: { en: 'Is this place even on the map?', hi: 'क्या यह जगह नक्शे पर भी है?' },
+            satisfied: { en: 'This chai... it tastes like hope.', hi: 'यह चाय... उम्मीद जैसी है।' },
+            deep: { en: 'I started walking to run away from my problems. But in these mountains, my problems seem so small they don\'t matter.', hi: 'मैं अपनी समस्याओं से भागने के लिए चला था। पर इन पहाड़ों में, मेरी समस्याएं इतनी छोटी लगती हैं कि कोई फर्क नहीं पड़ता।' }
         }
     },
     'stray_dog': {
-        id: 'stray_dog', name: { en: 'Stray Dog', hi: 'आवारा कुत्ता' },
-        role: { en: 'Stray Animal', hi: 'आवारा जानवर' },
+        id: 'stray_dog', name: { en: 'Sheru', hi: 'शेरू' },
+        role: { en: 'Faithful Friend', hi: 'वफादार दोस्त' },
         emoji: '🐕', schedule: { '0-24': 'pine_forest' },
         dialogues: {
-            greeting: { en: 'Woof? (The dog looks at you cautiously)', hi: 'भों? (कुत्ता आपको सावधानी से देखता है)' },
-            hungry: { en: 'Woof... (It looks hungry)', hi: 'भों... (यह भूखा लग रहा है)' },
-            happy: { en: 'Woof! Woof! (It wags its tail)', hi: 'भों! भों! (यह पूंछ हिलाता है)' }
+            greeting: { en: '(Wags tail enthusiastically) Woof!', hi: '(दुम हिलाता है) भों!' },
+            hungry: { en: '(Whimpers softly and nudges your hand)', hi: '(धीरे से रोरता है और आपके हाथ को छूता है)' },
+            happy: { en: 'Bark! Bark! (He spins in a circle)', hi: 'भों! भों! (वह गोल घूमता है)' }
         },
         gifts: { loved: ['milk', 'bone'], liked: ['meat'] }
     },
     'woodcutter': {
-        id: 'woodcutter', name: { en: 'Woodcutter', hi: 'लकड़हारा' },
+        id: 'woodcutter', name: { en: 'Hari', hi: 'हरी' },
         role: { en: 'Lumberjack', hi: 'लकड़हारा' },
         emoji: '🪓', schedule: { '6-18': 'pine_forest' },
         dialogues: {
-            greeting: { en: 'Timber! ...Just kidding.', hi: 'लकड़ी! ...मज़ाक कर रहा हूँ।' }
+            greeting: { en: 'Trees have spirits. I ask permission before I cut.', hi: 'पेड़ों में जान होती है। मैं काटने से पहले इजाज़त मांगता हूँ।' },
+            deep: { en: 'My axe is heavy, but my heart is light. I only take what the forest gives, never more.', hi: 'मेरी कुल्हाड़ी भारी है, पर दिल हल्का। मैं सिर्फ उतना लेता हूँ जो जंगल देता है, उससे ज्यादा नहीं।' }
         },
-        gifts: { loved: ['axe'], liked: ['water'] }
+        gifts: { loved: ['axe', 'lunch_box'], liked: ['water'] }
     },
     'shepherd': {
-        id: 'shepherd', name: { en: 'Shepherd', hi: 'चरवाहा' },
+        id: 'shepherd', name: { en: 'Gopal', hi: 'गोपाल' },
         role: { en: 'Shepherd', hi: 'चरवाहा' },
         emoji: '🐑', schedule: { '6-18': 'high_meadow' },
         dialogues: {
-            greeting: { en: 'Have you seen my lost sheep?', hi: 'क्या तुमने मेरी खोई हुई भेड़ देखी?' }
+            greeting: { en: 'The grass is sweet this year.', hi: 'इस साल घास मीठी है।' },
+            deep: { en: 'My sheep obey me not because I have a stick, but because I know their names. Love leads better than fear.', hi: 'मेरी भेड़ें मेरी बात इसलिए नहीं मानतीं कि मेरे पास डंडा है, बल्कि इसलिए कि मैं उनके नाम जानता हूँ। डर से बेहतर प्यार राह दिखाता है।' }
         },
-        gifts: { loved: ['wool'], liked: ['bread'] }
+        gifts: { loved: ['wool', 'flute'], liked: ['bread'] }
     },
     'merchant': {
-        id: 'merchant', name: { en: 'Merchant', hi: 'व्यापारी' },
+        id: 'merchant', name: { en: 'Sethji', hi: 'सेठजी' },
         role: { en: 'Trader', hi: 'व्यापारी' },
         emoji: '⚖️', schedule: { '8-20': 'wool_market' },
         dialogues: {
-            greeting: { en: 'Best prices in the valley!', hi: 'घाटी में सबसे अच्छे दाम!' }
+            greeting: { en: 'Ah! A customer with good taste!', hi: 'आह! अच्छी पसंद वाला ग्राहक!' },
+            deep: { en: 'I have sold silk in Varanasi and gems in Jaipur. But the smile of a satisfied pahadi... that is the best profit.', hi: 'मैंने बनारस में रेशम और जयपुर में रत्न बेचे हैं। पर एक संतुष्ट पहाड़ी की मुस्कान... वो सबसे बड़ा मुनाफा है।' }
         },
-        gifts: { loved: ['gold_coin'], liked: ['tea_leaves'] }
+        gifts: { loved: ['gold_coin', 'ledger'], liked: ['tea_leaves'] }
     },
     'farmer_ram': {
         id: 'farmer_ram', name: { en: 'Farmer Ram', hi: 'किसान राम' },
         role: { en: 'Farmer', hi: 'किसान' },
         emoji: '👨‍🌾', schedule: { '5-19': 'village_square' },
         dialogues: {
-            greeting: { en: 'Hard work brings the sweetest fruit.', hi: 'कड़ी मेहनत का फल मीठा होता है।' },
+            greeting: { en: 'The earth smells of rain.', hi: 'मिट्टी से बारिश की खुशबू आ रही है।' },
             wisdom: { en: 'Treat the soil like your mother, and she will feed you.', hi: 'धरती को माँ समझो, वह तुम्हें पालगी।' },
-            quest: { en: 'My crops are thirsty. Can you check the river?', hi: 'फसलें प्यासी हैं। क्या नदी देख आओगे?' }
+            quest: { en: 'My crops are thirsty. Can you check the river?', hi: 'फसलें प्यासी हैं। क्या नदी देख आओगे?' },
+            deep: { en: 'City folks look at their watches. I look at the sun. My boss never runs out of battery.', hi: 'शहर के लोग घड़ी देखते हैं। मैं सूरज देखता हूँ। मेरे बॉस की बैटरी कभी खत्म नहीं होती।' }
         },
         topics: {
             'life': { q: { en: 'How are the crops?', hi: 'फसल कैसी है?' }, a: { en: 'The rain was good this year. The wheat sings in the wind.', hi: 'इस साल बारिश अच्छी थी। गेहूँ हवा में गा रहे हैं।' } }
@@ -480,8 +500,9 @@ export const NPCData = {
         role: { en: 'Village Girl', hi: 'गाँव की लड़की' },
         emoji: '👧', schedule: { '8-18': 'village_square' },
         dialogues: {
-            greeting: { en: 'Tag! You\'re it!', hi: 'पकड़म-पकड़ाई!' },
-            wisdom: { en: 'If you run fast enough, you can fly!', hi: 'अगर तेज़ दौड़ो तो उड़ सकते हो!' }
+            greeting: { en: 'Look! I found a shiny stone!', hi: 'देखो! मुझे चमकने वाला पत्थर मिला!' },
+            wisdom: { en: 'If you run fast enough, you can fly! Almost.', hi: 'अगर तेज़ दौड़ो तो उड़ सकते हो! लगभग।' },
+            deep: { en: 'When I grow up, I want to be a cloud. They can go anywhere and never pay for bus tickets.', hi: 'बड़े होकर मैं बादल बनना चाहती हूँ। वे कहीं भी जा सकते हैं और बस का टिकट नहीं लगता।' }
         },
         gifts: { loved: ['candy', 'toy'], liked: ['flower'] }
     },
@@ -491,7 +512,8 @@ export const NPCData = {
         emoji: '🎒', schedule: { '9-17': 'tea_house' },
         dialogues: {
             greeting: { en: 'Namaste! This place is magical.', hi: 'नमस्ते! यह जगह जादुई है।' },
-            wisdom: { en: 'The journey matters more than the destination.', hi: 'मंजिल से ज्यादा सफर मायने रखता है।' }
+            wisdom: { en: 'The journey matters more than the destination.', hi: 'मंजिल से ज्यादा सफर मायने रखता है।' },
+            deep: { en: 'I have a big house in London. It has central heating. But it feels colder than this little wooden shack.', hi: 'लंदन में मेरा बड़ा घर है। उसमें हीटर है। पर वो इस छोटी लकड़ी की झोपड़ी से ज्यादा ठंडा लगता है।' }
         },
         topics: {
             'life': { q: { en: 'Where are you from?', hi: 'आप कहाँ से हैं?' }, a: { en: 'Far away. But I feel at home here.', hi: 'बहुत दूर से। पर यहाँ घर जैसा लगता है।' } }
@@ -505,7 +527,8 @@ export const NPCData = {
         dialogues: {
             greeting: { en: 'Shh! Do not disturb the flora.', hi: 'श्ह! पौधों को परेशान मत करो।' },
             wisdom: { en: 'Plants speak to those who listen.', hi: 'पौधे सुनने वालों से बात करते हैं।' },
-            quest: { en: 'I am looking for a glowing mushroom.', hi: 'मैं चमकता हुआ मशरूम ढूंढ रही हूँ।' }
+            quest: { en: 'I am looking for a glowing mushroom.', hi: 'मैं चमकता हुआ मशरूम ढूंढ रही हूँ।' },
+            deep: { en: 'I used to think science had all answers. Then I saw a flower bloom in snow. Some miracles cannot be graphed.', hi: 'मुझे लगता था विज्ञान के पास सब जवाब हैं। फिर मैंने बर्फ में फूल खिलते देखा। कुछ चमत्कार ग्राफ पर नहीं आते।' }
         },
         gifts: { loved: ['rare_flower', 'sample'], liked: ['water'] }
     },
@@ -515,7 +538,8 @@ export const NPCData = {
         emoji: '🧘‍♂️', schedule: { '0-24': 'mountain_peak' },
         dialogues: {
             greeting: { en: '...', hi: '...' },
-            wisdom: { en: '(He points to the sky)', hi: '(वह आकाश की ओर इशारा करते हैं)' }
+            wisdom: { en: '(He points to the sky)', hi: '(वह आकाश की ओर इशारा करते हैं)' },
+            deep: { en: '...', hi: '...' } // He stays silent as his character trait
         },
         gifts: { loved: ['nothing'], liked: ['fruit'] }
     },
@@ -526,7 +550,8 @@ export const NPCData = {
         dialogues: {
             greeting: { en: 'Who disturbs my slumber?', hi: 'मेरी नींद किसने तोड़ी?' },
             wisdom: { en: 'Time turns all stone to dust.', hi: 'समय हर पत्थर को धूल बना देता है।' },
-            quest: { en: 'Find my lost sword...', hi: 'मेरी खोई हुई तलवार ढूंढो...' }
+            quest: { en: 'Find my lost sword...', hi: 'मेरी खोई हुई तलवार ढूंढो...' },
+            deep: { en: 'I forgot what I was guarding centuries ago. Now I just guard the memory of guarding. It is a lonely job.', hi: 'मैं सदियों पहले भूल गया कि मैं किस चीज़ की रक्षा कर रहा था। अब मैं बस रक्षा करने की याद की रक्षा करता हूँ। यह अकेला काम है।' }
         },
         gifts: { loved: ['incense'], liked: ['flower'] }
     }
@@ -534,13 +559,15 @@ export const NPCData = {
 
 // World Manager
 export const WorldManager = {
-    currentArea: 'village_square',
-    visitedAreas: ['village_square'],
+    currentArea: 'tea_house',
+    visitedAreas: ['tea_house', 'village_square'],
     forageState: {}, // { areaId: { spotIndex: lastForagedTime } }
     discoveredSecrets: [],
+    placedFurniture: {}, // { areaId: [ { itemId, x, y } ] }
 
     init() {
         this.forageState = {};
+        this.placedFurniture = {};
     },
 
     changeArea(areaId, entryX, entryY) {
@@ -636,6 +663,14 @@ export const WorldManager = {
         if (data.visitedAreas) this.visitedAreas = data.visitedAreas;
         if (data.forageState) this.forageState = data.forageState;
         if (data.discoveredSecrets) this.discoveredSecrets = data.discoveredSecrets;
+        if (data.placedFurniture) this.placedFurniture = data.placedFurniture;
+    },
+
+    placeFurniture(itemId, x, y) {
+        if (!this.placedFurniture[this.currentArea]) {
+            this.placedFurniture[this.currentArea] = [];
+        }
+        this.placedFurniture[this.currentArea].push({ itemId, x, y });
     }
 };
 

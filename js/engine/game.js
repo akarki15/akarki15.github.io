@@ -11,6 +11,10 @@ import { PetManager, PetData } from '../systems/pets.js';
 import { WorldManager, AreaData, NPCData } from '../systems/world.js';
 import { SocialSystem } from '../systems/social.js';
 import { SpriteGenerator } from './sprites_generator.js';
+import { DialogueGenerator } from '../systems/dialogue_gen.js';
+import { LightingSystem } from '../systems/lighting.js';
+import { WeatherSystem } from '../systems/weather.js';
+import { SoundSystem } from '../systems/sound.js';
 
 // ============================================================
 // GAME CONFIGURATION
@@ -78,7 +82,7 @@ const SPRITES = {
 // PLAYER SYSTEM
 // ============================================================
 window.Player = {
-    x: 400,
+    x: 300,
     y: 300,
     width: 32,
     height: 32,
@@ -234,18 +238,21 @@ const Input = {
     lastKeys: {},
 
     init() {
+        console.log('🎮 Input System Disengaged... Re-engaging...');
         window.addEventListener('keydown', (e) => {
-            this.keys[e.code] = true;
+            // console.log('Key:', e.code);
+            Input.keys[e.code] = true;
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'Escape', 'KeyI', 'KeyQ', 'KeyM', 'KeyC', 'KeyE', 'KeyH'].includes(e.code)) {
                 e.preventDefault();
             }
         });
-        window.addEventListener('keyup', (e) => { this.keys[e.code] = false; });
+        window.addEventListener('keyup', (e) => { Input.keys[e.code] = false; });
+        console.log('🎮 Input System Ready');
     },
 
-    isPressed(key) { return this.keys[key] === true; },
-    isJustPressed(key) { return this.keys[key] === true && this.lastKeys[key] !== true; },
-    update() { this.lastKeys = { ...this.keys }; }
+    isPressed(key) { return Input.keys[key] === true; },
+    isJustPressed(key) { return Input.keys[key] === true && Input.lastKeys[key] !== true; },
+    update() { Input.lastKeys = { ...Input.keys }; }
 };
 
 // ============================================================
@@ -297,6 +304,8 @@ const DialogueSystem = {
     start(npc) {
         this.active = true;
         this.currentNPC = npc;
+        npc._emoteTimer = 300; // Hop for 300ms
+        SoundSystem.playSfx('talk'); // Chipmunk talk sound!
         this.choices = [];
         this.waitingForChoice = false;
 
@@ -310,21 +319,42 @@ const DialogueSystem = {
 
         // Initial Text
         let dialogueKey = 'greeting';
-        // Quest override logic here...
 
-        // Use greeting
-        this.setText(npc.dialogues[dialogueKey]?.[lang] || "Hello!");
+        let initialText = npc.dialogues[dialogueKey]?.[lang] || "Hello!";
+
+        // 50% chance to override with procedural text if it's just a greeting
+        if (dialogueKey === 'greeting' && Math.random() > 0.5) {
+            // Access TimeSystem through window if needed or assume global
+            const hour = window.TimeSystem ? window.TimeSystem.hour : 12;
+            initialText = DialogueGenerator.generate(npc, hour, 'clear');
+        }
+
+        this.setText(initialText);
+
+        // Determine Player Mood based on Energy/Health (Realism!)
+        let mood = 'neutral';
+        if (window.Player.energy > 80) mood = 'happy';
+        if (window.Player.energy < 30) mood = 'tired';
+
+        // Generate Dynamic Choice Text
+        const chatText = DialogueGenerator.generatePlayerChoice('chat', mood, rel.status);
+        const giftText = DialogueGenerator.generatePlayerChoice('gift', mood, rel.status);
+        const byeText = DialogueGenerator.generatePlayerChoice('bye', mood, rel.status);
 
         // Set choices immediately
         this.setChoices([
-            { text: lang === 'hi' ? 'बातचीत करें' : 'Chat', action: 'chat' },
-            { text: lang === 'hi' ? 'उपहार दें' : 'Gift', action: 'gift' },
-            { text: lang === 'hi' ? 'अलविदा' : 'Bye', action: 'close' }
+            { text: chatText, action: 'chat' },
+            { text: giftText, action: 'gift' },
+            { text: byeText, action: 'close' }
         ]);
 
         // Add specific options based on status
+        if (['Friend', 'Good Friend', 'Best Friend', 'Partner'].includes(rel.status) && npc.dialogues.deep) {
+            this.choices.splice(1, 0, { text: '✨ Deep Talk', action: 'deep_talk' });
+        }
+
         if (SocialSystem.canDate(npc.id)) {
-            this.choices.splice(2, 0, { text: '❤️ Confess Love', action: 'date' });
+            this.choices.push({ text: '❤️ Confess Love', action: 'date' });
         }
     },
 
@@ -396,6 +426,13 @@ const DialogueSystem = {
             this.setText(msg);
             SocialSystem.addXP(npc.id, 2);
             this.setChoices([{ text: '...', action: 'back' }]);
+        }
+
+        if (action === 'deep_talk') {
+            this.setText(npc.dialogues.deep[lang]);
+            SocialSystem.addXP(npc.id, 10);
+            this.setChoices([{ text: '...', action: 'back' }]);
+            return;
         }
 
         if (action.startsWith('ask_')) {
@@ -632,11 +669,17 @@ const UIManager = {
 
     handleItemClick(itemId) {
         const item = ItemData[itemId];
+
+        // Context Menu logic could be here, but for now simple toggle
         if (item?.category === 'food') {
             if (Inventory.useItem(itemId)) {
                 NotificationSystem.show(`Used ${item.emoji} ${item.name[GameState.language]}`, 'success');
                 this.openMenu('inventory'); // Refresh
             }
+        } else if (item?.category === 'furniture') {
+            // Place mode
+            this.closeMenu();
+            Game.startPlacement(itemId);
         }
     },
 
@@ -880,7 +923,7 @@ const WorldRenderer = {
         const hitW = w - 8;
         const hitH = h - 16;
 
-        // Check corners
+        // 1. Check Terrain Tiles
         const points = [
             { x: hitX, y: hitY },
             { x: hitX + hitW, y: hitY },
@@ -897,6 +940,44 @@ const WorldRenderer = {
                 if (!this.isWalkable(tile)) return true;
             }
         }
+
+        // 2. Check Interactables (Trees, Rocks, etc.)
+        const area = WorldManager.getCurrentArea();
+        if (area && area.interactables) {
+            for (const inter of area.interactables) {
+                // assume interactables are 32x32 solid blocks if they are 'landmark', 'water', 'craft', 'storage', 'rest'
+                // Or check a specific 'solid' property. For now, let's treat most non-ground interactables as solid.
+                // Exceptions: 'clean' (dirt), 'info' (maybe pass through?), 'view'
+                const nonSolidTypes = ['clean', 'view', 'read', 'info'];
+                if (nonSolidTypes.includes(inter.type)) continue;
+
+                // Simple AABB
+                const ix = inter.x * CONFIG.TILE_SIZE;
+                const iy = inter.y * CONFIG.TILE_SIZE;
+
+                if (hitX < ix + 32 && hitX + hitW > ix &&
+                    hitY < iy + 32 && hitY + hitH > iy) {
+                    return true;
+                }
+            }
+        }
+
+        // 3. Check Placed Furniture
+        if (area) {
+            const furnitureList = WorldManager.placedFurniture[area.id];
+            if (furnitureList) {
+                for (const f of furnitureList) {
+                    const fx = f.x * CONFIG.TILE_SIZE;
+                    const fy = f.y * CONFIG.TILE_SIZE;
+
+                    if (hitX < fx + 32 && hitX + hitW > fx &&
+                        hitY < fy + 32 && hitY + hitH > fy) {
+                        return true;
+                    }
+                }
+            }
+        }
+
         return false;
     },
 
@@ -1027,23 +1108,82 @@ const WorldRenderer = {
                     '📦': SPRITES.TERRAIN[4], // Chest -> Rock
                     '🔥': SPRITES.TERRAIN[4], // Stove -> Rock
                     '🎣': SPRITES.TERRAIN[2], // Fishing -> Water
+                    '🛏️': SPRITES.TERRAIN[5], // Bed -> Building
+                    '🕸️': SPRITES.TERRAIN[10], // Dirt -> Bush/Mess
+                    '🌫️': SPRITES.TERRAIN[10],
+                    '🍂': SPRITES.TERRAIN[10],
+                    '🪴': SPRITES.TERRAIN[6], // Flower Pot -> Flower
+                    '🏮': SPRITES.TERRAIN[5], // Lamp -> Wall/Post
+                    '🪑': SPRITES.TERRAIN[4], // Chair -> Rock (placeholder)
+                    '🖼️': SPRITES.TERRAIN[5], // Photo -> Wall
                 };
 
                 let propSprite = emojiMap[inter.emoji];
 
                 // Fallback to sparkle for quest items or unknown
                 if (!propSprite && SPRITES.EFFECTS) {
-                    // Animate sparkle
-                    const frame = Math.floor(Date.now() / 200) % 4;
-                    propSprite = SPRITES.EFFECTS.sparkle[frame];
+                    // Start checks
                 }
-
-                if (propSprite && GameState.spritesLoaded) {
-                    ctx.drawImage(Game.sprites, propSprite.x, propSprite.y, 32, 32, inter.x * CONFIG.TILE_SIZE, inter.y * CONFIG.TILE_SIZE, 32, 32);
-                } else {
-                    // Absolute fallback if sprites not loaded (should not happen if loaded)
-                }
+                // Animate sparkle
+                const frame = Math.floor(Date.now() / 200) % 4;
+                propSprite = SPRITES.EFFECTS.sparkle[frame];
             }
+
+            const tx = inter.x * CONFIG.TILE_SIZE;
+            const ty = inter.y * CONFIG.TILE_SIZE;
+
+            if (inter.isDirt) {
+                // Draw dirt as pixel art (scattered pixels)
+                if (GameState.spritesLoaded) {
+                    ctx.fillStyle = '#3E2723'; // Dark dirt
+                    // Draw a little pixel pattern
+                    ctx.fillRect(tx + 8, ty + 10, 4, 4);
+                    ctx.fillRect(tx + 20, ty + 8, 4, 4);
+                    ctx.fillRect(tx + 14, ty + 16, 6, 6); // Center pile
+                    ctx.fillRect(tx + 6, ty + 22, 4, 4);
+                    ctx.fillRect(tx + 22, ty + 20, 4, 4);
+
+                    // dust motes
+                    ctx.fillStyle = '#795548';
+                    ctx.fillRect(tx + 12, ty + 12, 2, 2);
+                    ctx.fillRect(tx + 18, ty + 20, 2, 2);
+                }
+            } else if (propSprite && GameState.spritesLoaded) {
+                ctx.drawImage(Game.sprites, propSprite.x, propSprite.y, 32, 32, tx, ty, 32, 32);
+            }
+        }
+    }
+
+        // Draw Placed Furniture
+        const furnitureList = WorldManager.placedFurniture[area.id];
+    if(furnitureList) {
+        for (const f of furnitureList) {
+            // Logic to get sprite from Item (we assume items have sprites or emojis)
+            const item = ItemData[f.itemId];
+            if (item) {
+                // Simple emoji render for now as items don't have dedicated sprite mapping yet
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.emoji, f.x * CONFIG.TILE_SIZE + 16, f.y * CONFIG.TILE_SIZE + 24);
+                ctx.textAlign = 'left';
+            }
+        }
+    }
+
+        // Draw Placement Preview
+        if(Game.placementMode) {
+        const { x, y, itemId, valid } = Game.placementMode;
+const item = ItemData[itemId];
+ctx.globalAlpha = 0.6;
+ctx.fillStyle = valid ? '#4CAF50' : '#F44336';
+ctx.fillRect(x, y, 32, 32);
+if (item) {
+    ctx.font = '24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(item.emoji, x + 16, y + 24);
+    ctx.textAlign = 'left';
+}
+ctx.globalAlpha = 1.0;
         }
     }
 };
@@ -1083,9 +1223,17 @@ const NPCRenderer = {
                     npc._animTimer = 0;
                 }
 
+                // Emote Animation (Hop)
+                let yOffset = 0;
+                if (npc._emoteTimer > 0) {
+                    npc._emoteTimer -= 16;
+                    // Simple sine wave hop
+                    yOffset = Math.sin(npc._emoteTimer * 0.02) * 5;
+                }
+
                 // Use animation frame
                 const sprite = frames[(npc._animFrame || 0) % 4];
-                ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, x, y, 32, 32);
+                ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, x, y - yOffset, 32, 32);
             } else {
                 // Draw NPC body
                 ctx.fillStyle = '#C38D9E';
@@ -1257,6 +1405,20 @@ const Game = {
         CraftingSystem.init();
         PetManager.init();
         UIManager.init();
+        LightingSystem.init();
+        WeatherSystem.init();
+        SoundSystem.init();
+
+        // Music needs user interaction to start context usually
+        window.addEventListener('click', () => {
+            SoundSystem.resume();
+            SoundSystem.startMusic();
+        }, { once: true });
+        window.addEventListener('keydown', () => {
+            SoundSystem.resume();
+            SoundSystem.startMusic();
+        }, { once: true });
+
 
         // Give player a starter pet!
         PetManager.adoptPet('sheepdog');
@@ -1458,7 +1620,11 @@ const Game = {
     },
 
     update(dt) {
-        if (DialogueSystem.active) {
+        if (GameState.isPaused) {
+            // Do nothing
+        } else if (Game.placementMode) {
+            Game.updatePlacement();
+        } else if (DialogueSystem.active) {
             DialogueSystem.update(dt);
         } else {
             Player.update(dt);
@@ -1469,15 +1635,51 @@ const Game = {
                 if (nearNPC) {
                     this.handleNPCInteraction(nearNPC);
                 } else {
-                    // Check for foraging
-                    this.tryForage();
+                    // Check for interactables (including dirt/furniture)
+                    if (!this.tryInteract()) {
+                        this.tryForage();
+                    }
                 }
             }
         }
 
         TimeSystem.update(dt);
+        WeatherSystem.update(dt);
         PetManager.update(dt);
         NotificationSystem.update();
+    },
+
+    tryInteract() {
+        const area = WorldManager.getCurrentArea();
+        if (!area?.interactables) return false;
+
+        for (let i = 0; i < area.interactables.length; i++) {
+            const inter = area.interactables[i];
+            const dx = Player.x - (inter.x * CONFIG.TILE_SIZE + 16);
+            const dy = Player.y - (inter.y * CONFIG.TILE_SIZE + 16);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 40) {
+                if (inter.type === 'clean') {
+                    // Remove dirt
+                    area.interactables.splice(i, 1);
+                    NotificationSystem.show(GameState.language === 'hi' ? 'साफ़ किया!' : 'Cleaned!', 'success');
+                    SoundSystem.playSfx('collect');
+                    // Update Quest
+                    QuestManager.updateObjective('interact', 'dhaba_dirt', 1);
+                    return true;
+                }
+                if (inter.type === 'inspect') {
+                    NotificationSystem.show(inter.desc[GameState.language], 'info');
+                    return true;
+                }
+                if (inter.type === 'read') {
+                    NotificationSystem.show(inter.desc[GameState.language], 'info', 5000);
+                    return true;
+                }
+            }
+        }
+        return false;
     },
 
     tryForage() {
@@ -1530,6 +1732,43 @@ const Game = {
         DialogueSystem.start(npc);
     },
 
+    // Furniture Placement
+    placementMode: null, // { itemId, valid }
+
+    startPlacement(itemId) {
+        this.placementMode = { itemId, valid: false, x: 0, y: 0 };
+        NotificationSystem.show(GameState.language === 'hi' ? 'रखने के लिए क्लिक करें' : 'Click/Space to Place', 'info');
+    },
+
+    updatePlacement() {
+        if (!this.placementMode) return;
+
+        // Snapping logic
+        const gridX = Math.floor(Player.x / CONFIG.TILE_SIZE + (Player.direction === 'right' ? 1 : Player.direction === 'left' ? -1 : 0));
+        const gridY = Math.floor(Player.y / CONFIG.TILE_SIZE + (Player.direction === 'down' ? 1 : Player.direction === 'up' ? -1 : 0));
+
+        this.placementMode.x = gridX * CONFIG.TILE_SIZE;
+        this.placementMode.y = gridY * CONFIG.TILE_SIZE;
+
+        // Validate
+        this.placementMode.valid = !WorldRenderer.checkCollision(this.placementMode.x, this.placementMode.y, 32, 32);
+
+        if (Input.isJustPressed('Space') || Input.isJustPressed('KeyE')) {
+            if (this.placementMode.valid) {
+                WorldManager.placeFurniture(this.placementMode.itemId, gridX, gridY);
+                Inventory.removeItem(this.placementMode.itemId, 1);
+                this.placementMode = null;
+                NotificationSystem.show('Placed!', 'success');
+            } else {
+                NotificationSystem.show('Cannot place here!', 'warning');
+            }
+        }
+
+        if (Input.isJustPressed('Escape')) {
+            this.placementMode = null;
+        }
+    },
+
     render() {
         this.ctx.fillStyle = '#1A1A2E';
         this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
@@ -1543,11 +1782,14 @@ const Game = {
 
         PetRenderer.draw(this.ctx);
 
-        const tint = tints[TimeSystem.getTimeOfDay()];
-        if (tint) {
-            this.ctx.fillStyle = tint;
-            this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
-        }
+        PetRenderer.draw(this.ctx);
+
+        // Weather (Rain/Snow)
+        WeatherSystem.draw(this.ctx);
+
+        // New Lighting System (Day/Night + Flares)
+        LightingSystem.render(this.ctx);
+
 
         // Vivid Atmosphere Overlay (Vignette)
         const gradient = this.ctx.createRadialGradient(
