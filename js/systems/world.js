@@ -450,6 +450,10 @@ export const WorldManager = {
                 }
             }
             return false;
+        }).filter(id => {
+            // Special filter: Don't show stray dog if already adopted
+            if (id === 'stray_dog' && typeof window !== 'undefined' && window.PetManager?.ownedPets.some(p => p.id === 'sheepdog')) return false;
+            return true;
         }).map(id => NPCData[id]);
     },
 
