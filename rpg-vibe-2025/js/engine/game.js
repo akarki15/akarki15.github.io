@@ -218,6 +218,8 @@ window.Player = {
 
 
             // Draw player
+
+
             ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, this.x, this.y, 32, 32);
         } else {
             // Draw player sprite (simple colored rectangle for now)
@@ -1116,6 +1118,9 @@ const WorldRenderer = {
         // Draw interactables
         if (area.interactables) {
             for (const inter of area.interactables) {
+                const tx = inter.x * CONFIG.TILE_SIZE;
+                const ty = inter.y * CONFIG.TILE_SIZE;
+
                 // Interactables as props
                 const emojiMap = {
                     '🌲': SPRITES.TERRAIN[3], // Tree
@@ -1153,31 +1158,28 @@ const WorldRenderer = {
                         continue; // Skip drawImage
                     }
                 }
-            }
 
-            const tx = inter.x * CONFIG.TILE_SIZE;
-            const ty = inter.y * CONFIG.TILE_SIZE;
+                if (inter.isDirt) {
+                    // Draw dirt as pixel art (scattered pixels)
+                    if (GameState.spritesLoaded) {
+                        ctx.fillStyle = '#3E2723'; // Dark dirt
+                        // Draw a little pixel pattern
+                        ctx.fillRect(tx + 8, ty + 8, 8, 8);
+                        ctx.fillRect(tx + 20, ty + 6, 6, 6);
+                        ctx.fillRect(tx + 14, ty + 14, 10, 10); // Center pile
+                        ctx.fillRect(tx + 6, ty + 20, 6, 6);
+                        ctx.fillRect(tx + 22, ty + 18, 6, 6);
 
-            if (inter.isDirt) {
-                // Draw dirt as pixel art (scattered pixels)
-                if (GameState.spritesLoaded) {
-                    ctx.fillStyle = '#3E2723'; // Dark dirt
-                    // Draw a little pixel pattern
-                    ctx.fillRect(tx + 8, ty + 8, 8, 8);
-                    ctx.fillRect(tx + 20, ty + 6, 6, 6);
-                    ctx.fillRect(tx + 14, ty + 14, 10, 10); // Center pile
-                    ctx.fillRect(tx + 6, ty + 20, 6, 6);
-                    ctx.fillRect(tx + 22, ty + 18, 6, 6);
-
-                    // dust motes
-                    ctx.fillStyle = '#795548';
-                    ctx.fillRect(tx + 12, ty + 12, 2, 2);
-                    ctx.fillRect(tx + 18, ty + 20, 2, 2);
+                        // dust motes
+                        ctx.fillStyle = '#795548';
+                        ctx.fillRect(tx + 12, ty + 12, 2, 2);
+                        ctx.fillRect(tx + 18, ty + 20, 2, 2);
+                    }
+                } else if (propSprite && GameState.spritesLoaded) {
+                    ctx.drawImage(Game.sprites, propSprite.x, propSprite.y, 32, 32, tx, ty, 32, 32);
                 }
-            } else if (propSprite && GameState.spritesLoaded) {
-                ctx.drawImage(Game.sprites, propSprite.x, propSprite.y, 32, 32, tx, ty, 32, 32);
-            }
-        }
+            } // End loop
+        } // End if (interactables)
 
 
         // Draw Placed Furniture
@@ -1454,6 +1456,10 @@ const Game = {
         this.addMenuOverlayStyles();
 
         console.log('🏔️ Pahadi Tales loaded with all systems!');
+
+        // Expose Game globally for debugging and external access
+        window.Game = this;
+
 
         // Initial Guidance
         setTimeout(() => {
