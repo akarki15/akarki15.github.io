@@ -912,54 +912,7 @@ const PetRenderer = {
     }
 };
 
-// Store position for interaction
-npc._x = x;
-npc._y = y;
 
-// Draw NPC
-if (GameState.spritesLoaded && Game.sprites) {
-    // Basic mapping based on potential ID keywords
-    let sprite = SPRITES.NPC.villager;
-    if (npc.id.includes('shop')) sprite = SPRITES.NPC.shopkeeper;
-    if (npc.id.includes('priest')) sprite = SPRITES.NPC.man;
-    if (npc.id.includes('dadi')) sprite = SPRITES.NPC.old_woman;
-    if (npc.id.includes('fisherman')) sprite = SPRITES.NPC.fisherman;
-
-    ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, x, y, 32, 32);
-} else {
-    // Draw NPC body
-    ctx.fillStyle = '#C38D9E';
-    ctx.fillRect(x, y, 32, 32);
-
-    // Head
-    ctx.fillStyle = '#DEB887';
-    ctx.fillRect(x + 8, y + 4, 16, 12);
-}
-ctx.font = '20px Arial';
-ctx.fillText(npc.emoji || '👤', x + 6, y - 5);
-
-// Name
-ctx.fillStyle = '#FFF';
-ctx.font = '12px Outfit';
-ctx.textAlign = 'center';
-ctx.fillText(npc.name[GameState.language], x + 16, y + 45);
-ctx.textAlign = 'left';
-        }
-    },
-
-getNearbyNPC() {
-    const npcs = WorldManager.getNPCsInCurrentArea();
-
-    for (const npc of npcs) {
-        if (npc._x === undefined) continue;
-        const dx = Player.x - npc._x;
-        const dy = Player.y - npc._y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 50) return npc;
-    }
-    return null;
-}
-};
 
 // ============================================================
 // TIME SYSTEM
