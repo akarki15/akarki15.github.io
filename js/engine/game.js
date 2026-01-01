@@ -783,17 +783,30 @@ const WorldRenderer = {
         if (area.interactables) {
             for (const inter of area.interactables) {
                 // Interactables as props
-                const propSprite = inter.emoji === '🌲' ? SPRITES.TERRAIN[3] :
-                    inter.emoji === '🪣' ? SPRITES.TERRAIN[5] : null;
+                const emojiMap = {
+                    '🌲': SPRITES.TERRAIN[3], // Tree
+                    '🌳': SPRITES.TERRAIN[3], // Banyan -> Tree
+                    '🪣': SPRITES.TERRAIN[5], // Well -> Wall/Stone
+                    '📋': SPRITES.TERRAIN[5], // Notice -> Wall
+                    '🛕': SPRITES.TERRAIN[5], // Temple -> Wall
+                    '📦': SPRITES.TERRAIN[4], // Chest -> Rock
+                    '🔥': SPRITES.TERRAIN[4], // Stove -> Rock
+                    '🎣': SPRITES.TERRAIN[2], // Fishing -> Water
+                };
+
+                let propSprite = emojiMap[inter.emoji];
+
+                // Fallback to sparkle for quest items or unknown
+                if (!propSprite && SPRITES.EFFECTS) {
+                    // Animate sparkle
+                    const frame = Math.floor(Date.now() / 200) % 4;
+                    propSprite = SPRITES.EFFECTS.sparkle[frame];
+                }
 
                 if (propSprite && GameState.spritesLoaded) {
                     ctx.drawImage(Game.sprites, propSprite.x, propSprite.y, 32, 32, inter.x * CONFIG.TILE_SIZE, inter.y * CONFIG.TILE_SIZE, 32, 32);
                 } else {
-                    // Only specific text if no sprite
-                    if (!propSprite) {
-                        ctx.font = '24px Arial';
-                        ctx.fillText(inter.emoji, inter.x * CONFIG.TILE_SIZE, inter.y * CONFIG.TILE_SIZE + 24);
-                    }
+                    // Absolute fallback if sprites not loaded (should not happen if loaded)
                 }
             }
         }
