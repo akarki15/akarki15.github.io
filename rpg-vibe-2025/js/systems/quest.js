@@ -22,14 +22,15 @@ export const QuestData = {
     'mq_restore_dhaba': {
         id: 'mq_restore_dhaba',
         type: QuestType.MAIN,
-        title: { en: 'A New Beginning', hi: 'नई शुरुआत' },
+        title: { en: 'A New Beginning', hi: 'एक नई शुरुआत' },
         description: {
-            en: 'Restore the abandoned tea house and make it your own.',
-            hi: 'खाली चाय घर को फिर से बनाएं और इसे अपना बनाएं।'
+            en: 'Restore your grandfather\'s old tea house.',
+            hi: 'अपने दादाजी के पुराने चाय घर को फिर से शुरू करें।'
         },
         giver: 'dadi_kamala',
         objectives: [
-            { id: 'clean_dhaba', desc: { en: 'Clean the tea house', hi: 'चाय घर साफ करें' }, type: 'interact', target: 'dhaba_dirt', count: 5, current: 0 },
+            { id: 'find_broom', desc: { en: 'Find the old broom', hi: 'पुरानी झाड़ू ढूंढें' }, type: 'collect', target: 'broom', count: 1, current: 0 },
+            { id: 'clean_dhaba', desc: { en: 'Sweep the floor (Use Broom)', hi: 'फर्श साफ करें (झाड़ू का प्रयोग करें)' }, type: 'interact', target: 'dhaba_dirt', count: 5, current: 0 },
             { id: 'gather_wood', desc: { en: 'Gather firewood', hi: 'लकड़ी इकट्ठा करें' }, type: 'collect', target: 'firewood', count: 5, current: 0 },
             { id: 'collect_herbs', desc: { en: 'Collect tea herbs', hi: 'चाय की जड़ी-बूटियाँ लाएं' }, type: 'collect', target: 'tea_leaves', count: 3, current: 0 }
         ],

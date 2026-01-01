@@ -55,6 +55,10 @@ export const ItemData = {
 
     // Tools
     'basic_stove': { id: 'basic_stove', name: { en: 'Clay Stove', hi: 'मिट्टी का चूल्हा' }, category: ItemCategory.TOOL, stackSize: 1, value: 50, emoji: '🔥' },
+    'broom': { id: 'broom', name: { en: 'Old Broom', hi: 'पुराना झाड़ू' }, category: ItemCategory.TOOL, stackSize: 1, value: 10, emoji: '🧹' },
+    'axe': { id: 'axe', name: { en: 'Wood Axe', hi: 'कुल्हाड़ी' }, category: ItemCategory.TOOL, stackSize: 1, value: 45, emoji: '🪓' },
+    'hoe': { id: 'hoe', name: { en: 'Farming Hoe', hi: 'कुदाल' }, category: ItemCategory.TOOL, stackSize: 1, value: 40, emoji: '⛏️' },
+    'pickaxe': { id: 'pickaxe', name: { en: 'Pickaxe', hi: 'गैंती' }, category: ItemCategory.TOOL, stackSize: 1, value: 55, emoji: '⛏️' },
     'fishing_rod': { id: 'fishing_rod', name: { en: 'Fishing Rod', hi: 'मछली की छड़' }, category: ItemCategory.TOOL, stackSize: 1, value: 40, emoji: '🎣' },
     'foraging_basket': { id: 'foraging_basket', name: { en: 'Foraging Basket', hi: 'टोकरी' }, category: ItemCategory.TOOL, stackSize: 1, value: 25, emoji: '🧺' },
     'flute': { id: 'flute', name: { en: 'Bamboo Flute', hi: 'बांसुरी' }, category: ItemCategory.TOOL, stackSize: 1, value: 35, emoji: '🎶' },

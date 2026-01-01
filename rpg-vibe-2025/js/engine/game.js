@@ -7,12 +7,14 @@
 import { QuestManager, QuestData, QuestState } from '../systems/quest.js';
 import { Inventory, ItemData, ItemCategory } from '../systems/inventory.js';
 import { CraftingSystem, CraftingRecipes } from '../systems/crafting.js';
-import { PetManager, PetData } from '../systems/pets.js';
 import { WorldManager, AreaData, NPCData } from '../systems/world.js';
 import { SocialSystem } from '../systems/social.js';
 import { SpriteGenerator } from './sprites_generator.js';
 import { DialogueGenerator } from '../systems/dialogue_gen.js';
 import { LightingSystem } from '../systems/lighting.js';
+import { DialogueSystem } from '../systems/dialogue.js';
+import { PetManager, PetRenderer } from '../systems/pet.js';
+import { MiniMap } from '../systems/minimap.js';
 import { WeatherSystem } from '../systems/weather.js';
 import { SoundSystem } from '../systems/sound.js';
 
@@ -1432,19 +1434,26 @@ const Game = {
         CraftingSystem.init();
         PetManager.init();
         UIManager.init();
+        MiniMap.init();
         LightingSystem.init();
         WeatherSystem.init();
         SoundSystem.init();
 
         // Music needs user interaction to start context usually
-        window.addEventListener('click', () => {
-            SoundSystem.resume();
-            SoundSystem.startMusic();
-        }, { once: true });
         window.addEventListener('keydown', () => {
             SoundSystem.resume();
             SoundSystem.startMusic();
         }, { once: true });
+
+        // Check for existing save to enable Continue button
+        if (localStorage.getItem('pahadiTales_save')) {
+            const continueBtn = document.getElementById('btn-continue');
+            if (continueBtn) {
+                continueBtn.disabled = false;
+                continueBtn.onclick = () => this.loadGame();
+                console.log('📂 Save file found, enabling Continue button.');
+            }
+        }
 
 
         // Give player a starter pet!
@@ -1526,8 +1535,14 @@ const Game = {
         document.getElementById('btn-new-game')?.addEventListener('click', () => this.startNewGame());
         document.getElementById('btn-settings')?.addEventListener('click', () => this.showScreen('settings-screen'));
         document.getElementById('btn-back-settings')?.addEventListener('click', () => this.showScreen('main-menu'));
-        document.getElementById('lang-en')?.addEventListener('click', () => this.setLanguage('en'));
-        document.getElementById('lang-hi')?.addEventListener('click', () => this.setLanguage('hi'));
+        document.getElementById('lang-en')?.addEventListener('click', () => {
+            console.log('Language set to EN');
+            this.setLanguage('en');
+        });
+        document.getElementById('lang-hi')?.addEventListener('click', () => {
+            console.log('Language set to HI');
+            this.setLanguage('hi');
+        });
         document.getElementById('btn-pause')?.addEventListener('click', () => this.togglePause());
         document.getElementById('btn-resume')?.addEventListener('click', () => this.togglePause());
         document.getElementById('btn-main-menu')?.addEventListener('click', () => this.returnToMenu());
@@ -1734,11 +1749,29 @@ const Game = {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist < 40) {
+                if (inter.type === 'pickup') {
+                    // Pickup item
+                    if (Inventory.addItem(inter.item, 1)) {
+                        area.interactables.splice(i, 1);
+                        NotificationSystem.show(`Picked up ${inter.emoji} ${ItemData[inter.item].name[GameState.language]}`, 'success');
+                        SoundSystem.playSfx('collect');
+                        return true;
+                    } else {
+                        NotificationSystem.show('Inventory full!', 'warning');
+                        return true;
+                    }
+                }
                 if (inter.type === 'clean') {
+                    // Check for Broom
+                    if (!Inventory.hasItem('broom')) {
+                        NotificationSystem.show(GameState.language === 'hi' ? 'मुझे झाड़ू चाहिए।' : 'I need a broom to clean this.', 'warning');
+                        return true;
+                    }
+
                     // Remove dirt
                     area.interactables.splice(i, 1);
                     NotificationSystem.show(GameState.language === 'hi' ? 'साफ़ किया!' : 'Cleaned!', 'success');
-                    SoundSystem.playSfx('collect');
+                    SoundSystem.playSfx('collect'); // Or a sweep sound if available
                     // Update Quest
                     QuestManager.updateObjective('interact', 'dhaba_dirt', 1);
                     return true;
@@ -1856,8 +1889,12 @@ const Game = {
         Player.draw(this.ctx);
 
         PetRenderer.draw(this.ctx);
+        // Draw HUD
+        UIManager.drawHUD(this.ctx);
+        MiniMap.draw();
 
-        PetRenderer.draw(this.ctx);
+        // Draw Transitions
+        TransitionSystem.draw(this.ctx);
 
         // Weather (Rain/Snow)
         WeatherSystem.draw(this.ctx);

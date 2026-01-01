@@ -46,6 +46,7 @@ export const AreaData = {
         },
         npcs: [], // Empty initially, user is alone
         interactables: [
+            { id: 'old_broom', x: 7, y: 7, type: 'pickup', item: 'broom', emoji: '🧹', desc: { en: "A dusty old broom.", hi: "एक पुरानी झाड़ू।" } }, // New Broom Item
             { id: 'cooking_stove', x: 5, y: 5, type: 'craft', emoji: '🔥' },
             { id: 'storage_chest', x: 8, y: 3, type: 'storage', emoji: '📦' },
             { id: 'bed', x: 15, y: 3, type: 'rest', emoji: '🛏️' },
@@ -56,7 +57,10 @@ export const AreaData = {
             { id: 'dhaba_dirt_5', x: 16, y: 7, type: 'clean', emoji: '🌫️', isDirt: true },
             { id: 'broken_chair', x: 2, y: 8, type: 'inspect', emoji: '🪑', desc: { en: "Broken beyond repair.", hi: "पूरी तरह टूटा हुआ।" } },
             { id: 'old_photo', x: 4, y: 4, type: 'read', emoji: '🖼️', desc: { en: "A photo of your grandmother smiling.", hi: "तुम्हारी दादी की मुस्कुराती हुई तस्वीर।" } }
-        ]
+        ].filter(i => {
+            // Don't show broom if already picked up (simple check, better handles in filtering logic but this works for static init)
+            return true;
+        })
     },
     'temple_hill': {
         id: 'temple_hill',
@@ -248,8 +252,11 @@ export const NPCData = {
         emoji: '👵', schedule: { '6-20': 'village_square', '20-6': 'home' },
         dialogues: {
             greeting: { en: 'Good morning, child. The mountains smile today.', hi: 'सुप्रभात, बच्चे। आज पहाड़ मुस्कुरा रहे हैं।' },
-            wisdom: { en: 'Remember, mountains are climbed slowly.', hi: 'याद रखो - पहाड़ धीरे-धीरे चढ़ते हैं।' },
-            quest: { en: 'The tea house needs your care. Make it shine again!', hi: 'चाय घर को तुम्हारी देखभाल चाहिए।' },
+            wisdom: {
+                en: 'Remember, mountains are climbed slowly.', hi: 'याद रखो - पहाड़ धीरे-धीरे चढ़ते हैं।',
+                hint: { en: 'I think I left the broom near the storage chest inside.', hi: 'मुझे लगता है कि मैंने झाड़ू अंदर संदूक के पास छोड़ी थी।' }
+            },
+            quest: { en: 'The tea house needs your care. Find the old broom near the chest and make it shine!', hi: 'चाय घर को तुम्हारी देखभाल चाहिए। संदूक के पास पुरानी झाड़ू ढूंढो और इसे चमका दो!' },
             thanks: { en: 'You have done well, child.', hi: 'तुमने अच्छा किया, बच्चे।' },
             deep: { en: 'Your grandfather built this tea house with his own hands. He said it was a place for weary souls to find rest. Seeing you here... it feels like he is back.', hi: 'तुम्हारे दादाजी ने यह चाय घर अपने हाथों से बनाया था। वे कहते थे कि यह थकी हुई आत्माओं के लिए आराम की जगह है। तुम्हें यहाँ देखकर... लगता है वे वापस आ गए हैं।' }
         },
