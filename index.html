@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Pahadi Tales - A cozy 2D RPG set in a 1600s Himalayan village. Experience mountain life, make friends, and discover ancient secrets.">
+    <title>Pahadi Tales | पहाड़ी कहानियाँ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/ui.css">
+</head>
+
+<body>
+    <!-- Main Menu Screen -->
+    <div id="main-menu" class="screen active">
+        <div class="menu-backdrop"></div>
+        <div class="menu-content">
+            <div class="title-container">
+                <h1 class="game-title">Pahadi Tales</h1>
+                <h2 class="game-title-hindi">पहाड़ी कहानियाँ</h2>
+                <p class="tagline">A Himalayan Village Story</p>
+            </div>
+            <nav class="menu-buttons">
+                <button id="btn-new-game" class="menu-btn primary">
+                    <span class="en">New Journey</span>
+                    <span class="hi">नयी यात्रा</span>
+                </button>
+                <button id="btn-continue" class="menu-btn" disabled>
+                    <span class="en">Continue</span>
+                    <span class="hi">जारी रखें</span>
+                </button>
+                <button id="btn-settings" class="menu-btn">
+                    <span class="en">Settings</span>
+                    <span class="hi">सेटिंग्स</span>
+                </button>
+            </nav>
+            <div class="language-toggle">
+                <button id="lang-en" class="lang-btn active">English</button>
+                <button id="lang-hi" class="lang-btn">हिंदी</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settings-screen" class="screen">
+        <div class="settings-panel">
+            <h2 class="panel-title">
+                <span class="en">Settings</span>
+                <span class="hi">सेटिंग्स</span>
+            </h2>
+            <div class="settings-options">
+                <div class="setting-row">
+                    <label>
+                        <span class="en">Music Volume</span>
+                        <span class="hi">संगीत</span>
+                    </label>
+                    <input type="range" id="music-volume" min="0" max="100" value="70">
+                </div>
+                <div class="setting-row">
+                    <label>
+                        <span class="en">Sound Effects</span>
+                        <span class="hi">ध्वनि प्रभाव</span>
+                    </label>
+                    <input type="range" id="sfx-volume" min="0" max="100" value="80">
+                </div>
+                <div class="setting-row">
+                    <label>
+                        <span class="en">Language</span>
+                        <span class="hi">भाषा</span>
+                    </label>
+                    <select id="language-select">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी</option>
+                    </select>
+                </div>
+            </div>
+            <button id="btn-back-settings" class="menu-btn">
+                <span class="en">Back</span>
+                <span class="hi">वापस</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- HUD Overlay -->
+        <div id="hud">
+            <div class="hud-top">
+                <div class="player-info">
+                    <div class="player-name">Traveler</div>
+                    <div class="day-display">
+                        <span class="en">Day</span>
+                        <span class="hi">दिन</span>
+                        <span id="day-count">1</span>
+                    </div>
+                </div>
+                <div class="time-display">
+                    <span id="game-time">6:00 AM</span>
+                    <span id="weather-icon">☀️</span>
+                </div>
+            </div>
+            <div class="hud-bottom">
+                <button id="btn-inventory" class="hud-btn" title="Inventory (I)">🎒</button>
+                <button id="btn-quests" class="hud-btn" title="Quests (Q)">📜</button>
+                <button id="btn-map" class="hud-btn" title="Map (M)">🗺️</button>
+                <button id="btn-help" class="hud-btn" title="Controls (H)">❓</button>
+                <button id="btn-pause" class="hud-btn" title="Pause (ESC)">⏸️</button>
+            </div>
+        </div>
+
+        <!-- Controls Help Overlay -->
+        <div id="controls-help" class="controls-overlay">
+            <div class="controls-panel">
+                <h2>
+                    <span class="en">🎮 Controls</span>
+                    <span class="hi">🎮 नियंत्रण</span>
+                </h2>
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <h3>
+                            <span class="en">Movement</span>
+                            <span class="hi">चलना</span>
+                        </h3>
+                        <div class="control-row">
+                            <span class="keys">W A S D</span>
+                            <span class="or">or</span>
+                            <span class="keys">↑ ← ↓ →</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <h3>
+                            <span class="en">Interact / Talk</span>
+                            <span class="hi">बात करें</span>
+                        </h3>
+                        <div class="control-row">
+                            <span class="keys">E</span>
+                            <span class="or">or</span>
+                            <span class="keys">Space</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <h3>
+                            <span class="en">Menus</span>
+                            <span class="hi">मेनू</span>
+                        </h3>
+                        <div class="control-row single">
+                            <span class="keys">I</span>
+                            <span class="desc">
+                                <span class="en">Inventory</span>
+                                <span class="hi">सामान</span>
+                            </span>
+                        </div>
+                        <div class="control-row single">
+                            <span class="keys">Q</span>
+                            <span class="desc">
+                                <span class="en">Quests</span>
+                                <span class="hi">कार्य</span>
+                            </span>
+                        </div>
+                        <div class="control-row single">
+                            <span class="keys">M</span>
+                            <span class="desc">
+                                <span class="en">Map</span>
+                                <span class="hi">नक्शा</span>
+                            </span>
+                        </div>
+                        <div class="control-row single">
+                            <span class="keys">C</span>
+                            <span class="desc">
+                                <span class="en">Crafting</span>
+                                <span class="hi">बनाएं</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <h3>
+                            <span class="en">Other</span>
+                            <span class="hi">अन्य</span>
+                        </h3>
+                        <div class="control-row single">
+                            <span class="keys">ESC</span>
+                            <span class="desc">
+                                <span class="en">Pause</span>
+                                <span class="hi">रुकें</span>
+                            </span>
+                        </div>
+                        <div class="control-row single">
+                            <span class="keys">H</span>
+                            <span class="desc">
+                                <span class="en">Show Controls</span>
+                                <span class="hi">नियंत्रण दिखाएं</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <button id="btn-close-controls" class="menu-btn primary">
+                    <span class="en">Got it! Let's Play</span>
+                    <span class="hi">समझ गया! खेलें</span>
+                </button>
+                <p class="controls-hint">
+                    <span class="en">Press H anytime to see controls</span>
+                    <span class="hi">नियंत्रण देखने के लिए H दबाएं</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Dialogue Box -->
+        <div id="dialogue-box" class="hidden">
+            <div class="dialogue-speaker"></div>
+            <div class="dialogue-text"></div>
+            <div class="dialogue-continue">▼</div>
+        </div>
+
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="hidden">
+            <div class="pause-panel">
+                <h2>
+                    <span class="en">Paused</span>
+                    <span class="hi">रुका हुआ</span>
+                </h2>
+                <button id="btn-resume" class="menu-btn">
+                    <span class="en">Resume</span>
+                    <span class="hi">जारी रखें</span>
+                </button>
+                <button id="btn-save" class="menu-btn">
+                    <span class="en">Save Game</span>
+                    <span class="hi">सेव करें</span>
+                </button>
+                <button id="btn-main-menu" class="menu-btn">
+                    <span class="en">Main Menu</span>
+                    <span class="hi">मुख्य मेनू</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intro/Story Screen -->
+    <div id="intro-screen" class="screen">
+        <div class="intro-content">
+            <div class="intro-text"></div>
+            <button id="btn-skip-intro" class="skip-btn">
+                <span class="en">Skip</span>
+                <span class="hi">छोड़ें</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/engine/game.js" type="module"></script>
+</body>
+
+</html>
