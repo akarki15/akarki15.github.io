@@ -59,14 +59,15 @@ const SPRITES = {
         right: [{ x: 0, y: 160 }, { x: 32, y: 160 }, { x: 64, y: 160 }, { x: 96, y: 160 }]
     },
     NPC: {
-        villager: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }],
-        old_woman: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }], // Placeholder
-        man: [{ x: 0, y: 224 }, { x: 32, y: 224 }, { x: 64, y: 224 }, { x: 96, y: 224 }]
+        villager: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }], // Row 6
+        old_woman: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }],
+        old_man: [{ x: 0, y: 224 }, { x: 32, y: 224 }, { x: 64, y: 224 }, { x: 96, y: 224 }], // Row 7
+        man: [{ x: 0, y: 256 }, { x: 32, y: 256 }, { x: 64, y: 256 }, { x: 96, y: 256 }]     // Row 8
     },
     PETS: {
-        sheepdog: [{ x: 0, y: 256 }, { x: 32, y: 256 }, { x: 64, y: 256 }, { x: 96, y: 256 }],
-        mountain_cat: [{ x: 0, y: 288 }, { x: 32, y: 288 }, { x: 64, y: 288 }, { x: 96, y: 288 }],
-        snow_hare: [{ x: 0, y: 256 }, { x: 32, y: 256 }, { x: 64, y: 256 }, { x: 96, y: 256 }] // Placeholder
+        sheepdog: [{ x: 0, y: 288 }, { x: 32, y: 288 }, { x: 64, y: 288 }, { x: 96, y: 288 }], // Row 9
+        mountain_cat: [{ x: 0, y: 320 }, { x: 32, y: 320 }, { x: 64, y: 320 }, { x: 96, y: 320 }], // Row 10
+        stray_dog: [{ x: 0, y: 288 }, { x: 32, y: 288 }, { x: 64, y: 288 }, { x: 96, y: 288 }]
     }
 };
 
@@ -1165,7 +1166,7 @@ const Game = {
             if (Input.isJustPressed('Space') || Input.isJustPressed('KeyE')) {
                 const nearNPC = NPCRenderer.getNearbyNPC();
                 if (nearNPC) {
-                    DialogueSystem.start(nearNPC);
+                    this.handleNPCInteraction(nearNPC);
                 } else {
                     // Check for foraging
                     this.tryForage();
@@ -1184,19 +1185,48 @@ const Game = {
 
         for (let i = 0; i < area.forageSpots.length; i++) {
             const spot = area.forageSpots[i];
-            const dx = Player.x - spot.x * CONFIG.TILE_SIZE;
-            const dy = Player.y - spot.y * CONFIG.TILE_SIZE;
+            const dx = Player.x - (spot.x * CONFIG.TILE_SIZE + 16); // Center of tile
+            const dy = Player.y - (spot.y * CONFIG.TILE_SIZE + 16);
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (dist < 50 && WorldManager.canForage(i)) {
+            if (dist < 40 && WorldManager.canForage(i)) {
                 const itemId = WorldManager.forage(i);
                 if (itemId) {
                     const item = ItemData[itemId];
                     NotificationSystem.show(`Found ${item?.emoji || '?'} ${item?.name[GameState.language] || itemId}!`, 'success');
+                    // Quest update
+                    QuestManager.updateObjective('collect', itemId, 1);
+                    QuestManager.updateObjective('collect', 'any_forage', 1);
                 }
                 return;
             }
         }
+    },
+
+    handleNPCInteraction(npc) {
+        // Check for 'give' quests
+        const activeQuests = QuestManager.getActiveQuests();
+        for (const quest of activeQuests) {
+            const giveObj = quest.objectives.find(o => o.type === 'give' && o.target === npc.id && o.current < o.count);
+            if (giveObj) {
+                if (Inventory.hasItem(giveObj.item, 1)) {
+                    Inventory.removeItem(giveObj.item, 1);
+                    QuestManager.updateObjective('give', npc.id, 1); // This handles completion logic
+                    NotificationSystem.show(`Gave ${ItemData[giveObj.item]?.name[GameState.language]} to ${npc.name[GameState.language]}`, 'success');
+
+                    // Special dialogue for giving item?
+                    if (npc.id === 'stray_dog' && giveObj.item === 'milk') {
+                        DialogueSystem.start({ ...npc, dialogues: { greeting: NPCData['stray_dog'].dialogues.happy } });
+                        return;
+                    }
+                } else {
+                    NotificationSystem.show(`Need ${ItemData[giveObj.item]?.name[GameState.language]} to give!`, 'warning');
+                }
+            }
+        }
+
+        // Standard Dialogue
+        DialogueSystem.start(npc);
     },
 
     render() {
@@ -1210,12 +1240,7 @@ const Game = {
         NPCRenderer.draw(this.ctx);
         Player.draw(this.ctx);
 
-        // Active pet
-        if (PetManager.activePet) {
-            const pet = PetData[PetManager.activePet.id];
-            this.ctx.font = '20px Arial';
-            this.ctx.fillText(pet?.emoji || '🐕', Player.x + 35, Player.y + 20);
-        }
+        PetRenderer.draw(this.ctx);
 
         const tint = tints[TimeSystem.getTimeOfDay()];
         if (tint) { this.ctx.fillStyle = tint; this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT); }

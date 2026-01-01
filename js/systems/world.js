@@ -101,7 +101,7 @@ export const AreaData = {
             west: { area: 'ancient_ruins', x: 32, y: 12 },
             north: { area: 'deep_forest', x: 17, y: 23 }
         },
-        npcs: ['vaidya_arjun', 'woodcutter'],
+        npcs: ['vaidya_arjun', 'woodcutter', 'stray_dog'],
         forageSpots: [
             { x: 8, y: 8, items: ['mushroom', 'berries'], respawnHours: 6 },
             { x: 15, y: 15, items: ['pine_resin', 'firewood'], respawnHours: 12 },
@@ -352,9 +352,19 @@ export const NPCData = {
         role: { en: 'Passing Traveler', hi: 'गुज़रता यात्री' },
         emoji: '🚶', schedule: { '10-16': 'tea_house' },
         dialogues: {
-            greeting: { en: 'A cup of chai, please!', hi: 'एक कप चाय दीजिए!' },
             satisfied: { en: 'Delicious! The best chai in the mountains!', hi: 'वाह! पहाड़ों की सबसे अच्छी चाय!' }
         }
+    },
+    'stray_dog': {
+        id: 'stray_dog', name: { en: 'Stray Dog', hi: 'आवारा कुत्ता' },
+        role: { en: 'Stray Animal', hi: 'आवारा जानवर' },
+        emoji: '🐕', schedule: { '0-24': 'pine_forest' },
+        dialogues: {
+            greeting: { en: 'Woof? (The dog looks at you cautiously)', hi: 'भों? (कुत्ता आपको सावधानी से देखता है)' },
+            hungry: { en: 'Woof... (It looks hungry)', hi: 'भों... (यह भूखा लग रहा है)' },
+            happy: { en: 'Woof! Woof! (It wags its tail)', hi: 'भों! भों! (यह पूंछ हिलाता है)' }
+        },
+        gifts: { loved: ['milk', 'bone'], liked: ['meat'] }
     }
 };
 
