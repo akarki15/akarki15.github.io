@@ -1176,6 +1176,23 @@ const WorldRenderer = {
                         ctx.fillRect(tx + 12, ty + 12, 2, 2);
                         ctx.fillRect(tx + 18, ty + 20, 2, 2);
                     }
+                } else if (inter.type === 'pickup') {
+                    // Item pickup (e.g., Broom)
+                    const item = ItemData[inter.item];
+                    ctx.font = '24px Arial';
+                    ctx.fillText(inter.emoji || '🎁', tx + 4, ty + 24);
+
+                    // Floating indicator for quest items
+                    const floatY = Math.sin(Date.now() / 200) * 5;
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = '#FFFF00';
+                    ctx.fillText('▼', tx + 10, ty - 5 + floatY);
+
+                    // Glow
+                    ctx.shadowColor = '#FFFF00';
+                    ctx.shadowBlur = 10;
+                    ctx.strokeRect(tx, ty, 32, 32);
+                    ctx.shadowBlur = 0;
                 } else if (propSprite && GameState.spritesLoaded) {
                     ctx.drawImage(Game.sprites, propSprite.x, propSprite.y, 32, 32, tx, ty, 32, 32);
                 }
