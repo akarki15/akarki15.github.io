@@ -215,6 +215,23 @@ export const QuestData = {
         rewards: { coins: 25, items: ['goat_milk'], xp: 30 }
     },
 
+    'sq_adopt_pet': {
+        id: 'sq_adopt_pet',
+        type: QuestType.SIDE,
+        title: { en: 'The Stray Companion', hi: 'आवारा साथी' },
+        description: {
+            en: 'A lonely stray dog has been seen near the village entrance. Win its trust.',
+            hi: 'गाँव के प्रवेश द्वार के पास एक अकेला आवारा कुत्ता देखा गया है। उसका भरोसा जीतें।'
+        },
+        giver: 'dadi_kamala',
+        objectives: [
+            { id: 'find_dog', desc: { en: 'Find the stray dog', hi: 'आवारा कुत्ता खोजें' }, type: 'interact', target: 'stray_dog', count: 1, current: 0 },
+            { id: 'feed_dog', desc: { en: 'Feed the dog some milk', hi: 'कुत्ते को दूध पिलाएं' }, type: 'give', target: 'stray_dog', item: 'milk', count: 1, current: 0 },
+            { id: 'adopt_dog', desc: { en: 'Adopt the dog', hi: 'कुत्ते को अपनाएं' }, type: 'dialogue', target: 'stray_dog', count: 1, current: 0 }
+        ],
+        rewards: { xp: 100, pet: 'sheepdog', friendship: { dadi_kamala: 10 } }
+    },
+
     // ===== DAILY QUESTS =====
     'dq_morning_chai': {
         id: 'dq_morning_chai',
@@ -378,6 +395,14 @@ export const QuestManager = {
         if (rewards.friendship && window.RelationshipManager) {
             for (const [npcId, amount] of Object.entries(rewards.friendship)) {
                 window.RelationshipManager.addFriendship(npcId, amount);
+            }
+        }
+
+        if (rewards.pet && window.PetManager) {
+            if (window.PetManager.adoptPet(rewards.pet)) {
+                if (window.NotificationSystem) {
+                    window.NotificationSystem.show('🐾 New Companion Adopted!', 'success');
+                }
             }
         }
     },

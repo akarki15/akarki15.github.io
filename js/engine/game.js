@@ -9,6 +9,7 @@ import { Inventory, ItemData, ItemCategory } from '../systems/inventory.js';
 import { CraftingSystem, CraftingRecipes } from '../systems/crafting.js';
 import { PetManager, PetData } from '../systems/pets.js';
 import { WorldManager, AreaData, NPCData } from '../systems/world.js';
+import { SpriteGenerator } from './sprites_generator.js';
 
 // ============================================================
 // GAME CONFIGURATION
@@ -52,19 +53,20 @@ const SPRITES = {
         11: { x: 96, y: 0 }  // snow
     },
     PLAYER: {
-        down: { x: 0, y: 64 },
-        up: { x: 32, y: 64 },
-        left: { x: 64, y: 64 },
-        right: { x: 96, y: 64 }
+        down: [{ x: 0, y: 64 }, { x: 32, y: 64 }, { x: 64, y: 64 }, { x: 96, y: 64 }],
+        up: [{ x: 0, y: 96 }, { x: 32, y: 96 }, { x: 64, y: 96 }, { x: 96, y: 96 }],
+        left: [{ x: 0, y: 128 }, { x: 32, y: 128 }, { x: 64, y: 128 }, { x: 96, y: 128 }],
+        right: [{ x: 0, y: 160 }, { x: 32, y: 160 }, { x: 64, y: 160 }, { x: 96, y: 160 }]
     },
     NPC: {
-        default: { x: 0, y: 96 },
-        villager: { x: 0, y: 96 },
-        old_woman: { x: 0, y: 96 }, // fallback
-        man: { x: 32, y: 96 },
-        fisherman: { x: 96, y: 96 },
-        shopkeeper: { x: 64, y: 96 },
-        child: { x: 96, y: 96 }
+        villager: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }],
+        old_woman: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }], // Placeholder
+        man: [{ x: 0, y: 224 }, { x: 32, y: 224 }, { x: 64, y: 224 }, { x: 96, y: 224 }]
+    },
+    PETS: {
+        sheepdog: [{ x: 0, y: 256 }, { x: 32, y: 256 }, { x: 64, y: 256 }, { x: 96, y: 256 }],
+        mountain_cat: [{ x: 0, y: 288 }, { x: 32, y: 288 }, { x: 64, y: 288 }, { x: 96, y: 288 }],
+        snow_hare: [{ x: 0, y: 256 }, { x: 32, y: 256 }, { x: 64, y: 256 }, { x: 96, y: 256 }] // Placeholder
     }
 };
 
@@ -169,7 +171,8 @@ window.Player = {
 
     draw(ctx) {
         if (GameState.spritesLoaded && Game.sprites) {
-            const sprite = SPRITES.PLAYER[this.direction] || SPRITES.PLAYER.down;
+            const frames = SPRITES.PLAYER[this.direction] || SPRITES.PLAYER.down;
+            const sprite = frames[this.animFrame % frames.length];
             // Draw player
             ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, this.x, this.y, 32, 32);
         } else {
@@ -805,12 +808,14 @@ const NPCRenderer = {
             // Draw NPC
             if (GameState.spritesLoaded && Game.sprites) {
                 // Basic mapping based on potential ID keywords
-                let sprite = SPRITES.NPC.villager;
-                if (npc.id.includes('shop')) sprite = SPRITES.NPC.shopkeeper;
-                if (npc.id.includes('priest')) sprite = SPRITES.NPC.man;
-                if (npc.id.includes('dadi')) sprite = SPRITES.NPC.old_woman;
-                if (npc.id.includes('fisherman')) sprite = SPRITES.NPC.fisherman;
+                let frames = SPRITES.NPC.villager;
+                if (npc.id.includes('shop')) frames = SPRITES.NPC.villager;
+                if (npc.id.includes('priest')) frames = SPRITES.NPC.man;
+                if (npc.id.includes('dadi')) frames = SPRITES.NPC.old_woman;
+                if (npc.id.includes('fisherman')) frames = SPRITES.NPC.man;
 
+                // Simple idle animation (using first frame for now)
+                const sprite = frames[0];
                 ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, x, y, 32, 32);
             } else {
                 // Draw NPC body
@@ -834,17 +839,126 @@ const NPCRenderer = {
     },
 
     getNearbyNPC() {
+        // ... implementation existing in file ...
         const npcs = WorldManager.getNPCsInCurrentArea();
 
         for (const npc of npcs) {
             if (npc._x === undefined) continue;
-            const dx = Player.x - npc._x;
-            const dy = Player.y - npc._y;
+            const dx = window.Player.x - npc._x;
+            const dy = window.Player.y - npc._y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < 50) return npc;
         }
         return null;
     }
+};
+
+// ============================================================
+// PET RENDERER
+// ============================================================
+const PetRenderer = {
+    draw(ctx) {
+        if (!PetManager.activePet) return;
+
+        const pet = PetManager.activePet;
+        const player = window.Player;
+
+        // Simple pet follow logic
+        const targetX = player.x - (player.direction === 'right' ? 32 : -32);
+        const targetY = player.y;
+
+        if (typeof pet.x === 'undefined') {
+            pet.x = targetX;
+            pet.y = targetY;
+            pet.direction = 'right';
+            pet.animFrame = 0;
+            pet.animTimer = 0;
+        }
+
+        const dx = targetX - pet.x;
+        const dy = targetY - pet.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 5) {
+            pet.x += dx * 0.05;
+            pet.y += dy * 0.05;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                pet.direction = dx > 0 ? 'right' : 'left';
+            } else {
+                pet.direction = dy > 0 ? 'down' : 'up';
+            }
+
+            pet.animTimer += 16;
+            if (pet.animTimer > 150) {
+                pet.animFrame = (pet.animFrame + 1) % 4;
+                pet.animTimer = 0;
+            }
+        } else {
+            pet.animFrame = 0;
+        }
+
+        if (GameState.spritesLoaded && Game.sprites) {
+            const frames = SPRITES.PETS[pet.id] || SPRITES.PETS.sheepdog;
+            const sprite = frames[pet.animFrame % frames.length];
+
+            ctx.save();
+            ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, pet.x, pet.y, 32, 32);
+            ctx.restore();
+        } else {
+            ctx.font = '24px Arial';
+            ctx.fillText(PetData[pet.id]?.emoji || '🐕', pet.x, pet.y + 24);
+        }
+    }
+};
+
+// Store position for interaction
+npc._x = x;
+npc._y = y;
+
+// Draw NPC
+if (GameState.spritesLoaded && Game.sprites) {
+    // Basic mapping based on potential ID keywords
+    let sprite = SPRITES.NPC.villager;
+    if (npc.id.includes('shop')) sprite = SPRITES.NPC.shopkeeper;
+    if (npc.id.includes('priest')) sprite = SPRITES.NPC.man;
+    if (npc.id.includes('dadi')) sprite = SPRITES.NPC.old_woman;
+    if (npc.id.includes('fisherman')) sprite = SPRITES.NPC.fisherman;
+
+    ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, x, y, 32, 32);
+} else {
+    // Draw NPC body
+    ctx.fillStyle = '#C38D9E';
+    ctx.fillRect(x, y, 32, 32);
+
+    // Head
+    ctx.fillStyle = '#DEB887';
+    ctx.fillRect(x + 8, y + 4, 16, 12);
+}
+ctx.font = '20px Arial';
+ctx.fillText(npc.emoji || '👤', x + 6, y - 5);
+
+// Name
+ctx.fillStyle = '#FFF';
+ctx.font = '12px Outfit';
+ctx.textAlign = 'center';
+ctx.fillText(npc.name[GameState.language], x + 16, y + 45);
+ctx.textAlign = 'left';
+        }
+    },
+
+getNearbyNPC() {
+    const npcs = WorldManager.getNPCsInCurrentArea();
+
+    for (const npc of npcs) {
+        if (npc._x === undefined) continue;
+        const dx = Player.x - npc._x;
+        const dy = Player.y - npc._y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 50) return npc;
+    }
+    return null;
+}
 };
 
 // ============================================================
@@ -901,13 +1015,13 @@ const Game = {
 
         // Load Sprites
         this.sprites = new Image();
-        this.sprites.src = 'assets/sprites.png';
+        this.sprites.src = SpriteGenerator.generate();
         this.sprites.onload = () => {
             GameState.spritesLoaded = true;
-            console.log('✅ Sprites loaded!');
+            console.log('✅ Sprites loaded from generator!');
         };
         this.sprites.onerror = (e) => {
-            console.error('❌ Failed to load sprites', e);
+            console.warn('❌ Failed to load sprites, fallback active', e);
         };
 
         // Initialize all systems
