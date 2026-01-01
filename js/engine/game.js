@@ -1000,9 +1000,11 @@ const Game = {
     addMenuOverlayStyles() {
         const style = document.createElement('style');
         style.textContent = `
-            .menu-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 50; }
+            .menu-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 50; animation: fadeIn 0.3s ease; }
             .menu-overlay.hidden { display: none; }
-            .menu-panel { background: linear-gradient(135deg, #2D2D44 0%, #1A1A2E 100%); border: 2px solid #E8A87C; border-radius: 16px; padding: 20px; min-width: 400px; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+            .menu-panel { background: linear-gradient(135deg, #2D2D44 0%, #1A1A2E 100%); border: 2px solid #E8A87C; border-radius: 16px; padding: 20px; min-width: 400px; max-width: 600px; max-height: 80vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
             .menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E8A87C44; padding-bottom: 10px; margin-bottom: 15px; }
             .menu-header h2 { color: #E8A87C; margin: 0; }
             .close-btn { background: none; border: none; color: #FFF; font-size: 24px; cursor: pointer; }
