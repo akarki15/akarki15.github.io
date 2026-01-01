@@ -780,9 +780,19 @@ const WorldRenderer = {
         // Draw interactables
         if (area.interactables) {
             for (const inter of area.interactables) {
-                // Keep emojis for interactables for now as they are specific
-                ctx.font = '24px Arial';
-                ctx.fillText(inter.emoji, inter.x * CONFIG.TILE_SIZE, inter.y * CONFIG.TILE_SIZE + 24);
+                // Interactables as props
+                const propSprite = inter.emoji === '🌲' ? SPRITES.TERRAIN[3] :
+                    inter.emoji === '🪣' ? SPRITES.TERRAIN[5] : null;
+
+                if (propSprite && GameState.spritesLoaded) {
+                    ctx.drawImage(Game.sprites, propSprite.x, propSprite.y, 32, 32, inter.x * CONFIG.TILE_SIZE, inter.y * CONFIG.TILE_SIZE, 32, 32);
+                } else {
+                    // Only specific text if no sprite
+                    if (!propSprite) {
+                        ctx.font = '24px Arial';
+                        ctx.fillText(inter.emoji, inter.x * CONFIG.TILE_SIZE, inter.y * CONFIG.TILE_SIZE + 24);
+                    }
+                }
             }
         }
     }
@@ -815,8 +825,16 @@ const NPCRenderer = {
                 if (npc.id.includes('dadi')) frames = SPRITES.NPC.old_woman;
                 if (npc.id.includes('fisherman')) frames = SPRITES.NPC.man;
 
-                // Simple idle animation (using first frame for now)
-                const sprite = frames[0];
+                // Animate NPC
+                if (!npc._animTimer) npc._animTimer = 0;
+                npc._animTimer += 16; // Approx 60fps
+                if (npc._animTimer > 200) {
+                    npc._animFrame = ((npc._animFrame || 0) + 1) % 4;
+                    npc._animTimer = 0;
+                }
+
+                // Use animation frame
+                const sprite = frames[(npc._animFrame || 0) % 4];
                 ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, x, y, 32, 32);
             } else {
                 // Draw NPC body
@@ -827,8 +845,9 @@ const NPCRenderer = {
                 ctx.fillStyle = '#DEB887';
                 ctx.fillRect(x + 8, y + 4, 16, 12);
             }
-            ctx.font = '20px Arial';
-            ctx.fillText(npc.emoji || '👤', x + 6, y - 5);
+            // Remove emoji overlay
+            // ctx.font = '20px Arial';
+            // ctx.fillText(npc.emoji || '👤', x + 6, y - 5);
 
             // Name
             ctx.fillStyle = '#FFF';
@@ -907,10 +926,13 @@ const PetRenderer = {
             ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, pet.x, pet.y, 32, 32);
             ctx.restore();
         } else {
-            ctx.font = '24px Arial';
-            ctx.fillText(PetData[pet.id]?.emoji || '🐕', pet.x, pet.y + 24);
+        } else {
+            // ctx.font = '24px Arial';
+            // ctx.fillText(PetData[pet.id]?.emoji || '🐕', pet.x, pet.y + 24);
+            ctx.fillStyle = '#795548';
+            ctx.fillRect(pet.x, pet.y + 10, 32, 20);
         }
-    }
+}
 };
 
 
