@@ -1607,6 +1607,10 @@ const Game = {
     },
 
     async startNewGame() {
+        // Clear tile cache for fresh start
+        WorldRenderer.cachedTiles = null;
+        WorldRenderer.lastAreaId = null;
+
         this.showScreen('intro-screen');
         await this.playIntro();
 
@@ -1642,7 +1646,14 @@ const Game = {
         }
     },
 
-    skipIntro() { this.showScreen('game-screen'); this.startGameLoop(); },
+    skipIntro() {
+        // Clear tile cache for fresh start
+        WorldRenderer.cachedTiles = null;
+        WorldRenderer.lastAreaId = null;
+
+        this.showScreen('game-screen');
+        this.startGameLoop();
+    },
 
     startGameLoop() { this.lastTime = performance.now(); requestAnimationFrame(this.gameLoop.bind(this)); },
 

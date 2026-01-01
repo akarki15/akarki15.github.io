@@ -110,6 +110,42 @@ export const SpriteGenerator = {
         };
         drawWoodVariant(128, 0);
 
+        // 12. Indoor Wooden Floor (160, 0) - Horizontal planks with warm tone
+        const drawIndoorFloor = (ox, oy) => {
+            // Base warm wood color
+            rect(ox, oy, 32, 32, '#8D6E63');
+
+            // Horizontal planks with gaps
+            const plankHeight = 8;
+            for (let py = 0; py < 32; py += plankHeight) {
+                // Plank base - slightly different shade per plank
+                const shade = py % 16 === 0 ? '#A1887F' : '#8D6E63';
+                rect(ox, oy + py, 32, plankHeight - 1, shade);
+
+                // Plank gap (dark line)
+                rect(ox, oy + py + plankHeight - 1, 32, 1, '#5D4037');
+
+                // Wood grain lines
+                ctx.fillStyle = '#6D4C41';
+                for (let gx = 2; gx < 30; gx += 6) {
+                    rect(ox + gx, oy + py + 2, 4, 1);
+                    rect(ox + gx + 2, oy + py + 4, 3, 1);
+                }
+
+                // Highlights
+                ctx.fillStyle = '#BCAAA4';
+                rect(ox + 4 + (py % 8), oy + py + 1, 2, 1);
+                rect(ox + 20 + (py % 4), oy + py + 3, 2, 1);
+            }
+
+            // Knot in wood (detail)
+            ctx.fillStyle = '#4E342E';
+            ctx.beginPath();
+            ctx.arc(ox + 22, oy + 12, 2, 0, Math.PI * 2);
+            ctx.fill();
+        };
+        drawIndoorFloor(160, 0);
+
         // ==========================================
         // PROPS (Row 1) (Sideways / 3/4 View)
         // ==========================================
