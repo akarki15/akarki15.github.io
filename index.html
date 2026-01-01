@@ -878,7 +878,8 @@
         <!-- About Me Window -->
         <div class="mac-window" id="about-window">
             <div class="window-title-bar" onmousedown="startDrag(event, 'about-window')">
-                <div class="close-box" onclick="closeWindow('about-window')"></div>
+                <div class="close-box" onmousedown="event.stopPropagation()"
+                    onclick="closeWindow('about-window'); event.stopPropagation()"></div>
                 <span class="window-title">About This Mac</span>
             </div>
             <div class="window-content about-content">
@@ -910,7 +911,8 @@
         <!-- Projects Window -->
         <div class="mac-window" id="projects-window">
             <div class="window-title-bar" onmousedown="startDrag(event, 'projects-window')">
-                <div class="close-box" onclick="closeWindow('projects-window')"></div>
+                <div class="close-box" onmousedown="event.stopPropagation()"
+                    onclick="closeWindow('projects-window'); event.stopPropagation()"></div>
                 <span class="window-title">Projects</span>
             </div>
             <div class="window-content">
@@ -945,7 +947,8 @@
         <!-- Calculator Window -->
         <div class="mac-window" id="calculator-window">
             <div class="window-title-bar" onmousedown="startDrag(event, 'calculator-window')">
-                <div class="close-box" onclick="closeWindow('calculator-window')"></div>
+                <div class="close-box" onmousedown="event.stopPropagation()"
+                    onclick="closeWindow('calculator-window'); event.stopPropagation()"></div>
                 <span class="window-title">Calculator</span>
             </div>
             <div class="window-content">
@@ -1087,7 +1090,7 @@
 
         // Window Dragging
         function startDrag(e, id) {
-            if (e.target.classList.contains('close-box')) return;
+            if (e.target.closest('.close-box')) return;
 
             bringToFront(id);
             dragWindow = document.getElementById(id);
