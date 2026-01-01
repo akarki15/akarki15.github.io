@@ -85,11 +85,30 @@ export const SpriteGenerator = {
         };
         drawWater(64, 0);
 
-        // 4. Snow
+        // 5. Snow
         // 96,0
         drawGrass(96, 0); // Base texture
         rect(96, 0, 32, 32, '#ECEFF1'); // Cover with white
         for (let i = 0; i < 20; i++) p(96 + Math.random() * 32, Math.random() * 32, '#CFD8DC');
+
+        // 8. Distressed Wood (256, 0)
+        // We put it at End of row 0 which has 8 cols. 32*8=256. Index 8.
+        // Wait, index 5 was 96.
+        // Index 0: 0, 1: 32, 2: 64, 3: 0,32 (Row 1), ...
+        // Let's just put it at 128, 0 (Index 4 of Row 0)
+        // Index 0=grass, 1=path, 2=water, 3=tree(r1), 4=rock(r1), 5=wall(r1)...
+        // Actually the Sprite Map in game.js defines indices.
+        // Let's follow Sprites map. I will add Index 8 as x=128, y=0.
+        const drawWoodVariant = (ox, oy) => {
+            rect(ox, oy, 32, 32, '#6D4C41');
+            // Planks
+            for (let i = 0; i < 32; i += 4) rect(ox, oy + i, 32, 1, '#4E342E');
+            // Distressed marks
+            for (let k = 0; k < 10; k++) {
+                p(ox + Math.random() * 30, oy + Math.random() * 30, '#3E2723');
+            }
+        };
+        drawWoodVariant(128, 0);
 
         // ==========================================
         // PROPS (Row 1) (Sideways / 3/4 View)

@@ -53,7 +53,7 @@ export const AreaData = {
             { id: 'dhaba_dirt_3', x: 6, y: 10, type: 'clean', emoji: '🍂', isDirt: true },
             { id: 'dhaba_dirt_4', x: 14, y: 10, type: 'clean', emoji: '🕸️', isDirt: true },
             { id: 'dhaba_dirt_5', x: 16, y: 7, type: 'clean', emoji: '🌫️', isDirt: true },
-            { id: 'broken_chair', x: 9, y: 9, type: 'inspect', emoji: '🪑', desc: { en: "Broken beyond repair.", hi: "पूरी तरह टूटा हुआ।" } },
+            { id: 'broken_chair', x: 2, y: 8, type: 'inspect', emoji: '🪑', desc: { en: "Broken beyond repair.", hi: "पूरी तरह टूटा हुआ।" } },
             { id: 'old_photo', x: 4, y: 4, type: 'read', emoji: '🖼️', desc: { en: "A photo of your grandmother smiling.", hi: "तुम्हारी दादी की मुस्कुराती हुई तस्वीर।" } }
         ]
     },

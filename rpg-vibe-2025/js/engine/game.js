@@ -56,6 +56,7 @@ const SPRITES = {
         5: { x: 96, y: 32 }, // wall/building
         6: { x: 128, y: 32 }, // flower pot
         7: { x: 160, y: 32 }, // lamp
+        8: { x: 128, y: 0 }, // distressed wood (NEW)
         10: { x: 64, y: 32 }, // bush
         11: { x: 96, y: 0 }  // snow
     },
@@ -126,7 +127,8 @@ window.Player = {
         if (newY >= 0 && newY <= CONFIG.CANVAS_HEIGHT - this.height) nextY = newY;
 
         // Check tile collision
-        if (!WorldRenderer.checkCollision(nextX, nextY, this.width, this.height)) {
+        const collision = WorldRenderer.checkCollision(nextX, nextY, this.width, this.height);
+        if (!collision) {
             this.x = nextX;
             this.y = nextY;
         } else {
@@ -916,9 +918,9 @@ const WorldRenderer = {
     lastAreaId: null,
 
     isWalkable(tile) {
-        // 0:Grass, 1:Path, 6:Flower, 11:SnowFringe are walkable
+        // 0:Grass, 1:Path, 6:Flower, 8:Wood, 11:SnowFringe are walkable
         // 2:Water, 3:Tree, 4:Rock, 5:Building, 10:Bush are obstacles
-        return [0, 1, 6, 7, 9, 11].includes(tile);
+        return [0, 1, 6, 7, 8, 9, 11].includes(tile);
     },
 
     checkCollision(x, y, w, h) {
@@ -1001,14 +1003,15 @@ const WorldRenderer = {
 
                 // Area-specific features
                 if (area.id === 'tea_house') {
-                    // Indoor floor (Path/Wood)
+                    // Indoor floor - consistent wooden floor
                     tile = 1;
-                    // Walls
+                    // Walls only at edges
                     if (y === 0 || y === Math.ceil(CONFIG.CANVAS_HEIGHT / CONFIG.TILE_SIZE) - 1 ||
                         x === 0 || x === Math.ceil(CONFIG.CANVAS_WIDTH / CONFIG.TILE_SIZE) - 1) {
                         tile = 5; // Wall
                     }
-                    if (y === Math.ceil(CONFIG.CANVAS_HEIGHT / CONFIG.TILE_SIZE) - 1 && x > 8 && x < 12) {
+                    // Doorway at bottom center
+                    if (y === Math.ceil(CONFIG.CANVAS_HEIGHT / CONFIG.TILE_SIZE) - 1 && x > 10 && x < 15) {
                         tile = 1; // Doorway
                     }
                 }
@@ -2037,4 +2040,7 @@ const MobileControls = {
 document.addEventListener('DOMContentLoaded', () => {
     Game.init();
     MobileControls.init();
+
+    // Expose for debugging
+    window.WorldRenderer = WorldRenderer;
 });
