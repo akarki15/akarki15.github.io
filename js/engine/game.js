@@ -40,7 +40,7 @@ window.GameState = {
     weather: 'sunny'
 };
 
-// Sprite Definitions (32x32 grid)
+// Sprite Definitions (Synced with SpriteGenerator)
 const SPRITES = {
     TERRAIN: {
         0: { x: 0, y: 0 },   // grass
@@ -48,7 +48,7 @@ const SPRITES = {
         2: { x: 64, y: 0 },  // water
         3: { x: 0, y: 32 },  // tree
         4: { x: 32, y: 32 }, // rock
-        5: { x: 128, y: 0 }, // building/stone
+        5: { x: 96, y: 32 }, // wall/building
         10: { x: 64, y: 32 }, // bush
         11: { x: 96, y: 0 }  // snow
     },
@@ -59,15 +59,17 @@ const SPRITES = {
         right: [{ x: 0, y: 160 }, { x: 32, y: 160 }, { x: 64, y: 160 }, { x: 96, y: 160 }]
     },
     NPC: {
-        villager: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }], // Row 6
-        old_woman: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }],
-        old_man: [{ x: 0, y: 224 }, { x: 32, y: 224 }, { x: 64, y: 224 }, { x: 96, y: 224 }], // Row 7
-        man: [{ x: 0, y: 256 }, { x: 32, y: 256 }, { x: 64, y: 256 }, { x: 96, y: 256 }]     // Row 8
+        villager: [{ x: 0, y: 192 }, { x: 32, y: 192 }, { x: 64, y: 192 }, { x: 96, y: 192 }],
+        old_woman: [{ x: 0, y: 224 }, { x: 32, y: 224 }, { x: 64, y: 224 }, { x: 96, y: 224 }],
+        man: [{ x: 0, y: 256 }, { x: 32, y: 256 }, { x: 64, y: 256 }, { x: 96, y: 256 }]
     },
     PETS: {
-        sheepdog: [{ x: 0, y: 288 }, { x: 32, y: 288 }, { x: 64, y: 288 }, { x: 96, y: 288 }], // Row 9
-        mountain_cat: [{ x: 0, y: 320 }, { x: 32, y: 320 }, { x: 64, y: 320 }, { x: 96, y: 320 }], // Row 10
+        sheepdog: [{ x: 0, y: 288 }, { x: 32, y: 288 }, { x: 64, y: 288 }, { x: 96, y: 288 }],
+        mountain_cat: [{ x: 0, y: 320 }, { x: 32, y: 320 }, { x: 64, y: 320 }, { x: 96, y: 320 }],
         stray_dog: [{ x: 0, y: 288 }, { x: 32, y: 288 }, { x: 64, y: 288 }, { x: 96, y: 288 }]
+    },
+    EFFECTS: {
+        sparkle: [{ x: 0, y: 352 }, { x: 32, y: 352 }, { x: 64, y: 352 }, { x: 96, y: 352 }]
     }
 };
 
