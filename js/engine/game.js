@@ -112,8 +112,27 @@ window.Player = {
         const newX = this.x + dx;
         const newY = this.y + dy;
 
-        if (newX >= 0 && newX <= CONFIG.CANVAS_WIDTH - this.width) this.x = newX;
-        if (newY >= 0 && newY <= CONFIG.CANVAS_HEIGHT - this.height) this.y = newY;
+        // Movement with collision logic
+        let nextX = this.x;
+        let nextY = this.y;
+
+        if (newX >= 0 && newX <= CONFIG.CANVAS_WIDTH - this.width) nextX = newX;
+        if (newY >= 0 && newY <= CONFIG.CANVAS_HEIGHT - this.height) nextY = newY;
+
+        // Check tile collision
+        if (!WorldRenderer.checkCollision(nextX, nextY, this.width, this.height)) {
+            this.x = nextX;
+            this.y = nextY;
+        } else {
+            // Sliding collision: try moving only X
+            if (!WorldRenderer.checkCollision(nextX, this.y, this.width, this.height)) {
+                this.x = nextX;
+            }
+            // Sliding collision: try moving only Y
+            else if (!WorldRenderer.checkCollision(this.x, nextY, this.width, this.height)) {
+                this.y = nextY;
+            }
+        }
 
         // Check area transitions
         this.checkAreaTransition();
@@ -646,6 +665,28 @@ const UIManager = {
             const icons = { sunny: '☀️', cloudy: '⛅', rainy: '🌧️', snowy: '❄️' };
             weatherEl.textContent = icons[GameState.weather] || '☀️';
         }
+
+        // Active Quest Tracker
+        const trackerEl = document.getElementById('quest-tracker-hud');
+        if (!trackerEl) {
+            const div = document.createElement('div');
+            div.id = 'quest-tracker-hud';
+            div.style.cssText = 'position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 8px; color: #FFF; font-family: Outfit, sans-serif; pointer-events: none; border: 1px solid #E8A87C; max-width: 250px;';
+            document.getElementById('game-screen').appendChild(div);
+        } else {
+            const activeQuest = QuestManager.getActiveQuests().find(q => q.definition.type === 'main') || QuestManager.getActiveQuests()[0];
+            if (activeQuest) {
+                const step = activeQuest.objectives.find(o => o.current < o.count);
+                trackerEl.innerHTML = `
+                    <div style="color: #FFD700; font-size: 12px; font-weight: bold; margin-bottom: 4px;">🎯 OBJECTIVE</div>
+                    <div style="font-size: 14px;">${activeQuest.definition.title[GameState.language]}</div>
+                    <div style="font-size: 12px; color: #CCC; margin-top: 2px;">• ${step ? step.desc[GameState.language] : 'Complete!'}</div>
+                `;
+                trackerEl.classList.remove('hidden');
+            } else {
+                trackerEl.classList.add('hidden');
+            }
+        }
     },
 
     // Shopping System
@@ -810,18 +851,54 @@ window.UIManager = UIManager;
 // ============================================================
 const WorldRenderer = {
     tileColors: {
-        0: '#4A7C59', // grass
+        0: '#4A7C59', // grass (Vibrant Green)
         1: '#C4A77D', // path
         2: '#4A90A4', // water
         3: '#2D5A27', // tree
         4: '#808080', // rock
         5: '#D4B896', // building
+        6: '#FF69B4', // flower (Added)
         10: '#6B8E23', // forage
         11: '#FFFFFF'  // snow
     },
 
     cachedTiles: null,
     lastAreaId: null,
+
+    isWalkable(tile) {
+        // 0:Grass, 1:Path, 6:Flower, 11:SnowFringe are walkable
+        // 2:Water, 3:Tree, 4:Rock, 5:Building, 10:Bush are obstacles
+        return [0, 1, 6, 7, 9, 11].includes(tile);
+    },
+
+    checkCollision(x, y, w, h) {
+        if (!this.cachedTiles) return false;
+
+        // Define a slightly smaller hit box for the player (feet)
+        const hitX = x + 4;
+        const hitY = y + 16;
+        const hitW = w - 8;
+        const hitH = h - 16;
+
+        // Check corners
+        const points = [
+            { x: hitX, y: hitY },
+            { x: hitX + hitW, y: hitY },
+            { x: hitX, y: hitY + hitH },
+            { x: hitX + hitW, y: hitY + hitH }
+        ];
+
+        for (const p of points) {
+            const tx = Math.floor(p.x / CONFIG.TILE_SIZE);
+            const ty = Math.floor(p.y / CONFIG.TILE_SIZE);
+
+            if (ty >= 0 && ty < this.cachedTiles.length && tx >= 0 && tx < this.cachedTiles[0].length) {
+                const tile = this.cachedTiles[ty][tx];
+                if (!this.isWalkable(tile)) return true;
+            }
+        }
+        return false;
+    },
 
     generateAreaTiles(area) {
         // Use a simple seeded random or just Math.random() since we will cache it
@@ -836,15 +913,20 @@ const WorldRenderer = {
 
                 // Area-specific features
                 if (area.id === 'village_square') {
-                    if (x >= 10 && x <= 14) tile = 1; // Path in center
+                    if (x >= 10 && x <= 14) tile = 1;
+                    if (tile === 0 && Math.random() > 0.95) tile = 6; // Flowers
                 }
 
                 if (area.id === 'riverside' && y > 12) tile = 2;
-                if (area.id === 'pine_forest' && Math.random() > 0.7) tile = 3;
+                if (area.id === 'pine_forest') {
+                    if (Math.random() > 0.85) tile = 3; // Trees
+                    else if (Math.random() > 0.95) tile = 6; // Flowers
+                }
                 if (area.id === 'temple_hill' && y < 5 && x > 8 && x < 16) tile = 5;
                 if (area.id === 'hot_springs' && x > 8 && x < 14 && y > 6 && y < 14) tile = 2;
                 if (area.id === 'mountain_peak' && Math.random() > 0.8) tile = 11;
                 if (area.id === 'high_meadow' && y < 3) tile = 11;
+                if (area.id === 'high_meadow' && tile === 0 && Math.random() > 0.9) tile = 6;
 
                 tiles[y][x] = tile;
             }
@@ -886,6 +968,12 @@ const WorldRenderer = {
                         // Generative model prompt said "can take up 32x64", let's assume it fits in 32x64 cell if configured.
                         // But I will stick to 32x32 src for now to avoid glitches.
                         ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, tx, ty, 32, 32);
+                    } else if (tile === 6) { // Flowers
+                        // Small colorful dots if no sprite
+                        ctx.fillStyle = ['#FF69B4', '#FFD700', '#FF4500'][Math.floor(x % 3)];
+                        ctx.beginPath();
+                        ctx.arc(tx + 16, ty + 16, 4, 0, Math.PI * 2);
+                        ctx.fill();
                     } else {
                         ctx.drawImage(Game.sprites, sprite.x, sprite.y, 32, 32, tx, ty, 32, 32);
                     }
@@ -1456,7 +1544,20 @@ const Game = {
         PetRenderer.draw(this.ctx);
 
         const tint = tints[TimeSystem.getTimeOfDay()];
-        if (tint) { this.ctx.fillStyle = tint; this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT); }
+        if (tint) {
+            this.ctx.fillStyle = tint;
+            this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+        }
+
+        // Vivid Atmosphere Overlay (Vignette)
+        const gradient = this.ctx.createRadialGradient(
+            CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, 200,
+            CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, 500
+        );
+        gradient.addColorStop(0, 'rgba(0,0,0,0)');
+        gradient.addColorStop(1, 'rgba(0,0,0,0.3)');
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
 
         NotificationSystem.draw(this.ctx);
 
