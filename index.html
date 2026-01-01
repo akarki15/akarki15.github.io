@@ -4,52 +4,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aashish Karki | Macintosh</title>
-    <meta name="description" content="Welcome to my portfolio - Classic Macintosh style.">
+    <title>Aashish Karki | Multi-Verse Portfolio</title>
+    <meta name="description" content="Welcome to my portfolio - Now with THEMES!">
 
-    <!-- Google Fonts - Chicago-like bitmap font -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Comic+Sans+MS&family=Courier+Prime&display=swap"
+        rel="stylesheet">
 
     <style>
-        :root {
-            --mac-white: #ffffff;
-            --mac-black: #000000;
-            --mac-gray: #a8a8a8;
-            --mac-dark-gray: #555555;
-            --mac-light-gray: #dddddd;
-            --mac-pattern: url("data:image/svg+xml,%3Csvg width='2' height='2' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23000'/%3E%3C/svg%3E");
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Mac System Font - VT323 approximates Chicago */
         body {
-            font-family: 'VT323', 'Chicago', 'Monaco', monospace;
-            font-size: 16px;
-            background: var(--mac-pattern);
-            background-size: 2px 2px;
             min-height: 100vh;
             overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* ========================================
+           THEME: CLASSIC MAC (DEFAULT)
+        ======================================== */
+        body[data-theme="mac"] {
+            font-family: 'VT323', 'Chicago', 'Monaco', monospace;
+            font-size: 16px;
+            background: url("data:image/svg+xml,%3Csvg width='2' height='2' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23000'/%3E%3C/svg%3E");
+            background-size: 2px 2px;
             cursor: default;
             -webkit-font-smoothing: none;
             image-rendering: pixelated;
         }
 
-        /* ========== MENU BAR ========== */
+        body[data-theme="mac"] .menu-bar {
+            background: #ffffff;
+            border-bottom: 2px solid #000000;
+            color: #000000;
+        }
+
+        body[data-theme="mac"] .desktop {
+            background: url("data:image/svg+xml,%3Csvg width='2' height='2' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23000'/%3E%3C/svg%3E");
+            background-size: 2px 2px;
+        }
+
+        body[data-theme="mac"] .mac-window {
+            background: #ffffff;
+            border: 2px solid #000000;
+            box-shadow: 2px 2px 0 #000000;
+        }
+
+        body[data-theme="mac"] .window-title-bar {
+            background: #ffffff;
+            border-bottom: 2px solid #000000;
+        }
+
+        /* ========================================
+           THEME: WINDOWS 95
+        ======================================== */
+        body[data-theme="win95"] {
+            font-family: 'VT323', 'MS Sans Serif', sans-serif;
+            font-size: 16px;
+            background: #008080;
+            cursor: default;
+        }
+
+        body[data-theme="win95"] .menu-bar {
+            background: #c0c0c0;
+            border-bottom: none;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #808080;
+            border-bottom: 2px solid #808080;
+            color: #000000;
+            height: 28px;
+        }
+
+        body[data-theme="win95"] .desktop {
+            background: #008080;
+        }
+
+        body[data-theme="win95"] .mac-window {
+            background: #c0c0c0;
+            border: none;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #000000;
+            border-bottom: 2px solid #000000;
+            box-shadow: none;
+        }
+
+        body[data-theme="win95"] .window-title-bar {
+            background: linear-gradient(90deg, #000080, #1084d0);
+            border: none;
+            color: #ffffff;
+            height: 24px;
+        }
+
+        body[data-theme="win95"] .window-title-bar::after {
+            display: none;
+        }
+
+        body[data-theme="win95"] .window-content {
+            background: #c0c0c0;
+        }
+
+        body[data-theme="win95"] .close-box {
+            background: #c0c0c0;
+            border-top: 1px solid #ffffff;
+            border-left: 1px solid #ffffff;
+            border-right: 1px solid #000000;
+            border-bottom: 1px solid #000000;
+        }
+
+        /* ========================================
+           THEME: MATRIX
+        ======================================== */
+        body[data-theme="matrix"] {
+            font-family: 'Courier Prime', 'Courier New', monospace;
+            font-size: 16px;
+            background: #000000;
+            color: #00ff00;
+            cursor: crosshair;
+        }
+
+        body[data-theme="matrix"] .menu-bar {
+            background: #001100;
+            border-bottom: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        body[data-theme="matrix"] .desktop {
+            background: #000000;
+            position: relative;
+        }
+
+        body[data-theme="matrix"] .mac-window {
+            background: rgba(0, 17, 0, 0.95);
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            color: #00ff00;
+        }
+
+        body[data-theme="matrix"] .window-title-bar {
+            background: #003300;
+            border-bottom: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        body[data-theme="matrix"] .window-title-bar::after {
+            display: none;
+        }
+
+        body[data-theme="matrix"] .window-content {
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+        }
+
+        body[data-theme="matrix"] .close-box {
+            background: #003300;
+            border: 1px solid #00ff00;
+        }
+
+        body[data-theme="matrix"] .desktop-icon .icon-image {
+            background: #001100;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        body[data-theme="matrix"] .desktop-icon .icon-label {
+            color: #00ff00;
+        }
+
+        /* ========================================
+           THEME: COMIC SANS 2000s
+        ======================================== */
+        body[data-theme="comic"] {
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+            font-size: 18px;
+            background: linear-gradient(45deg, #ff6b9d, #c06c84, #6c5b7b, #355c7d);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #000000;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="%23ff00ff"/></svg>'), auto;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        body[data-theme="comic"] .menu-bar {
+            background: linear-gradient(180deg, #ff00ff, #00ffff);
+            border-bottom: 3px dashed #ffff00;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px #000000;
+            font-weight: bold;
+        }
+
+        body[data-theme="comic"] .desktop {
+            background: transparent;
+        }
+
+        body[data-theme="comic"] .mac-window {
+            background: linear-gradient(135deg, #ffd700, #ff69b4, #00ffff);
+            border: 5px ridge #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+            transform: rotate(-1deg);
+        }
+
+        body[data-theme="comic"] .window-title-bar {
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            border-bottom: 3px solid #ffffff;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px #000000;
+            font-weight: bold;
+        }
+
+        body[data-theme="comic"] .window-title-bar::after {
+            display: none;
+        }
+
+        body[data-theme="comic"] .window-content {
+            background: rgba(255, 255, 255, 0.9);
+            color: #000000;
+        }
+
+        body[data-theme="comic"] .close-box {
+            background: #ff0000;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+        }
+
+        body[data-theme="comic"] h2 {
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            font-size: 28px;
+            transform: skew(-5deg);
+        }
+
+        /* ========================================
+           THEME: EDM RAVE
+        ======================================== */
+        body[data-theme="edm"] {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            background: #000000;
+            color: #ffffff;
+            cursor: pointer;
+            animation: rave 0.1s infinite;
+        }
+
+        @keyframes rave {
+            0% {
+                background-color: #ff0000;
+            }
+
+            16% {
+                background-color: #ff7f00;
+            }
+
+            33% {
+                background-color: #ffff00;
+            }
+
+            50% {
+                background-color: #00ff00;
+            }
+
+            66% {
+                background-color: #0000ff;
+            }
+
+            83% {
+                background-color: #4b0082;
+            }
+
+            100% {
+                background-color: #9400d3;
+            }
+        }
+
+        body[data-theme="edm"] .menu-bar {
+            background: #000000;
+            border-bottom: 2px solid #00ffff;
+            color: #00ffff;
+            animation: neonPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes neonPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
+            }
+
+            50% {
+                box-shadow: 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+            }
+        }
+
+        body[data-theme="edm"] .desktop {
+            background: radial-gradient(circle, #ff00ff, #00ffff, #ffff00);
+            background-size: 200% 200%;
+            animation: raveBackground 2s ease infinite;
+        }
+
+        @keyframes raveBackground {
+
+            0%,
+            100% {
+                background-position: 0% 0%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
+        }
+
+        body[data-theme="edm"] .mac-window {
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #00ffff;
+            box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff;
+            animation: windowPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes windowPulse {
+
+            0%,
+            100% {
+                border-color: #00ffff;
+                box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff;
+            }
+
+            50% {
+                border-color: #ff00ff;
+                box-shadow: 0 0 30px #00ffff, 0 0 60px #ff00ff;
+            }
+        }
+
+        body[data-theme="edm"] .window-title-bar {
+            background: linear-gradient(90deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            background-size: 200% 200%;
+            animation: gradientShift 2s linear infinite;
+            border-bottom: 2px solid #00ffff;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        body[data-theme="edm"] .window-title-bar::after {
+            display: none;
+        }
+
+        body[data-theme="edm"] .window-content {
+            background: rgba(0, 0, 0, 0.95);
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        body[data-theme="edm"] .close-box {
+            background: #ff00ff;
+            border: 2px solid #00ffff;
+            animation: neonPulse 1s ease-in-out infinite;
+        }
+
+        /* ========== COMMON STYLES ========== */
         .menu-bar {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             height: 24px;
-            background: var(--mac-white);
-            border-bottom: 2px solid var(--mac-black);
             display: flex;
             align-items: center;
             padding: 0 8px;
@@ -64,21 +402,16 @@
             padding: 0 8px;
         }
 
-        .apple-logo:hover {
-            background: var(--mac-black);
-            color: var(--mac-white);
-        }
-
         .menu-item {
             padding: 2px 12px;
             font-size: 14px;
             cursor: pointer;
             font-weight: bold;
+            position: relative;
         }
 
         .menu-item:hover {
-            background: var(--mac-black);
-            color: var(--mac-white);
+            opacity: 0.8;
         }
 
         .menu-time {
@@ -87,18 +420,54 @@
             padding-right: 8px;
         }
 
-        /* ========== DESKTOP ========== */
+        /* Theme Dropdown */
+        .theme-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #ffffff;
+            border: 2px solid #000000;
+            box-shadow: 2px 2px 0 #000000;
+            min-width: 200px;
+            display: none;
+            z-index: 20000;
+        }
+
+        .theme-dropdown.visible {
+            display: block;
+        }
+
+        .theme-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #cccccc;
+        }
+
+        .theme-option:last-child {
+            border-bottom: none;
+        }
+
+        .theme-option:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .theme-option.active {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        /* Desktop */
         .desktop {
             position: fixed;
             top: 24px;
             left: 0;
             right: 0;
             bottom: 0;
-            background: var(--mac-pattern);
-            background-size: 2px 2px;
         }
 
-        /* ========== DESKTOP ICONS ========== */
+        /* Desktop Icons */
         .desktop-icon {
             position: absolute;
             width: 64px;
@@ -112,20 +481,20 @@
 
         .desktop-icon:hover .icon-label,
         .desktop-icon.selected .icon-label {
-            background: var(--mac-black);
-            color: var(--mac-white);
+            background: #000000;
+            color: #ffffff;
         }
 
         .desktop-icon.selected .icon-image {
             filter: invert(1);
-            background: var(--mac-black);
+            background: #000000;
         }
 
         .icon-image {
             width: 48px;
             height: 48px;
-            background: var(--mac-white);
-            border: 2px solid var(--mac-black);
+            background: #ffffff;
+            border: 2px solid #000000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -141,12 +510,9 @@
             word-wrap: break-word;
         }
 
-        /* ========== WINDOWS ========== */
+        /* Windows */
         .mac-window {
             position: absolute;
-            background: var(--mac-white);
-            border: 2px solid var(--mac-black);
-            box-shadow: 2px 2px 0 var(--mac-black);
             min-width: 200px;
             min-height: 100px;
             display: none;
@@ -162,8 +528,6 @@
 
         .window-title-bar {
             height: 22px;
-            background: var(--mac-white);
-            border-bottom: 2px solid var(--mac-black);
             display: flex;
             align-items: center;
             padding: 0 4px;
@@ -175,27 +539,11 @@
             cursor: grabbing;
         }
 
-        .window-title-bar.inactive {
-            background: var(--mac-pattern);
-            background-size: 2px 2px;
-        }
-
         .close-box {
             width: 14px;
             height: 14px;
-            border: 2px solid var(--mac-black);
-            background: var(--mac-white);
             margin-right: 8px;
             cursor: pointer;
-        }
-
-        .close-box:hover {
-            background: var(--mac-black);
-        }
-
-        .close-box:active {
-            background: var(--mac-pattern);
-            background-size: 2px 2px;
         }
 
         .window-title {
@@ -206,24 +554,8 @@
             margin-right: 22px;
         }
 
-        .window-title-bar::after {
-            content: '';
-            position: absolute;
-            left: 30px;
-            right: 30px;
-            top: 4px;
-            height: 14px;
-            background: repeating-linear-gradient(to bottom,
-                    var(--mac-black) 0px,
-                    var(--mac-black) 1px,
-                    var(--mac-white) 1px,
-                    var(--mac-white) 3px);
-            z-index: -1;
-        }
-
         .window-content {
             padding: 12px;
-            background: var(--mac-white);
             overflow: auto;
             max-height: 400px;
         }
@@ -231,7 +563,6 @@
         .window-content h2 {
             font-size: 18px;
             margin-bottom: 12px;
-            border-bottom: 1px solid var(--mac-black);
             padding-bottom: 8px;
         }
 
@@ -241,32 +572,20 @@
             margin-bottom: 12px;
         }
 
-        /* ========== SCROLL BARS ========== */
-        .window-content::-webkit-scrollbar {
-            width: 16px;
-            background: var(--mac-pattern);
-            background-size: 2px 2px;
-        }
-
-        .window-content::-webkit-scrollbar-thumb {
-            background: var(--mac-white);
-            border: 2px solid var(--mac-black);
-        }
-
-        /* ========== BUTTONS ========== */
+        /* Buttons */
         .mac-button {
             padding: 6px 20px;
             font-family: inherit;
             font-size: 14px;
-            background: var(--mac-white);
-            border: 2px solid var(--mac-black);
+            background: #ffffff;
+            border: 2px solid #000000;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 2px 2px 0 var(--mac-black);
+            box-shadow: 2px 2px 0 #000000;
         }
 
         .mac-button:hover {
-            background: var(--mac-light-gray);
+            opacity: 0.8;
         }
 
         .mac-button:active {
@@ -274,11 +593,7 @@
             transform: translate(2px, 2px);
         }
 
-        .mac-button.primary {
-            border-width: 3px;
-        }
-
-        /* ========== ABOUT THIS MAC WINDOW ========== */
+        /* About Window */
         #about-window {
             width: 400px;
             top: 60px;
@@ -297,7 +612,7 @@
             margin: 16px 0;
         }
 
-        /* ========== PROJECTS WINDOW ========== */
+        /* Projects Window */
         #projects-window {
             width: 500px;
             top: 80px;
@@ -310,7 +625,7 @@
 
         .project-item {
             padding: 12px;
-            border: 2px solid var(--mac-black);
+            border: 2px solid #000000;
             margin-bottom: 8px;
             cursor: pointer;
             display: flex;
@@ -319,8 +634,7 @@
         }
 
         .project-item:hover {
-            background: var(--mac-black);
-            color: var(--mac-white);
+            opacity: 0.8;
         }
 
         .project-icon {
@@ -339,7 +653,7 @@
             margin: 0;
         }
 
-        /* ========== CALCULATOR APP ========== */
+        /* Calculator */
         #calculator-window {
             width: 220px;
             top: 120px;
@@ -354,8 +668,8 @@
         }
 
         .calc-display {
-            background: var(--mac-white);
-            border: 2px solid var(--mac-black);
+            background: #ffffff;
+            border: 2px solid #000000;
             padding: 8px;
             text-align: right;
             font-size: 24px;
@@ -373,110 +687,27 @@
             padding: 12px;
             font-family: inherit;
             font-size: 18px;
-            background: var(--mac-white);
-            border: 2px solid var(--mac-black);
+            background: #ffffff;
+            border: 2px solid #000000;
             cursor: pointer;
         }
 
         .calc-btn:hover {
-            background: var(--mac-light-gray);
-        }
-
-        .calc-btn:active {
-            background: var(--mac-black);
-            color: var(--mac-white);
-        }
-
-        .calc-btn.operator {
-            background: var(--mac-light-gray);
+            opacity: 0.8;
         }
 
         .calc-btn.equals {
             grid-column: span 2;
-            background: var(--mac-black);
-            color: var(--mac-white);
         }
 
-        /* ========== NOTEPAD APP ========== */
-        #notepad-window {
-            width: 350px;
-            top: 100px;
-            left: 300px;
-        }
-
-        .notepad-textarea {
-            width: 100%;
-            height: 200px;
-            font-family: 'VT323', monospace;
-            font-size: 16px;
-            border: 2px solid var(--mac-black);
-            padding: 8px;
-            resize: none;
-            background: var(--mac-white);
-        }
-
-        .notepad-textarea:focus {
-            outline: none;
-        }
-
-        /* ========== CONTROL PANEL WINDOW ========== */
-        #control-window {
-            width: 300px;
-            top: 150px;
-            left: 200px;
-        }
-
-        .control-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--mac-gray);
-        }
-
-        .control-item:last-child {
-            border-bottom: none;
-        }
-
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .mac-slider {
-            -webkit-appearance: none;
-            width: 100px;
-            height: 8px;
-            background: var(--mac-pattern);
-            background-size: 2px 2px;
-            border: 1px solid var(--mac-black);
-        }
-
-        .mac-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            background: var(--mac-white);
-            border: 2px solid var(--mac-black);
-            cursor: pointer;
-        }
-
-        /* ========== TRASH ========== */
-        .trash-icon {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-        }
-
-        /* ========== STARTUP ANIMATION ========== */
+        /* Startup Screen */
         .startup-screen {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: var(--mac-gray);
+            background: #a8a8a8;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -493,8 +724,8 @@
         .happy-mac {
             width: 80px;
             height: 80px;
-            background: var(--mac-white);
-            border: 3px solid var(--mac-black);
+            background: #ffffff;
+            border: 3px solid #000000;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -508,7 +739,7 @@
             margin-top: 20px;
         }
 
-        /* ========== ALERT DIALOG ========== */
+        /* Alert Dialog */
         .alert-overlay {
             position: fixed;
             top: 0;
@@ -527,9 +758,9 @@
         }
 
         .alert-box {
-            background: var(--mac-white);
-            border: 3px solid var(--mac-black);
-            box-shadow: 4px 4px 0 var(--mac-black);
+            background: #ffffff;
+            border: 3px solid #000000;
+            box-shadow: 4px 4px 0 #000000;
             padding: 20px;
             max-width: 350px;
             text-align: center;
@@ -546,18 +777,32 @@
             line-height: 1.5;
         }
 
-        /* ========== LINKS ========== */
+        /* Links */
         a {
-            color: var(--mac-black);
+            color: inherit;
             text-decoration: underline;
         }
 
         a:hover {
-            background: var(--mac-black);
-            color: var(--mac-white);
+            opacity: 0.8;
         }
 
-        /* ========== RESPONSIVE ========== */
+        /* Matrix Rain Effect */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            display: none;
+        }
+
+        body[data-theme="matrix"] #matrix-canvas {
+            display: block;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .desktop-icon {
                 width: 56px;
@@ -578,20 +823,31 @@
     </style>
 </head>
 
-<body>
+<body data-theme="mac">
+    <!-- Matrix Rain Canvas -->
+    <canvas id="matrix-canvas"></canvas>
+
     <!-- Startup Screen -->
     <div class="startup-screen" id="startupScreen">
         <div class="happy-mac">🖥️</div>
-        <div class="startup-text">Welcome to Macintosh.</div>
+        <div class="startup-text">Welcome to the Multi-Verse...</div>
     </div>
 
     <!-- Menu Bar -->
     <div class="menu-bar">
         <span class="apple-logo" onclick="openWindow('about-window')">🍎</span>
         <span class="menu-item" onclick="openWindow('about-window')">File</span>
-        <span class="menu-item" onclick="openWindow('control-window')">Edit</span>
         <span class="menu-item" onclick="openWindow('projects-window')">View</span>
-        <span class="menu-item" onclick="showAlert('Special', 'Nothing special here... yet!')">Special</span>
+        <span class="menu-item" id="themeMenu" onclick="toggleThemeMenu()">
+            Themes ▼
+            <div class="theme-dropdown" id="themeDropdown">
+                <div class="theme-option active" onclick="changeTheme('mac', event)">🍎 Classic Mac</div>
+                <div class="theme-option" onclick="changeTheme('win95', event)">🪟 Windows 95</div>
+                <div class="theme-option" onclick="changeTheme('matrix', event)">💚 Matrix</div>
+                <div class="theme-option" onclick="changeTheme('comic', event)">🎨 Comic Sans 2000s</div>
+                <div class="theme-option" onclick="changeTheme('edm', event)">🎵 EDM Rave</div>
+            </div>
+        </span>
         <span class="menu-time" id="menuTime">12:00 PM</span>
     </div>
 
@@ -613,17 +869,8 @@
             <div class="icon-label">Calculator</div>
         </div>
 
-        <div class="desktop-icon" style="top: 280px; right: 20px;" ondblclick="openWindow('notepad-window')">
-            <div class="icon-image">📝</div>
-            <div class="icon-label">NotePad</div>
-        </div>
-
-        <div class="desktop-icon" style="top: 360px; right: 20px;" ondblclick="openWindow('control-window')">
-            <div class="icon-image">⚙️</div>
-            <div class="icon-label">Control Panel</div>
-        </div>
-
-        <div class="desktop-icon trash-icon" ondblclick="showAlert('Trash', 'The Trash is empty.')">
+        <div class="desktop-icon trash-icon" style="bottom: 20px; right: 20px;"
+            ondblclick="showAlert('Trash', 'The Trash is empty.')">
             <div class="icon-image">🗑️</div>
             <div class="icon-label">Trash</div>
         </div>
@@ -653,8 +900,8 @@
                     <a href="https://github.com/akarki15" target="_blank">GitHub</a> •
                     <a href="legacy/index.html">Legacy Site</a>
                 </p>
-                <p style="font-size: 12px; color: var(--mac-dark-gray); margin-top: 16px;">
-                    System 1.0 • 128K RAM<br>
+                <p style="font-size: 12px; margin-top: 16px;">
+                    Multi-Verse Edition • 128K RAM<br>
                     © 2026 Vibecoded with ♥
                 </p>
             </div>
@@ -732,65 +979,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- NotePad Window -->
-        <div class="mac-window" id="notepad-window">
-            <div class="window-title-bar" onmousedown="startDrag(event, 'notepad-window')">
-                <div class="close-box" onclick="closeWindow('notepad-window')"></div>
-                <span class="window-title">NotePad</span>
-            </div>
-            <div class="window-content">
-                <textarea class="notepad-textarea" placeholder="Start typing your notes here...
-
-Welcome to NotePad!
-
-This is a classic Mac-style notepad. 
-Type whatever you want - your notes 
-will stay here until you close the window.
-
-Have fun! 🍎"></textarea>
-            </div>
-        </div>
-
-        <!-- Control Panel Window -->
-        <div class="mac-window" id="control-window">
-            <div class="window-title-bar" onmousedown="startDrag(event, 'control-window')">
-                <div class="close-box" onclick="closeWindow('control-window')"></div>
-                <span class="window-title">Control Panel</span>
-            </div>
-            <div class="window-content">
-                <div class="control-item">
-                    <span>Desktop Pattern</span>
-                    <select id="patternSelect" onchange="changePattern(this.value)" style="font-family: inherit;">
-                        <option value="dots">Dots</option>
-                        <option value="lines">Lines</option>
-                        <option value="solid">Solid Gray</option>
-                        <option value="checkers">Checkers</option>
-                    </select>
-                </div>
-                <div class="control-item">
-                    <span>Sound</span>
-                    <div class="slider-container">
-                        <span>🔇</span>
-                        <input type="range" class="mac-slider" min="0" max="100" value="50">
-                        <span>🔊</span>
-                    </div>
-                </div>
-                <div class="control-item">
-                    <span>Mouse Speed</span>
-                    <div class="slider-container">
-                        <span>🐢</span>
-                        <input type="range" class="mac-slider" min="0" max="100" value="75">
-                        <span>🐇</span>
-                    </div>
-                </div>
-                <div class="control-item">
-                    <span>About</span>
-                    <button class="mac-button"
-                        onclick="showAlert('Control Panel', 'Control Panel v1.0\n\nChange your Mac settings here!')">Info</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Alert Dialog -->
@@ -798,19 +986,18 @@ Have fun! 🍎"></textarea>
         <div class="alert-box">
             <div class="alert-icon">💬</div>
             <div class="alert-text" id="alertText">Alert message here</div>
-            <button class="mac-button primary" onclick="closeAlert()">OK</button>
+            <button class="mac-button" onclick="closeAlert()">OK</button>
         </div>
     </div>
 
     <script>
         // ============================================
-        // CLASSIC MAC OS - Interactive Desktop
+        // MULTI-THEME DESKTOP ENVIRONMENT
         // ============================================
 
         // Startup Animation
         setTimeout(() => {
             document.getElementById('startupScreen').classList.add('hidden');
-            // Open About window on startup
             setTimeout(() => openWindow('about-window'), 500);
         }, 2000);
 
@@ -825,6 +1012,49 @@ Have fun! 🍎"></textarea>
         }
         updateTime();
         setInterval(updateTime, 1000);
+
+        // Theme Management
+        let currentTheme = 'mac';
+
+        function toggleThemeMenu() {
+            const dropdown = document.getElementById('themeDropdown');
+            dropdown.classList.toggle('visible');
+        }
+
+        function changeTheme(theme, event) {
+            event.stopPropagation();
+            currentTheme = theme;
+            document.body.setAttribute('data-theme', theme);
+
+            // Update active state
+            document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Close dropdown
+            document.getElementById('themeDropdown').classList.remove('visible');
+
+            // Initialize theme-specific features
+            if (theme === 'matrix') {
+                initMatrixRain();
+            }
+
+            // Show theme change notification
+            const themeNames = {
+                'mac': 'Classic Macintosh',
+                'win95': 'Windows 95',
+                'matrix': 'The Matrix',
+                'comic': 'Comic Sans 2000s',
+                'edm': 'EDM Rave Mode'
+            };
+            showAlert('Theme Changed', `Welcome to ${themeNames[theme]}!`);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#themeMenu')) {
+                document.getElementById('themeDropdown').classList.remove('visible');
+            }
+        });
 
         // Window Management
         let activeWindow = null;
@@ -844,18 +1074,14 @@ Have fun! 🍎"></textarea>
         }
 
         function bringToFront(id) {
-            // Deactivate all windows
             document.querySelectorAll('.mac-window').forEach(w => {
                 w.classList.remove('active');
-                w.querySelector('.window-title-bar').classList.add('inactive');
             });
 
-            // Activate selected window
             const win = document.getElementById(id);
             highestZ++;
             win.style.zIndex = highestZ;
             win.classList.add('active');
-            win.querySelector('.window-title-bar').classList.remove('inactive');
             activeWindow = id;
         }
 
@@ -879,7 +1105,6 @@ Have fun! 🍎"></textarea>
             let newX = e.clientX - dragOffset.x;
             let newY = e.clientY - dragOffset.y;
 
-            // Keep within bounds
             newX = Math.max(0, Math.min(newX, window.innerWidth - 100));
             newY = Math.max(24, Math.min(newY, window.innerHeight - 50));
 
@@ -983,22 +1208,38 @@ Have fun! 🍎"></textarea>
             document.getElementById('alertOverlay').classList.remove('visible');
         }
 
-        // Desktop Pattern Changer
-        function changePattern(pattern) {
-            const desktop = document.getElementById('desktop');
-            const patterns = {
-                dots: 'url("data:image/svg+xml,%3Csvg width=\'2\' height=\'2\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Crect width=\'1\' height=\'1\' fill=\'%23000\'/%3E%3Crect x=\'1\' y=\'1\' width=\'1\' height=\'1\' fill=\'%23000\'/%3E%3C/svg%3E")',
-                lines: 'url("data:image/svg+xml,%3Csvg width=\'4\' height=\'4\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cline x1=\'0\' y1=\'0\' x2=\'4\' y2=\'0\' stroke=\'%23000\' stroke-width=\'1\'/%3E%3C/svg%3E")',
-                solid: 'none',
-                checkers: 'url("data:image/svg+xml,%3Csvg width=\'4\' height=\'4\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Crect width=\'2\' height=\'2\' fill=\'%23000\'/%3E%3Crect x=\'2\' y=\'2\' width=\'2\' height=\'2\' fill=\'%23000\'/%3E%3C/svg%3E")'
-            };
+        // Matrix Rain Effect
+        function initMatrixRain() {
+            const canvas = document.getElementById('matrix-canvas');
+            const ctx = canvas.getContext('2d');
 
-            if (pattern === 'solid') {
-                desktop.style.background = '#a8a8a8';
-            } else {
-                desktop.style.background = patterns[pattern];
-                desktop.style.backgroundSize = pattern === 'checkers' ? '4px 4px' : '2px 2px';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#00ff00';
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
             }
+
+            setInterval(draw, 33);
         }
 
         // Keyboard shortcuts
@@ -1016,6 +1257,15 @@ Have fun! 🍎"></textarea>
             win.addEventListener('mousedown', () => {
                 bringToFront(win.id);
             });
+        });
+
+        // Resize handler for Matrix canvas
+        window.addEventListener('resize', () => {
+            if (currentTheme === 'matrix') {
+                const canvas = document.getElementById('matrix-canvas');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
         });
     </script>
 </body>
