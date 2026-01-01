@@ -1156,6 +1156,10 @@ const Game = {
             this.showControlsHelp();
             sessionStorage.setItem('pahadi_controls_shown', 'true');
         }
+
+        setTimeout(() => {
+            NotificationSystem.show('QUEST: Go WEST to Pine Forest for a surprise! 🐕', 'success', 8000);
+        }, 2000);
     },
 
     async playIntro() {

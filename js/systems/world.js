@@ -16,10 +16,10 @@ export const AreaData = {
         music: 'village_theme',
         ambience: ['birds', 'wind'],
         connections: {
-            north: { area: 'temple_hill', x: 15, y: 20 },
+            north: { area: 'temple_hill', x: 15, y: 17 },
             south: { area: 'riverside', x: 15, y: 2 },
             east: { area: 'tea_house', x: 2, y: 10 },
-            west: { area: 'pine_forest', x: 27, y: 10 }
+            west: { area: 'pine_forest', x: 23, y: 10 }
         },
         npcs: ['dadi_kamala', 'raju', 'village_child'],
         forageSpots: [
@@ -39,7 +39,7 @@ export const AreaData = {
         music: 'cozy_theme',
         isIndoor: true,
         connections: {
-            west: { area: 'village_square', x: 27, y: 10 }
+            west: { area: 'village_square', x: 23, y: 10 }
         },
         npcs: ['traveler'],
         interactables: [
@@ -77,7 +77,7 @@ export const AreaData = {
         music: 'water_theme',
         ambience: ['water', 'birds'],
         connections: {
-            north: { area: 'village_square', x: 15, y: 20 },
+            north: { area: 'village_square', x: 15, y: 17 },
             east: { area: 'hot_springs', x: 2, y: 8 }
         },
         npcs: ['meera', 'fisherman'],
@@ -98,8 +98,8 @@ export const AreaData = {
         ambience: ['wind', 'birds', 'leaves'],
         connections: {
             east: { area: 'village_square', x: 2, y: 10 },
-            west: { area: 'ancient_ruins', x: 32, y: 12 },
-            north: { area: 'deep_forest', x: 17, y: 23 }
+            west: { area: 'ancient_ruins', x: 23, y: 12 },
+            north: { area: 'deep_forest', x: 17, y: 17 }
         },
         npcs: ['vaidya_arjun', 'woodcutter', 'stray_dog'],
         forageSpots: [
@@ -140,7 +140,7 @@ export const AreaData = {
         music: 'relaxing_theme',
         ambience: ['steam', 'water'],
         connections: {
-            west: { area: 'riverside', x: 33, y: 8 }
+            west: { area: 'riverside', x: 23, y: 8 }
         },
         npcs: ['sunita'],
         interactables: [
@@ -160,7 +160,7 @@ export const AreaData = {
         requiresItem: 'climbing_gear',
         connections: {
             south: { area: 'temple_hill', x: 12, y: 2 },
-            north: { area: 'mountain_peak', x: 15, y: 20 }
+            north: { area: 'mountain_peak', x: 15, y: 17 }
         },
         npcs: ['bhim', 'shepherd'],
         forageSpots: [
