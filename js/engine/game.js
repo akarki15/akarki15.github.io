@@ -1128,7 +1128,13 @@ const Game = {
 
         if (localStorage.getItem('pahadiTales_save')) {
             const btn = document.getElementById('btn-continue');
-            if (btn) { btn.disabled = false; btn.addEventListener('click', () => this.loadGame()); }
+            if (btn) {
+                btn.disabled = false;
+                // Remove any existing listeners first to prevent duplicates (though typically setupUI runs once)
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener('click', () => this.loadGame());
+            }
         }
     },
 
@@ -1340,7 +1346,9 @@ const Game = {
 
     saveGame() {
         try {
+            // Validate data before saving
             const data = {
+                version: 1, // Save format version
                 player: { x: Player.x, y: Player.y, energy: Player.energy, health: Player.health, xp: Player.xp, level: Player.level },
                 gameState: { gameTime: GameState.gameTime, day: GameState.day, language: GameState.language },
                 inventory: Inventory.getSaveData(),
@@ -1350,32 +1358,68 @@ const Game = {
                 world: WorldManager.getSaveData(),
                 timestamp: Date.now()
             };
-            localStorage.setItem('pahadiTales_save', JSON.stringify(data));
+
+            // Convert to string and check size (rough check)
+            const json = JSON.stringify(data);
+            if (json.length > 4000000) {
+                console.warn('Save file is large:', json.length);
+            }
+
+            localStorage.setItem('pahadiTales_save', json);
             NotificationSystem.show('💾 Game Saved!', 'success');
+
+            // Enable continue button immediately
             const continueBtn = document.getElementById('btn-continue');
-            if (continueBtn) continueBtn.disabled = false;
+            if (continueBtn) {
+                continueBtn.disabled = false;
+                // Ensure listener works
+                continueBtn.onclick = () => this.loadGame();
+            }
         } catch (e) {
             console.error('Save failed:', e);
-            NotificationSystem.show('❌ Save failed!', 'warning');
+            if (e.name === 'QuotaExceededError') {
+                NotificationSystem.show('❌ Save failed: Storage full!', 'warning');
+            } else {
+                NotificationSystem.show('❌ Save failed!', 'warning');
+            }
         }
     },
 
     loadGame() {
         try {
-            const data = JSON.parse(localStorage.getItem('pahadiTales_save'));
+            const json = localStorage.getItem('pahadiTales_save');
+            if (!json) {
+                NotificationSystem.show('❌ No save found!', 'warning');
+                return;
+            }
+
+            const data = JSON.parse(json);
+
+            // Validation
+            if (!data.player || !data.gameState) {
+                throw new Error('Invalid save data');
+            }
+
             if (data) {
-                Object.assign(Player, data.player);
-                Object.assign(GameState, data.gameState);
-                Inventory.loadSaveData(data.inventory);
-                QuestManager.loadSaveData(data.quests);
-                CraftingSystem.loadSaveData(data.crafting);
-                PetManager.loadSaveData(data.pets);
-                WorldManager.loadSaveData(data.world);
+                if (data.player) Object.assign(Player, data.player);
+                if (data.gameState) Object.assign(GameState, data.gameState);
+                if (data.inventory) Inventory.loadSaveData(data.inventory);
+                if (data.quests) QuestManager.loadSaveData(data.quests);
+                if (data.crafting && CraftingSystem.loadSaveData) CraftingSystem.loadSaveData(data.crafting);
+                if (data.pets) PetManager.loadSaveData(data.pets);
+                if (data.world) WorldManager.loadSaveData(data.world);
+
                 this.setLanguage(GameState.language);
                 this.showScreen('game-screen');
                 this.startGameLoop();
+                NotificationSystem.show('📂 Save Loaded!', 'success');
+                console.log('✅ Game loaded successfully');
             }
-        } catch (e) { console.error('Load failed:', e); }
+        } catch (e) {
+            console.error('Load failed:', e);
+            NotificationSystem.show('❌ Load failed: Corrupt data', 'warning');
+            // Optional: offer to clear save?
+        }
     }
 };
 
