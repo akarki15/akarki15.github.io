@@ -49,16 +49,17 @@ window.GameState = {
 const SPRITES = {
     TERRAIN: {
         0: { x: 0, y: 0 },   // grass
-        1: { x: 32, y: 0 },  // path
+        1: { x: 32, y: 0 },  // path (outdoor dirt)
         2: { x: 64, y: 0 },  // water
         3: { x: 0, y: 32 },  // tree
         4: { x: 32, y: 32 }, // rock
         5: { x: 96, y: 32 }, // wall/building
         6: { x: 128, y: 32 }, // flower pot
         7: { x: 160, y: 32 }, // lamp
-        8: { x: 128, y: 0 }, // distressed wood (NEW)
+        8: { x: 128, y: 0 }, // distressed wood
         10: { x: 64, y: 32 }, // bush
-        11: { x: 96, y: 0 }  // snow
+        11: { x: 96, y: 0 },  // snow
+        12: { x: 160, y: 0 }  // indoor wooden floor
     },
     PLAYER: {
         down: [{ x: 0, y: 64 }, { x: 32, y: 64 }, { x: 64, y: 64 }, { x: 96, y: 64 }],
@@ -918,9 +919,9 @@ const WorldRenderer = {
     lastAreaId: null,
 
     isWalkable(tile) {
-        // 0:Grass, 1:Path, 6:Flower, 8:Wood, 11:SnowFringe are walkable
+        // 0:Grass, 1:Path, 6:Flower, 8:Wood, 12:Indoor Floor, 11:Snow are walkable
         // 2:Water, 3:Tree, 4:Rock, 5:Building, 10:Bush are obstacles
-        return [0, 1, 6, 7, 8, 9, 11].includes(tile);
+        return [0, 1, 6, 7, 8, 9, 11, 12].includes(tile);
     },
 
     checkCollision(x, y, w, h) {
@@ -1003,16 +1004,16 @@ const WorldRenderer = {
 
                 // Area-specific features
                 if (area.id === 'tea_house') {
-                    // Indoor floor - consistent wooden floor
-                    tile = 1;
+                    // Indoor wooden floor (tile 12)
+                    tile = 12;
                     // Walls only at edges
                     if (y === 0 || y === Math.ceil(CONFIG.CANVAS_HEIGHT / CONFIG.TILE_SIZE) - 1 ||
                         x === 0 || x === Math.ceil(CONFIG.CANVAS_WIDTH / CONFIG.TILE_SIZE) - 1) {
                         tile = 5; // Wall
                     }
-                    // Doorway at bottom center
-                    if (y === Math.ceil(CONFIG.CANVAS_HEIGHT / CONFIG.TILE_SIZE) - 1 && x > 10 && x < 15) {
-                        tile = 1; // Doorway
+                    // Doorway at bottom center (wider)
+                    if (y === Math.ceil(CONFIG.CANVAS_HEIGHT / CONFIG.TILE_SIZE) - 1 && x >= 10 && x <= 14) {
+                        tile = 12; // Floor at doorway
                     }
                 }
 
