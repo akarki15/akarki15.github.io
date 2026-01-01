@@ -799,9 +799,9 @@
         });
     </script>
 
-    <!-- Alien Swarm Effect -->
+    <!-- Geometric Alien Swarm Effect - Canvas Based -->
     <style>
-        .alien-swarm-container {
+        #swarmCanvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -809,197 +809,452 @@
             height: 100%;
             pointer-events: none;
             z-index: 9999;
-            overflow: hidden;
-        }
-
-        .alien {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            mix-blend-mode: screen;
-            filter: blur(1px);
-            transition: transform 0.1s ease-out;
-        }
-
-        .alien::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40%;
-            height: 40%;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            filter: blur(1px);
-        }
-
-        .alien::after {
-            content: '';
-            position: absolute;
-            top: -20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30%;
-            height: 30%;
-            background: inherit;
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: alienPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes alienPulse {
-
-            0%,
-            100% {
-                transform: translateX(-50%) scale(1);
-                opacity: 0.6;
-            }
-
-            50% {
-                transform: translateX(-50%) scale(1.3);
-                opacity: 0.3;
-            }
-        }
-
-        @keyframes alienGlow {
-
-            0%,
-            100% {
-                box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
-            }
-
-            50% {
-                box-shadow: 0 0 15px currentColor, 0 0 30px currentColor, 0 0 45px currentColor;
-            }
         }
     </style>
 
-    <div class="alien-swarm-container" id="alienSwarm"></div>
+    <canvas id="swarmCanvas"></canvas>
 
     <script>
-        // Alien Swarm Configuration
-        const SWARM_CONFIG = {
-            count: 15,
-            colors: [
-                'rgba(0, 245, 212, 0.6)',    // Primary cyan
-                'rgba(123, 44, 191, 0.6)',   // Purple
-                'rgba(247, 37, 133, 0.5)',   // Pink
-                'rgba(100, 255, 218, 0.5)',  // Light cyan
-                'rgba(155, 89, 182, 0.5)',   // Soft purple
-                'rgba(0, 200, 170, 0.5)',    // Teal
-            ],
-            minSize: 6,
-            maxSize: 18,
-            easing: 0.03,  // Lower = smoother/slower following
-            spread: 80,    // How spread out the swarm is
-        };
+        // ============================================
+        // GEOMETRIC ALIEN SWARM - 500 PARTICLES
+        // Locust-like flocking with ethereal movement
+        // ============================================
 
-        class Alien {
-            constructor(container, index, config) {
-                this.config = config;
-                this.index = index;
-                this.x = window.innerWidth / 2;
-                this.y = window.innerHeight / 2;
-                this.targetX = this.x;
-                this.targetY = this.y;
+        (function () {
+            'use strict';
 
-                // Each alien has unique properties
-                this.size = config.minSize + Math.random() * (config.maxSize - config.minSize);
-                this.easing = config.easing + (Math.random() * 0.02) - 0.01;
-                this.offsetAngle = (index / config.count) * Math.PI * 2;
-                this.orbitRadius = 20 + Math.random() * config.spread;
-                this.orbitSpeed = 0.001 + Math.random() * 0.002;
-                this.wobbleAmount = 5 + Math.random() * 10;
-                this.wobbleSpeed = 0.002 + Math.random() * 0.003;
-                this.phase = Math.random() * Math.PI * 2;
+            // Simplex Noise for organic movement
+            class SimplexNoise {
+                constructor() {
+                    this.p = new Uint8Array(256);
+                    for (let i = 0; i < 256; i++) this.p[i] = i;
+                    for (let i = 255; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [this.p[i], this.p[j]] = [this.p[j], this.p[i]];
+                    }
+                    this.perm = new Uint8Array(512);
+                    for (let i = 0; i < 512; i++) this.perm[i] = this.p[i & 255];
+                }
 
-                // Create DOM element
-                this.element = document.createElement('div');
-                this.element.className = 'alien';
-                this.element.style.width = this.size + 'px';
-                this.element.style.height = this.size + 'px';
-                this.element.style.background = config.colors[index % config.colors.length];
-                this.element.style.color = config.colors[index % config.colors.length];
-                this.element.style.boxShadow = `0 0 ${this.size}px ${config.colors[index % config.colors.length]}, 
-                                                 0 0 ${this.size * 2}px ${config.colors[index % config.colors.length]}`;
-                this.element.style.animation = `alienGlow ${2 + Math.random() * 2}s ease-in-out infinite`;
-                this.element.style.animationDelay = `${Math.random() * 2}s`;
+                noise2D(x, y) {
+                    const F2 = 0.5 * (Math.sqrt(3) - 1);
+                    const G2 = (3 - Math.sqrt(3)) / 6;
+                    const s = (x + y) * F2;
+                    const i = Math.floor(x + s);
+                    const j = Math.floor(y + s);
+                    const t = (i + j) * G2;
+                    const X0 = i - t, Y0 = j - t;
+                    const x0 = x - X0, y0 = y - Y0;
+                    const i1 = x0 > y0 ? 1 : 0;
+                    const j1 = x0 > y0 ? 0 : 1;
+                    const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
+                    const x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
 
-                container.appendChild(this.element);
-            }
+                    const ii = i & 255, jj = j & 255;
+                    const grad = (h, x, y) => {
+                        const g = [[1, 1], [-1, 1], [1, -1], [-1, -1], [1, 0], [-1, 0], [0, 1], [0, -1]];
+                        const v = g[h % 8];
+                        return v[0] * x + v[1] * y;
+                    };
 
-            update(mouseX, mouseY, time) {
-                // Calculate orbit position around target
-                const orbitX = Math.cos(this.offsetAngle + time * this.orbitSpeed) * this.orbitRadius;
-                const orbitY = Math.sin(this.offsetAngle + time * this.orbitSpeed) * this.orbitRadius;
+                    let n0 = 0, n1 = 0, n2 = 0;
+                    let t0 = 0.5 - x0 * x0 - y0 * y0;
+                    if (t0 >= 0) { t0 *= t0; n0 = t0 * t0 * grad(this.perm[ii + this.perm[jj]], x0, y0); }
+                    let t1 = 0.5 - x1 * x1 - y1 * y1;
+                    if (t1 >= 0) { t1 *= t1; n1 = t1 * t1 * grad(this.perm[ii + i1 + this.perm[jj + j1]], x1, y1); }
+                    let t2 = 0.5 - x2 * x2 - y2 * y2;
+                    if (t2 >= 0) { t2 *= t2; n2 = t2 * t2 * grad(this.perm[ii + 1 + this.perm[jj + 1]], x2, y2); }
 
-                // Add wobble
-                const wobbleX = Math.sin(time * this.wobbleSpeed + this.phase) * this.wobbleAmount;
-                const wobbleY = Math.cos(time * this.wobbleSpeed + this.phase + 1) * this.wobbleAmount;
-
-                // Set target position
-                this.targetX = mouseX + orbitX + wobbleX;
-                this.targetY = mouseY + orbitY + wobbleY;
-
-                // Smooth easing towards target
-                this.x += (this.targetX - this.x) * this.easing;
-                this.y += (this.targetY - this.y) * this.easing;
-
-                // Apply position
-                this.element.style.transform = `translate(${this.x - this.size / 2}px, ${this.y - this.size / 2}px)`;
-            }
-        }
-
-        class AlienSwarm {
-            constructor() {
-                this.container = document.getElementById('alienSwarm');
-                this.aliens = [];
-                this.mouseX = window.innerWidth / 2;
-                this.mouseY = window.innerHeight / 2;
-                this.isActive = true;
-
-                this.init();
-                this.bindEvents();
-                this.animate();
-            }
-
-            init() {
-                for (let i = 0; i < SWARM_CONFIG.count; i++) {
-                    this.aliens.push(new Alien(this.container, i, SWARM_CONFIG));
+                    return 70 * (n0 + n1 + n2);
                 }
             }
 
-            bindEvents() {
-                document.addEventListener('mousemove', (e) => {
-                    this.mouseX = e.clientX;
-                    this.mouseY = e.clientY;
-                });
+            const noise = new SimplexNoise();
 
-                document.addEventListener('mouseleave', () => {
-                    this.mouseX = window.innerWidth / 2;
-                    this.mouseY = window.innerHeight / 2;
-                });
+            // Configuration
+            const CONFIG = {
+                particleCount: 500,
+                shapes: ['triangle', 'diamond', 'hexagon', 'star', 'crystal'],
+                colors: [
+                    { h: 174, s: 100, l: 48 },  // Cyan
+                    { h: 277, s: 62, l: 46 },   // Purple
+                    { h: 330, s: 93, l: 56 },   // Pink
+                    { h: 168, s: 100, l: 70 },  // Light cyan
+                    { h: 283, s: 39, l: 53 },   // Soft purple
+                    { h: 165, s: 100, l: 39 },  // Teal
+                    { h: 200, s: 80, l: 60 },   // Sky blue
+                ],
+                minSize: 2,
+                maxSize: 8,
+                maxSpeed: 4,
+                attractionForce: 0.0008,
+                separationDistance: 25,
+                separationForce: 0.03,
+                alignmentForce: 0.02,
+                cohesionForce: 0.01,
+                noiseScale: 0.003,
+                noiseStrength: 0.5,
+                trailLength: 0.15,
+                spreadRadius: 400,
+                mouseInfluenceRadius: 350,
+            };
 
-                // Reduce activity when tab is not visible
-                document.addEventListener('visibilitychange', () => {
-                    this.isActive = !document.hidden;
-                });
+            // Canvas setup
+            const canvas = document.getElementById('swarmCanvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let mouseX = 0, mouseY = 0;
+            let targetMouseX = 0, targetMouseY = 0;
+            let isActive = true;
+            let time = 0;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                mouseX = targetMouseX = width / 2;
+                mouseY = targetMouseY = height / 2;
             }
+            resize();
+            window.addEventListener('resize', resize);
 
-            animate() {
-                if (this.isActive) {
-                    const time = performance.now();
-                    this.aliens.forEach(alien => {
-                        alien.update(this.mouseX, this.mouseY, time);
-                    });
+            // Particle class
+            class Particle {
+                constructor(index) {
+                    this.index = index;
+                    this.reset();
+
+                    // Spread particles initially across a wider area
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = Math.random() * CONFIG.spreadRadius;
+                    this.x = width / 2 + Math.cos(angle) * radius;
+                    this.y = height / 2 + Math.sin(angle) * radius;
+
+                    this.shape = CONFIG.shapes[Math.floor(Math.random() * CONFIG.shapes.length)];
+                    this.colorIndex = Math.floor(Math.random() * CONFIG.colors.length);
+                    this.size = CONFIG.minSize + Math.random() * (CONFIG.maxSize - CONFIG.minSize);
+                    this.rotation = Math.random() * Math.PI * 2;
+                    this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                    this.pulsePhase = Math.random() * Math.PI * 2;
+                    this.pulseSpeed = 0.02 + Math.random() * 0.03;
+                    this.noiseOffsetX = Math.random() * 1000;
+                    this.noiseOffsetY = Math.random() * 1000;
+                    this.trail = [];
+                    this.maxTrailLength = 5 + Math.floor(Math.random() * 8);
+                    this.glowIntensity = 0.5 + Math.random() * 0.5;
+
+                    // Locust-like erratic behavior
+                    this.erraticTimer = Math.random() * 100;
+                    this.erraticDirection = 0;
+                    this.burstCooldown = 0;
                 }
-                requestAnimationFrame(() => this.animate());
-            }
-        }
 
-        // Initialize the alien swarm
-        new AlienSwarm();
+                reset() {
+                    this.vx = (Math.random() - 0.5) * 2;
+                    this.vy = (Math.random() - 0.5) * 2;
+                }
+
+                update(particles, dt) {
+                    // Store trail position
+                    if (this.trail.length > this.maxTrailLength) {
+                        this.trail.shift();
+                    }
+                    this.trail.push({ x: this.x, y: this.y, size: this.size });
+
+                    // Noise-based organic movement (ethereal/cloudy)
+                    const noiseX = noise.noise2D(
+                        this.x * CONFIG.noiseScale + this.noiseOffsetX,
+                        time * 0.001
+                    );
+                    const noiseY = noise.noise2D(
+                        this.y * CONFIG.noiseScale + this.noiseOffsetY,
+                        time * 0.001 + 100
+                    );
+
+                    this.vx += noiseX * CONFIG.noiseStrength;
+                    this.vy += noiseY * CONFIG.noiseStrength;
+
+                    // Attraction to mouse (main swarm behavior)
+                    const dx = mouseX - this.x;
+                    const dy = mouseY - this.y;
+                    const distToMouse = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distToMouse < CONFIG.mouseInfluenceRadius) {
+                        const force = CONFIG.attractionForce * (1 - distToMouse / CONFIG.mouseInfluenceRadius);
+                        this.vx += dx * force * 3;
+                        this.vy += dy * force * 3;
+                    } else {
+                        // Gentle attraction even when far
+                        this.vx += dx * CONFIG.attractionForce * 0.5;
+                        this.vy += dy * CONFIG.attractionForce * 0.5;
+                    }
+
+                    // Locust-like erratic bursts
+                    this.erraticTimer += dt;
+                    if (this.burstCooldown > 0) {
+                        this.burstCooldown -= dt;
+                    }
+
+                    if (this.erraticTimer > 50 + Math.random() * 150 && this.burstCooldown <= 0) {
+                        this.erraticTimer = 0;
+                        this.burstCooldown = 30 + Math.random() * 50;
+                        this.erraticDirection = Math.random() * Math.PI * 2;
+                        const burstStrength = 1 + Math.random() * 2;
+                        this.vx += Math.cos(this.erraticDirection) * burstStrength;
+                        this.vy += Math.sin(this.erraticDirection) * burstStrength;
+                    }
+
+                    // Boid-like flocking behavior
+                    let separationX = 0, separationY = 0;
+                    let alignmentX = 0, alignmentY = 0;
+                    let cohesionX = 0, cohesionY = 0;
+                    let neighborCount = 0;
+
+                    // Sample nearby particles (not all for performance)
+                    const sampleSize = Math.min(30, particles.length);
+                    const startIndex = Math.floor(Math.random() * (particles.length - sampleSize));
+
+                    for (let i = startIndex; i < startIndex + sampleSize; i++) {
+                        const other = particles[i % particles.length];
+                        if (other === this) continue;
+
+                        const ox = other.x - this.x;
+                        const oy = other.y - this.y;
+                        const dist = Math.sqrt(ox * ox + oy * oy);
+
+                        if (dist < CONFIG.separationDistance && dist > 0) {
+                            // Separation: steer away from close neighbors
+                            separationX -= ox / dist;
+                            separationY -= oy / dist;
+                        }
+
+                        if (dist < 80) {
+                            // Alignment: match velocity of neighbors
+                            alignmentX += other.vx;
+                            alignmentY += other.vy;
+                            // Cohesion: move toward center of neighbors
+                            cohesionX += other.x;
+                            cohesionY += other.y;
+                            neighborCount++;
+                        }
+                    }
+
+                    if (neighborCount > 0) {
+                        alignmentX /= neighborCount;
+                        alignmentY /= neighborCount;
+                        cohesionX = cohesionX / neighborCount - this.x;
+                        cohesionY = cohesionY / neighborCount - this.y;
+                    }
+
+                    this.vx += separationX * CONFIG.separationForce;
+                    this.vy += separationY * CONFIG.separationForce;
+                    this.vx += alignmentX * CONFIG.alignmentForce;
+                    this.vy += alignmentY * CONFIG.alignmentForce;
+                    this.vx += cohesionX * CONFIG.cohesionForce;
+                    this.vy += cohesionY * CONFIG.cohesionForce;
+
+                    // Speed limit
+                    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    if (speed > CONFIG.maxSpeed) {
+                        this.vx = (this.vx / speed) * CONFIG.maxSpeed;
+                        this.vy = (this.vy / speed) * CONFIG.maxSpeed;
+                    }
+
+                    // Damping
+                    this.vx *= 0.98;
+                    this.vy *= 0.98;
+
+                    // Update position
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Wrap around screen with padding
+                    const padding = 50;
+                    if (this.x < -padding) this.x = width + padding;
+                    if (this.x > width + padding) this.x = -padding;
+                    if (this.y < -padding) this.y = height + padding;
+                    if (this.y > height + padding) this.y = -padding;
+
+                    // Update rotation and pulse
+                    this.rotation += this.rotationSpeed;
+                    this.pulsePhase += this.pulseSpeed;
+                }
+
+                draw(ctx) {
+                    const pulse = 1 + Math.sin(this.pulsePhase) * 0.2;
+                    const size = this.size * pulse;
+                    const color = CONFIG.colors[this.colorIndex];
+
+                    // Calculate opacity based on speed (faster = more visible)
+                    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    const baseOpacity = 0.4 + (speed / CONFIG.maxSpeed) * 0.4;
+
+                    // Draw trail (ethereal cloudy effect)
+                    for (let i = 0; i < this.trail.length; i++) {
+                        const t = this.trail[i];
+                        const trailOpacity = (i / this.trail.length) * baseOpacity * CONFIG.trailLength;
+                        const trailSize = t.size * (0.3 + (i / this.trail.length) * 0.7) * pulse * 0.8;
+
+                        ctx.save();
+                        ctx.translate(t.x, t.y);
+                        ctx.globalAlpha = trailOpacity;
+                        ctx.fillStyle = `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.3)`;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, trailSize * 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation);
+                    ctx.globalAlpha = baseOpacity;
+
+                    // Glow effect
+                    const glowSize = size * 3 * this.glowIntensity;
+                    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, glowSize);
+                    gradient.addColorStop(0, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.6)`);
+                    gradient.addColorStop(0.4, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.2)`);
+                    gradient.addColorStop(1, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0)`);
+
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, glowSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Draw geometric shape
+                    ctx.fillStyle = `hsla(${color.h}, ${color.s}%, ${color.l + 20}%, 0.9)`;
+                    ctx.strokeStyle = `hsla(${color.h}, ${color.s}%, ${color.l + 30}%, 1)`;
+                    ctx.lineWidth = 0.5;
+
+                    ctx.beginPath();
+                    this.drawShape(ctx, size);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Inner bright core
+                    ctx.fillStyle = `hsla(${color.h}, ${color.s - 20}%, ${Math.min(color.l + 40, 95)}%, 0.9)`;
+                    ctx.beginPath();
+                    this.drawShape(ctx, size * 0.4);
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+
+                drawShape(ctx, size) {
+                    switch (this.shape) {
+                        case 'triangle':
+                            for (let i = 0; i < 3; i++) {
+                                const angle = (i / 3) * Math.PI * 2 - Math.PI / 2;
+                                const x = Math.cos(angle) * size;
+                                const y = Math.sin(angle) * size;
+                                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                            }
+                            ctx.closePath();
+                            break;
+
+                        case 'diamond':
+                            ctx.moveTo(0, -size);
+                            ctx.lineTo(size * 0.6, 0);
+                            ctx.lineTo(0, size);
+                            ctx.lineTo(-size * 0.6, 0);
+                            ctx.closePath();
+                            break;
+
+                        case 'hexagon':
+                            for (let i = 0; i < 6; i++) {
+                                const angle = (i / 6) * Math.PI * 2;
+                                const x = Math.cos(angle) * size;
+                                const y = Math.sin(angle) * size;
+                                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                            }
+                            ctx.closePath();
+                            break;
+
+                        case 'star':
+                            for (let i = 0; i < 5; i++) {
+                                const outerAngle = (i / 5) * Math.PI * 2 - Math.PI / 2;
+                                const innerAngle = outerAngle + Math.PI / 5;
+                                const ox = Math.cos(outerAngle) * size;
+                                const oy = Math.sin(outerAngle) * size;
+                                const ix = Math.cos(innerAngle) * size * 0.4;
+                                const iy = Math.sin(innerAngle) * size * 0.4;
+                                if (i === 0) ctx.moveTo(ox, oy);
+                                else ctx.lineTo(ox, oy);
+                                ctx.lineTo(ix, iy);
+                            }
+                            ctx.closePath();
+                            break;
+
+                        case 'crystal':
+                            ctx.moveTo(0, -size);
+                            ctx.lineTo(size * 0.4, -size * 0.3);
+                            ctx.lineTo(size * 0.5, size * 0.5);
+                            ctx.lineTo(0, size);
+                            ctx.lineTo(-size * 0.5, size * 0.5);
+                            ctx.lineTo(-size * 0.4, -size * 0.3);
+                            ctx.closePath();
+                            break;
+                    }
+                }
+            }
+
+            // Create particles
+            const particles = [];
+            for (let i = 0; i < CONFIG.particleCount; i++) {
+                particles.push(new Particle(i));
+            }
+
+            // Mouse tracking with smooth interpolation
+            document.addEventListener('mousemove', (e) => {
+                targetMouseX = e.clientX;
+                targetMouseY = e.clientY;
+            });
+
+            document.addEventListener('mouseleave', () => {
+                targetMouseX = width / 2;
+                targetMouseY = height / 2;
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                isActive = !document.hidden;
+            });
+
+            // Animation loop
+            let lastTime = performance.now();
+
+            function animate() {
+                const now = performance.now();
+                const dt = Math.min(now - lastTime, 50); // Cap delta time
+                lastTime = now;
+                time = now;
+
+                if (isActive) {
+                    // Smooth mouse interpolation for ethereal movement
+                    mouseX += (targetMouseX - mouseX) * 0.08;
+                    mouseY += (targetMouseY - mouseY) * 0.08;
+
+                    // Clear with fade for motion blur effect
+                    ctx.fillStyle = 'rgba(5, 5, 8, 0.15)';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Update and draw particles
+                    for (const particle of particles) {
+                        particle.update(particles, dt);
+                    }
+
+                    // Sort by size for depth effect (smaller = further away)
+                    particles.sort((a, b) => a.size - b.size);
+
+                    for (const particle of particles) {
+                        particle.draw(ctx);
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        })();
     </script>
 </body>
 
