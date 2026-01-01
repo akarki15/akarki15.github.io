@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aashish's Vibe Portal</title>
+    <meta name="description" content="A portal to all my vibecoded projects.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Background Image -->
+    <div class="fixed-background"></div>
+    
+    <div class="content-wrapper">
+        <header>
+            <h1 class="fade-in-down">Aashish's Vibe Portal</h1>
+            <p class="subtitle fade-in-up delay-1">Exploring the digital frontier, one vibe at a time.</p>
+        </header>
+
+        <section class="projects-grid">
+            <!-- RPG Project -->
+            <a href="rpg-vibe-2025/index.html" class="card tilt-card fade-in-up delay-2">
+                <div class="card-glow"></div>
+                <div class="card-content">
+                    <div class="icon">⚔️</div>
+                    <h2>RPG Adventure</h2>
+                    <p>Dive into an immersive web-based RPG experience. Explore, fight, and survive.</p>
+                    <div class="status-badge new">Latest Build</div>
+                </div>
+            </a>
+
+            <!-- Legacy Link -->
+            <a href="old.html" class="card tilt-card fade-in-up delay-3">
+                <div class="card-glow"></div>
+                <div class="card-content">
+                    <div class="icon">🏛️</div>
+                    <h2>Legacy Portfolio</h2>
+                    <p>Access the previous version of my personal site and research projects.</p>
+                    <div class="status-badge">Archive</div>
+                </div>
+            </a>
+            
+            <!-- Placeholder for Rhythm Game if found later -->
+            <!-- 
+            <a href="#" class="card tilt-card fade-in-up delay-4 locked">
+                <div class="card-content">
+                    <div class="icon">🎵</div>
+                    <h2>Rhythm Master</h2>
+                    <p>Coming soon...</p>
+                </div>
+            </a> 
+            -->
+        </section>
+
+        <footer class="fade-in delay-5">
+            <p>&copy; 2026 Aashish Karki. <span class="highlight">Vibecoded</span> with passion.</p>
+        </footer>
+    </div>
+    
+    <!-- Optional: Simple script for 3D tilt effect if desired, or just CSS hover -->
+    <script>
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            });
+        });
+    </script>
+</body>
+</html>

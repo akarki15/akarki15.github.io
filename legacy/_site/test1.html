@@ -1,0 +1,50 @@
+<html> 
+<head> 
+<script type="text/javascript"> 
+var xmlhttp = false; 
+getHTTPRequestObject(); 
+function getHTTPRequestObject() 
+{ 
+try 
+{ 
+xmlhttp = new ActiveXObject("Msxml2.XMLHTTP"); 
+} 
+catch(e) 
+{ 
+try 
+{ 
+xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); 
+} 
+catch(E) 
+{ 
+xmlhttp = false; 
+} 
+} 
+if(!xmlhttp && typeof XMLHttpRequest!= 'undefined') 
+{ 
+xmlhttp = new XMLHttpRequest(); 
+} 
+} 
+function callback() 
+{ 
+if(xmlhttp.readyState == 4 && xmlhttp.status == 200) 
+{ 
+var s = xmlhttp.responseText; 
+var obj = document.getElementById("raw"); 
+obj.value = s; 
+//document.write(s); 
+} 
+} 
+</script> 
+</head> 
+<body> 
+<h1>raw data from tibia.com</h1> 
+<textarea id="raw" cols="80" rows="20"></textarea> 
+<script type="text/javascript"> 
+var url = "http://www.tibia.com/community/" + "?subtopic=highscores&world=Antica"; 
+xmlhttp.open("GET", url, false); 
+xmlhttp.onreadystatechange = callback; 
+xmlhttp.send(null); 
+</script> 
+</body> 
+</html>

@@ -1,0 +1,48 @@
+.side-bar-icon{
+	color:#428bca;
+}
+
+.hi{
+  font-size:50px;
+  text-align: center;
+}
+
+.masthead{
+	margin-top: 80px;
+	padding:80px 0;
+	text-align: center;
+	font-family: arial;	
+	background-color: #3498db;
+}
+
+.projects-section{
+	text-align: left;	
+}
+
+.free-text-blocks{
+	text-align: center;
+	padding-top: 50px;
+	padding-bottom: 10px;
+	font-family: arial;		
+	font-size: 15px;
+}
+.bright-color{
+	color:#ddd;
+}
+.masthead-text{
+	color:#ddd;	
+	font-size: 17px;
+	padding: 0px 20%;
+}
+
+.body-slides{
+	margin: 0 auto;
+	width: 500px;	
+	
+}
+
+.descriptive-text{
+	font-size: 12px;
+	padding: 0px 20%;
+}
+

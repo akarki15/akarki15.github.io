@@ -1,0 +1,42 @@
+name: Tesla Inventory Check
+
+on:
+  # schedule:
+  #   # Run every 5 minutes (GitHub Actions minimum is ~5m)
+  #   - cron: '*/5 * * * *'
+  workflow_dispatch: # Allow manual run
+
+jobs:
+  check-inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: tesla-monitor/package.json
+
+      - name: Cache Puppeteer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: ${{ runner.os }}-puppeteer-${{ hashFiles('tesla-monitor/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-puppeteer-
+
+      - name: Install Dependencies
+        working-directory: ./tesla-monitor
+        run: npm install
+
+      - name: Run Inventory Check
+        working-directory: ./tesla-monitor
+        run: node index.js
+        env:
+          SEND_STATUS_SMS: ${{ secrets.SEND_STATUS_SMS }}
+          TESLA_SEARCH_URL: ${{ secrets.TESLA_SEARCH_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SCRAPING_API_KEY: ${{ secrets.SCRAPING_API_KEY }}
